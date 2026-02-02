@@ -16,8 +16,8 @@ Already a pro? Just edit this README.md and make it your own. Want to make it ea
 ```
 cd existing_repo
 git remote add origin https://gitlab.frauscher.app/inv/pd/validation-tools/configuration-validation-service.git
-git branch -M main
-git push -uf origin main
+git branch -M develop
+git push -uf origin develop
 ```
 
 ## Integrate with your tools
