@@ -1,0 +1,11 @@
+[
+  {
+    "RuleType": "RangeCheck",
+    "ConfigBlockName": "ID",
+    "ConfigEntryKey": "ID",
+    "UIInputRequired": "No",
+    "min": 1,
+    "max": 4095,
+    "SkipComFile": false
+  }
+]
