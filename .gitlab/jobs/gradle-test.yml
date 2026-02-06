@@ -1,0 +1,14 @@
+
+
+gradle_test: # Job 1: Runs Unit Tests
+  image: eclipse-temurin:21-jdk-noble
+  needs: [ ]
+  script:
+#    - !reference [ .curl_frauscher_java_certs, script ]
+    - ./gradlew test
+  artifacts:
+    name: "unit-test-results"
+    paths:
+      - build/reports/tests/test/
+    when: always
+    expire_in: 1 week

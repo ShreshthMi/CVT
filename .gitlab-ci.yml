@@ -1,0 +1,8 @@
+variables:
+  DEPENDENCY_TRACK_PROJECT_NAME: Config Validation Backend
+  JDK_IMAGE: "registry.gitlab.frauscher.app:5005/it-services/docker/java:21-jdk"
+
+include:
+  - local: .gitlab/jobs/gradle-test.yml
+
+
