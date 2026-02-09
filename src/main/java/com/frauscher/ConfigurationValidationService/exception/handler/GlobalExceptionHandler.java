@@ -2,6 +2,7 @@ package com.frauscher.ConfigurationValidationService.exception.handler;
 
 import java.time.Instant;
 
+import com.frauscher.ConfigurationValidationService.exception.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -9,9 +10,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 import com.frauscher.ConfigurationValidationService.dto.ApiErrorResponse;
-import com.frauscher.ConfigurationValidationService.exception.ConfigValidationException;
-import com.frauscher.ConfigurationValidationService.exception.RuleConfigurationException;
-import com.frauscher.ConfigurationValidationService.exception.ValidationEngineException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -22,6 +20,13 @@ public class GlobalExceptionHandler {
     // -----------------------------
     // Client / input errors
     // -----------------------------
+
+    @ExceptionHandler(InvalidUserValidationInputException.class)
+    public ResponseEntity<ApiErrorResponse> handleInvalidInput(
+            InvalidUserValidationInputException ex) {
+
+        return ResponseEntity.badRequest().body(error(ex));
+    }
 
 
 
@@ -53,6 +58,21 @@ public class GlobalExceptionHandler {
         log.error("Rule configuration error", ex);
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(error(ex));
+    }
+
+
+    // -----------------------------
+    // File / report errors
+    // -----------------------------
+
+    @ExceptionHandler(FileParsingException.class)
+    public ResponseEntity<ApiErrorResponse> handleFileParsing(
+            FileParsingException ex) {
+
+        log.error("File parsing failed", ex);
+
+        return ResponseEntity.badRequest()
                 .body(error(ex));
     }
 
