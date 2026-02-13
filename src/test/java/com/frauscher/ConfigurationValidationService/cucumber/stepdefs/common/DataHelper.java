@@ -2,6 +2,9 @@ package com.frauscher.ConfigurationValidationService.cucumber.stepdefs.common;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.frauscher.ConfigurationValidationService.model.ConfigBlock;
+import com.frauscher.ConfigurationValidationService.model.ConfigEntry;
+import com.frauscher.ConfigurationValidationService.model.ParsedConfigFile;
 import com.frauscher.ConfigurationValidationService.model.RuleConfig;
 import com.frauscher.ConfigurationValidationService.validation.RuleOrigin;
 
@@ -90,5 +93,59 @@ public class DataHelper {
 
     public static void setFieldValue(Object obj, String fieldName, Object value) {
         setField(obj, fieldName, value);
+    }
+
+    /**
+     * Parse JSON content into a ParsedConfigFile object for BDD testing
+     */
+    public static ParsedConfigFile parseParsedConfigFile(String jsonContent) throws Exception {
+        return objectMapper.readValue(jsonContent, ParsedConfigFile.class);
+    }
+
+    /**
+     * Create a ConfigBlock for test scenarios
+     */
+    public static ConfigBlock createConfigBlock(String name, int blockIndex, List<ConfigEntry> entries) {
+        ConfigBlock block = new ConfigBlock();
+        block.setName(name);
+        block.setBlockIndex(blockIndex);
+        block.setEntries(entries);
+        return block;
+    }
+
+    /**
+     * Create a ConfigEntry for test scenarios
+     */
+    public static ConfigEntry createConfigEntry(String key, String value, String comment) {
+        ConfigEntry entry = new ConfigEntry();
+        entry.setKey(key);
+        entry.setValue(value);
+        entry.setComment(comment);
+        return entry;
+    }
+
+    /**
+     * Create a simple ParsedConfigFile for test scenarios
+     */
+    public static ParsedConfigFile createParsedConfigFile(String fileName, int id) {
+        ParsedConfigFile file = new ParsedConfigFile();
+        file.setFileName(fileName);
+        file.setId(id);
+        file.setBlocks(new ArrayList<>());
+        return file;
+    }
+
+    /**
+     * Create a ParsedConfigFile with file type markers
+     */
+    public static ParsedConfigFile createParsedConfigFile(String fileName, int id,
+                                                          boolean trackSectionDetails,
+                                                          boolean ioexbDetails,
+                                                          boolean comDetails) {
+        ParsedConfigFile file = createParsedConfigFile(fileName, id);
+        file.setTrackSectionDetails(trackSectionDetails);
+        file.setIoexbDetails(ioexbDetails);
+        file.setComDetails(comDetails);
+        return file;
     }
 }
