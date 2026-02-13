@@ -1,3 +1,4 @@
+@engine
 Feature: Rule Execution Engine
   The RuleExecutionEngine orchestrates the execution of validation rules,
   manages rule filtering based on file eligibility, and coordinates with the ValidationDecisionEngine.

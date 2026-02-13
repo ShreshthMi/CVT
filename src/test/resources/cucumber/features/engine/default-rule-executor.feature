@@ -1,3 +1,4 @@
+@engine
 Feature: Default Rule Executor
   The DefaultRuleExecutor applies default InputMatch validation when no configured rules exist
   for a specific block/entry combination and payload is present.

@@ -1,3 +1,4 @@
+@engine
 Feature: File Eligibility for Rule Application
   The file eligibility mechanism determines whether a rule should be applied to a specific file
   based on the ValidateOnlyInFilesWith setting and file type markers.

@@ -1,3 +1,4 @@
+@engine
 Feature: Validation Decision Engine
   The ValidationDecisionEngine determines whether to APPLY_RULE, APPLY_DEFAULT, or IGNORE validation
   based on rule configuration, payload presence, file type, and COM file settings.

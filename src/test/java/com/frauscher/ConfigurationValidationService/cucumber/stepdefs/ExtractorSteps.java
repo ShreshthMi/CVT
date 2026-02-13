@@ -133,7 +133,7 @@ public class ExtractorSteps {
 
     // ==================== THEN STEPS - Track Section ====================
 
-    @Then("the extraction should return {int} track section(s)")
+    @Then("the extraction should return {int} track section\\(s)")
     public void theExtractionShouldReturnTrackSections(int count) {
         List<TrackSectionDetail> results = TestContext.get().getTrackSectionDetails();
         assertThat(results).hasSize(count);
@@ -177,7 +177,7 @@ public class ExtractorSteps {
 
     // ==================== THEN STEPS - Supervisor ====================
 
-    @Then("the extraction should return {int} supervisor(s)")
+    @Then("the extraction should return {int} supervisor\\(s)")
     public void theExtractionShouldReturnSupervisors(int count) {
         List<SupervisorDetail> results = TestContext.get().getSupervisorDetails();
         assertThat(results).hasSize(count);
@@ -221,7 +221,7 @@ public class ExtractorSteps {
 
     // ==================== THEN STEPS - IOEXB ACO ====================
 
-    @Then("the extraction should return {int} IOEXB ACO detail(s)")
+    @Then("the extraction should return {int} IOEXB ACO detail\\(s)")
     public void theExtractionShouldReturnIOEXBACODetails(int count) {
         List<IOEXBAcoDetail> results = TestContext.get().getIoexbAcoDetails();
         assertThat(results).hasSize(count);
@@ -241,31 +241,31 @@ public class ExtractorSteps {
 
     // ==================== THEN STEPS - Generic ====================
 
-    @Then("the extraction should return {int} IOEXB behaviour detail(s)")
+    @Then("the extraction should return {int} IOEXB behaviour detail\\(s)")
     public void theExtractionShouldReturnIOEXBBehaviourDetails(int count) {
         List<IOEXBBehaviourDetail> results = TestContext.get().getIoexbBehaviourDetails();
         assertThat(results).hasSize(count);
     }
 
-    @Then("the extraction should return {int} CHC detail(s)")
+    @Then("the extraction should return {int} CHC detail\\(s)")
     public void theExtractionShouldReturnCHCDetails(int count) {
         List<CHCDetail> results = TestContext.get().getChcDetails();
         assertThat(results).hasSize(count);
     }
 
-    @Then("the extraction should return {int} DP detail(s)")
+    @Then("the extraction should return {int} DP detail\\(s)")
     public void theExtractionShouldReturnDPDetails(int count) {
         List<DpDetail> results = TestContext.get().getDpDetails();
         assertThat(results).hasSize(count);
     }
 
-    @Then("the extraction should return {int} data transmission detail(s)")
+    @Then("the extraction should return {int} data transmission detail\\(s)")
     public void theExtractionShouldReturnDataTransmissionDetails(int count) {
         List<DataTransmissionDetail> results = TestContext.get().getDataTransmissionDetails();
         assertThat(results).hasSize(count);
     }
 
-    @Then("the extraction should return {int} ethernet detail(s)")
+    @Then("the extraction should return {int} ethernet detail\\(s)")
     public void theExtractionShouldReturnEthernetDetails(int count) {
         List<EthernetDetail> results = TestContext.get().getEthernetDetails();
         assertThat(results).hasSize(count);
