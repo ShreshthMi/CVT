@@ -1,4 +1,4 @@
-package com.frauscher.configvalidator.service;
+package com.frauscher.ConfigurationValidationService.service;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -9,19 +9,19 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import com.frauscher.configvalidator.dto.RuleExecutionResult;
-import com.frauscher.configvalidator.exception.ValidationEngineException;
-import com.frauscher.configvalidator.model.ParsedConfigFile;
-import com.frauscher.configvalidator.model.RuleConfig;
-import com.frauscher.configvalidator.model.ValidationResult;
-import com.frauscher.configvalidator.startup.ValidationConfigurationLoader;
-import com.frauscher.configvalidator.validation.context.DuplicateValueRegistry;
-import com.frauscher.configvalidator.validation.context.FileContext;
-import com.frauscher.configvalidator.validation.context.ResolvedPayloadContext;
-import com.frauscher.configvalidator.validation.context.ValidationKey;
-import com.frauscher.configvalidator.validation.engine.DefaultRuleExecutor;
-import com.frauscher.configvalidator.validation.engine.RuleExecutionEngine;
-import com.frauscher.configvalidator.validation.payload.PayloadValidator;
+import com.frauscher.ConfigurationValidationService.dto.RuleExecutionResult;
+import com.frauscher.ConfigurationValidationService.exception.ValidationEngineException;
+import com.frauscher.ConfigurationValidationService.model.ParsedConfigFile;
+import com.frauscher.ConfigurationValidationService.model.RuleConfig;
+import com.frauscher.ConfigurationValidationService.model.ValidationResult;
+import com.frauscher.ConfigurationValidationService.startup.ValidationConfigurationLoader;
+import com.frauscher.ConfigurationValidationService.validation.context.DuplicateValueRegistry;
+import com.frauscher.ConfigurationValidationService.validation.context.FileContext;
+import com.frauscher.ConfigurationValidationService.validation.context.ResolvedPayloadContext;
+import com.frauscher.ConfigurationValidationService.validation.context.ValidationKey;
+import com.frauscher.ConfigurationValidationService.validation.engine.DefaultRuleExecutor;
+import com.frauscher.ConfigurationValidationService.validation.engine.RuleExecutionEngine;
+import com.frauscher.ConfigurationValidationService.validation.payload.PayloadValidator;
 
 import lombok.extern.slf4j.Slf4j;
 
