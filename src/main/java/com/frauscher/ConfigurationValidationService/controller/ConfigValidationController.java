@@ -1,4 +1,4 @@
-package com.frauscher.configvalidator.controller;
+package com.frauscher.ConfigurationValidationService.controller;
 
 import java.util.List;
 
@@ -8,14 +8,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.frauscher.configvalidator.dto.UserValidationInputCriteria;
-import com.frauscher.configvalidator.dto.ValidationRequestWrapper;
-import com.frauscher.configvalidator.exception.InvalidUserValidationInputException;
-import com.frauscher.configvalidator.model.ParsedConfigFile;
-import com.frauscher.configvalidator.model.ValidationResult;
-import com.frauscher.configvalidator.model.ValidationSummary;
-import com.frauscher.configvalidator.service.ConfigValidationService;
-import com.frauscher.configvalidator.service.SummaryService;
+import com.frauscher.ConfigurationValidationService.dto.UserValidationInputCriteria;
+import com.frauscher.ConfigurationValidationService.dto.ValidationRequestWrapper;
+import com.frauscher.ConfigurationValidationService.exception.InvalidUserValidationInputException;
+import com.frauscher.ConfigurationValidationService.model.ParsedConfigFile;
+import com.frauscher.ConfigurationValidationService.model.ValidationResult;
+import com.frauscher.ConfigurationValidationService.model.ValidationSummary;
+import com.frauscher.ConfigurationValidationService.service.ConfigValidationService;
+import com.frauscher.ConfigurationValidationService.service.SummaryService;
 
 import lombok.RequiredArgsConstructor;
 

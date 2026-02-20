@@ -1,29 +1,29 @@
-package com.frauscher.configvalidator.service;
+package com.frauscher.ConfigurationValidationService.service;
 
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.frauscher.configvalidator.model.CHCDetail;
-import com.frauscher.configvalidator.model.DataTransmissionDetail;
-import com.frauscher.configvalidator.model.DpDetail;
-import com.frauscher.configvalidator.model.EthernetDetail;
-import com.frauscher.configvalidator.model.IOEXBBehaviourDetail;
-import com.frauscher.configvalidator.model.IOEXBAcoDetail;
-import com.frauscher.configvalidator.model.ParsedConfigFile;
-import com.frauscher.configvalidator.model.SupervisorDetail;
-import com.frauscher.configvalidator.model.TrackSectionDetail;
-import com.frauscher.configvalidator.model.ValidationResult;
-import com.frauscher.configvalidator.model.ValidationSummary;
-import com.frauscher.configvalidator.service.extractors.CHCExtractorService;
-import com.frauscher.configvalidator.service.extractors.DataTransmissionExtractorService;
-import com.frauscher.configvalidator.service.extractors.DpDetailExtractorService;
-import com.frauscher.configvalidator.service.extractors.EthernetDetailExtractorService;
-import com.frauscher.configvalidator.service.extractors.IOEXBAcoExtractorService;
-import com.frauscher.configvalidator.service.extractors.IOEXBBehaviourExtractorService;
-import com.frauscher.configvalidator.service.extractors.SupervisorExtractorService;
-import com.frauscher.configvalidator.service.extractors.TrackSectionExtractorService;
+import com.frauscher.ConfigurationValidationService.model.CHCDetail;
+import com.frauscher.ConfigurationValidationService.model.DataTransmissionDetail;
+import com.frauscher.ConfigurationValidationService.model.DpDetail;
+import com.frauscher.ConfigurationValidationService.model.EthernetDetail;
+import com.frauscher.ConfigurationValidationService.model.IOEXBBehaviourDetail;
+import com.frauscher.ConfigurationValidationService.model.IOEXBAcoDetail;
+import com.frauscher.ConfigurationValidationService.model.ParsedConfigFile;
+import com.frauscher.ConfigurationValidationService.model.SupervisorDetail;
+import com.frauscher.ConfigurationValidationService.model.TrackSectionDetail;
+import com.frauscher.ConfigurationValidationService.model.ValidationResult;
+import com.frauscher.ConfigurationValidationService.model.ValidationSummary;
+import com.frauscher.ConfigurationValidationService.service.extractors.CHCExtractorService;
+import com.frauscher.ConfigurationValidationService.service.extractors.DataTransmissionExtractorService;
+import com.frauscher.ConfigurationValidationService.service.extractors.DpDetailExtractorService;
+import com.frauscher.ConfigurationValidationService.service.extractors.EthernetDetailExtractorService;
+import com.frauscher.ConfigurationValidationService.service.extractors.IOEXBAcoExtractorService;
+import com.frauscher.ConfigurationValidationService.service.extractors.IOEXBBehaviourExtractorService;
+import com.frauscher.ConfigurationValidationService.service.extractors.SupervisorExtractorService;
+import com.frauscher.ConfigurationValidationService.service.extractors.TrackSectionExtractorService;
 
 import lombok.RequiredArgsConstructor;
 
