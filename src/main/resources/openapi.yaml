@@ -1,0 +1,675 @@
+openapi: 3.0.3
+info:
+  title: Config Validation Service API
+  description: API for validating railway signaling configuration files (.cfg format)
+  version: 1.0.0
+  contact:
+    name: Config Validation Engine Team
+servers:
+  - url: http://localhost:8080
+    description: Development server
+tags:
+  - name: Configuration Validation
+    description: Endpoints for validating configuration files
+  - name: File Upload
+    description: Endpoints for uploading and processing configuration files
+  - name: File Translation
+    description: Endpoints for translating configuration files
+  - name: Reports
+    description: Endpoints for generating and downloading reports
+
+paths:
+  /api/config/validate:
+    post:
+      tags:
+        - Configuration Validation
+      summary: Validate configuration files
+      description: |
+        Validates parsed configuration files against user-defined validation criteria.
+        The validation engine applies various rules (RangeCheck, DuplicateCheck, InputMatch, etc.)
+        based on the configuration file markers (IOEXBDETAILS, TRACKSECTIONDETAILS, COMDETAILS).
+      operationId: validateConfigFiles
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ValidationRequestWrapper'
+            examples:
+              successful_validation:
+                summary: Example with valid configuration files
+                value:
+                  parsedConfigFiles:
+                    - fileName: "config1.cfg"
+                      blocks:
+                        - name: "ID"
+                          entries:
+                            - key: "ID"
+                              value: "1234"
+                      trackSectionDetails: true
+                      ioexbDetails: false
+                      comDetails: false
+                      id: 1
+                  userInput:
+                    sections:
+                      - blockName: "ID"
+                        entryKey: "ID"
+                        expectedValues: ["1234"]
+      responses:
+        '200':
+          description: Validation completed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationSummary'
+              examples:
+                validation_complete:
+                  summary: Validation results with multiple file types
+                  value:
+                    validation_results:
+                      - fileName: "config1.cfg"
+                        ruleType: "RangeCheck"
+                        blockName: "ID"
+                        entryKey: "ID"
+                        expectedValue: "1-4096"
+                        actualValue: "1234"
+                        status: "PASS"
+                    dp_details: []
+                    track_section_details: []
+                    chc_details: []
+                    supervisor_details: []
+                    ioexb_behaviour_details: []
+                    ioexb_aco_details: []
+                    data_transmission_details: []
+                    ethernet_details: []
+        '400':
+          description: Bad Request - Invalid input parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                missing_files:
+                  summary: No configuration files provided
+                  value:
+                    timestamp: "2026-01-19T14:21:00Z"
+                    status: 400
+                    error: "Bad Request"
+                    message: "At least one config file is required"
+                missing_payload:
+                  summary: No validation criteria provided
+                  value:
+                    timestamp: "2026-01-19T14:21:00Z"
+                    status: 400
+                    error: "Bad Request"
+                    message: "Payload criteria is required"
+                empty_sections:
+                  summary: Empty validation sections
+                  value:
+                    timestamp: "2026-01-19T14:21:00Z"
+                    status: 400
+                    error: "Bad Request"
+                    message: "Payload sections must not be empty"
+
+  /api/upload/adcfiles:
+    post:
+      tags:
+        - File Upload
+      summary: Upload and parse ADC configuration files
+      description: |
+        Uploads .cfg configuration files and parses them into structured format.
+        Files are automatically classified based on their content (trackSectionDetails, 
+        ioexbDetails, comDetails) and an ID is extracted if present.
+      operationId: uploadAdcFiles
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - files
+              properties:
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                  description: ADC configuration files (.cfg format)
+            encoding:
+              files:
+                contentType: application/octet-stream
+      responses:
+        '200':
+          description: Files parsed successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ParsedConfigFile'
+              examples:
+                successful_parse:
+                  summary: Multiple files parsed with different markers
+                  value:
+                    - fileName: "track_section_config.cfg"
+                      blocks:
+                        - name: "CFG_ZP_FMA1"
+                          entries:
+                            - key: "SPEED_LIMIT"
+                              value: "100"
+                      trackSectionDetails: true
+                      ioexbDetails: false
+                      comDetails: false
+                      id: 1
+                    - fileName: "ioexb_config.cfg"
+                      blocks:
+                        - name: "CFG_AXCNT"
+                          entries:
+                            - key: "AXIS_COUNT"
+                              value: "4"
+                      trackSectionDetails: false
+                      ioexbDetails: true
+                      comDetails: false
+                      id: 2
+        '400':
+          description: Bad Request - No files provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                timestamp: "2026-01-19T14:21:00Z"
+                status: 400
+                error: "Bad Request"
+                message: "At least one config file is required"
+
+  /api/upload/translate:
+    post:
+      tags:
+        - File Translation
+      summary: Translate XML configuration file to JSON
+      description: |
+        Translates XML configuration files to JSON format.
+        The transformation validates XML format, ensures configuration blocks are present,
+        removes known prefixes (AEB_, COM_) from block names, preserves nested 
+        structure and element order, and converts all values to strings for consistency.
+      operationId: translateXmlFile
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: XML configuration file
+            encoding:
+              file:
+                contentType: application/xml
+      responses:
+        '200':
+          description: XML translated successfully to JSON
+          content:
+            application/json:
+              schema:
+                type: string
+                description: JSON representation of the XML configuration
+              example: |
+                {
+                  "blocks": [
+                    {
+                      "name": "CFG_ZP_FMA1",
+                      "entries": [
+                        {"key": "SPEED_LIMIT", "value": "100"}
+                      ]
+                    }
+                  ]
+                }
+        '400':
+          description: Bad Request - Invalid XML file
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                no_file:
+                  summary: No file provided
+                  value:
+                    timestamp: "2026-01-19T14:21:00Z"
+                    status: 400
+                    error: "Bad Request"
+                    message: "XML file is required"
+                wrong_extension:
+                  summary: Invalid file extension
+                  value:
+                    timestamp: "2026-01-19T14:21:00Z"
+                    status: 400
+                    error: "Bad Request"
+                    message: "File must be an XML file with .xml extension"
+                invalid_format:
+                  summary: Invalid XML content
+                  value:
+                    timestamp: "2026-01-19T14:21:00Z"
+                    status: 400
+                    error: "Bad Request"
+                    message: "Invalid XML format: No configuration blocks found in the XML content"
+
+  /api/report/download:
+    post:
+      tags:
+        - Reports
+      summary: Download validation summary as Excel report
+      description: |
+        Generates an Excel report containing the complete validation summary.
+        The report includes validation results and all extracted configuration details
+        (DP, Track Section, CHC, Supervisor, IOEXB Behaviour, IOEXB ACO, 
+        Data Transmission, and Ethernet details).
+      operationId: downloadValidationReport
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ValidationSummary'
+      responses:
+        '200':
+          description: Excel report generated successfully
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+          headers:
+            Content-Disposition:
+              description: File download information
+              schema:
+                type: string
+                example: "attachment; filename=\"validation-summary.xlsx\""
+        '400':
+          description: Bad Request - Invalid validation summary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                missing_summary:
+                  summary: No validation summary provided
+                  value:
+                    timestamp: "2026-01-19T14:21:00Z"
+                    status: 400
+                    error: "Bad Request"
+                    message: "ValidationSummary is required"
+                empty_results:
+                  summary: Validation summary has no results
+                  value:
+                    timestamp: "2026-01-19T14:21:00Z"
+                    status: 400
+                    error: "Bad Request"
+                    message: "ValidationSummary must contain validation results"
+
+components:
+  schemas:
+    ValidationRequestWrapper:
+      type: object
+      required:
+        - parsedConfigFiles
+        - userInput
+      properties:
+        parsedConfigFiles:
+          type: array
+          minItems: 1
+          description: List of parsed configuration files to validate
+          items:
+            $ref: '#/components/schemas/ParsedConfigFile'
+        userInput:
+          $ref: '#/components/schemas/UserValidationInputCriteria'
+      example:
+        parsedConfigFiles:
+          - fileName: "config.cfg"
+            blocks:
+              - name: "ID"
+                entries:
+                  - key: "ID"
+                    value: "100"
+            trackSectionDetails: false
+            ioexbDetails: false
+            comDetails: false
+            id: 1
+        userInput:
+          sections:
+            - blockName: "ID"
+              entryKey: "ID"
+              expectedValues: ["100"]
+
+    ParsedConfigFile:
+      type: object
+      required:
+        - fileName
+        - blocks
+        - trackSectionDetails
+        - ioexbDetails
+        - comDetails
+        - id
+      properties:
+        fileName:
+          type: string
+          description: Original filename of the configuration file
+          example: "railway_config.cfg"
+        blocks:
+          type: array
+          description: List of configuration blocks parsed from the file
+          items:
+            $ref: '#/components/schemas/ConfigBlock'
+        trackSectionDetails:
+          type: boolean
+          description: Indicates if file contains track section configuration blocks
+          example: true
+        ioexbDetails:
+          type: boolean
+          description: Indicates if file contains IOEXB configuration blocks
+          example: false
+        comDetails:
+          type: boolean
+          description: Indicates if file contains communication configuration blocks
+          example: false
+        id:
+          type: integer
+          description: Extracted file ID from configuration
+          example: 1
+
+    ConfigBlock:
+      type: object
+      required:
+        - name
+        - entries
+      properties:
+        name:
+          type: string
+          description: Name of the configuration block
+          example: "CFG_ZP_FMA1"
+        sequenceNumber:
+          type: integer
+          description: Sequential order of the block in the file
+          example: 1
+        entries:
+          type: array
+          description: List of key-value entries within the block
+          items:
+            $ref: '#/components/schemas/ConfigEntry'
+
+    ConfigEntry:
+      type: object
+      required:
+        - key
+        - value
+      properties:
+        key:
+          type: string
+          description: Configuration entry key
+          example: "SPEED_LIMIT"
+        value:
+          type: string
+          description: Configuration entry value
+          example: "100"
+
+    UserValidationInputCriteria:
+      type: object
+      required:
+        - sections
+      properties:
+        sections:
+          type: array
+          minItems: 1
+          description: Validation criteria sections
+          items:
+            type: object
+            required:
+              - blockName
+              - entryKey
+              - expectedValues
+            properties:
+              blockName:
+                type: string
+                description: Name of the configuration block to validate
+                example: "ID"
+              entryKey:
+                type: string
+                description: Key within the block to validate
+                example: "ID"
+              expectedValues:
+                type: array
+                description: Expected values for validation
+                items:
+                  type: string
+                example: ["100", "200", "300"]
+
+    ValidationSummary:
+      type: object
+      properties:
+        validation_results:
+          type: array
+          description: List of validation results
+          items:
+            $ref: '#/components/schemas/ValidationResult'
+        dp_details:
+          type: array
+          description: Data Point details extracted from configuration
+          items:
+            $ref: '#/components/schemas/DpDetail'
+        track_section_details:
+          type: array
+          description: Track Section details extracted from configuration
+          items:
+            $ref: '#/components/schemas/TrackSectionDetail'
+        chc_details:
+          type: array
+          description: Channel Handler Configuration details
+          items:
+            $ref: '#/components/schemas/CHCDetail'
+        supervisor_details:
+          type: array
+          description: Supervisor configuration details
+          items:
+            $ref: '#/components/schemas/SupervisorDetail'
+        ioexb_behaviour_details:
+          type: array
+          description: IOEXB Behaviour configuration details
+          items:
+            $ref: '#/components/schemas/IOEXBBehaviourDetail'
+        ioexb_aco_details:
+          type: array
+          description: IOEXB ACO configuration details
+          items:
+            $ref: '#/components/schemas/IOEXBAcoDetail'
+        data_transmission_details:
+          type: array
+          description: Data Transmission configuration details
+          items:
+            $ref: '#/components/schemas/DataTransmissionDetail'
+        ethernet_details:
+          type: array
+          description: Ethernet configuration details
+          items:
+            $ref: '#/components/schemas/EthernetDetail'
+
+    ValidationResult:
+      type: object
+      required:
+        - fileName
+        - ruleType
+        - blockName
+        - entryKey
+        - status
+      properties:
+        fileName:
+          type: string
+          description: Name of the validated file
+          example: "config1.cfg"
+        ruleType:
+          type: string
+          description: Type of validation rule applied
+          enum:
+            - RangeCheck
+            - DuplicateCheck
+            - InputMatch
+            - ProjectBlockCheck
+            - MultipleBlockSingleInputMatch
+            - MultipleBlockMultipleInputMatch
+            - InputMatchOrBlockNotFound
+            - OptionalInputMatch
+          example: "RangeCheck"
+        blockName:
+          type: string
+          description: Configuration block name that was validated
+          example: "ID"
+        entryKey:
+          type: string
+          description: Configuration entry key that was validated
+          example: "ID"
+        expectedValue:
+          type: string
+          description: Expected value for validation
+          example: "1-4096"
+        actualValue:
+          type: string
+          description: Actual value found in configuration
+          example: "1234"
+        status:
+          type: string
+          description: Validation result status
+          enum:
+            - PASS
+            - FAIL
+          example: "PASS"
+
+    DpDetail:
+      type: object
+      description: Data Point configuration details
+      properties:
+        dpId:
+          type: string
+          example: "DP001"
+        dpName:
+          type: string
+          example: "Main Signal"
+
+    TrackSectionDetail:
+      type: object
+      description: Track Section configuration details
+      properties:
+        tsId:
+          type: string
+          example: "TS001"
+        tsName:
+          type: string
+          example: "Section A"
+
+    CHCDetail:
+      type: object
+      description: Channel Handler Configuration details
+      properties:
+        dpId:
+          type: string
+          example: "DP001"
+        tsName1:
+          type: string
+          example: "Section A"
+        timeout1:
+          type: integer
+          example: 5000
+
+    SupervisorDetail:
+      type: object
+      description: Supervisor configuration details
+      properties:
+        supervisorId:
+          type: string
+          example: "SUP001"
+        supervisorName:
+          type: string
+          example: "Main Supervisor"
+
+    IOEXBBehaviourDetail:
+      type: object
+      description: IOEXB Behaviour configuration details
+      properties:
+        behaviourId:
+          type: string
+          example: "BEH001"
+        behaviourType:
+          type: string
+          example: "NORMAL"
+
+    IOEXBAcoDetail:
+      type: object
+      description: IOEXB ACO configuration details
+      properties:
+        acoId:
+          type: string
+          example: "ACO001"
+        acoName:
+          type: string
+          example: "Main ACO"
+
+    DataTransmissionDetail:
+      type: object
+      description: Data Transmission configuration details
+      properties:
+        transmissionId:
+          type: string
+          example: "TX001"
+        protocol:
+          type: string
+          example: "TCP"
+
+    EthernetDetail:
+      type: object
+      description: Ethernet configuration details
+      properties:
+        interfaceId:
+          type: string
+          example: "ETH001"
+        ipAddress:
+          type: string
+          example: "192.168.1.100"
+
+    ErrorResponse:
+      type: object
+      required:
+        - timestamp
+        - status
+        - error
+        - message
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          description: Error occurrence timestamp
+          example: "2026-01-19T14:21:00Z"
+        status:
+          type: integer
+          description: HTTP status code
+          example: 400
+        error:
+          type: string
+          description: Error type
+          example: "Bad Request"
+        message:
+          type: string
+          description: Detailed error message
+          example: "At least one config file is required"
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT authentication token
+
+security:
+  - BearerAuth: []
