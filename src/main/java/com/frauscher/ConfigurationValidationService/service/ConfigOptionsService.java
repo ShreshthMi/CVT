@@ -52,18 +52,20 @@ public class ConfigOptionsService {
             String optionKey = propKey.substring(dotIndex + 1);
             String rawValue = properties.getProperty(propKey, "").trim();
 
-            // Parse description: "0 - normal" → description = "normal"
-            // Fallback for entries without " - " separator: use full value
-            String description;
+            // Range-based metadata keys have a redundant prefix (e.g., "min - 0", "description - ...")
+            // Strip the prefix for these; return raw value as-is for discrete options
+            String value;
+            boolean isRangeMetadata = optionKey.equals("min") || optionKey.equals("max")
+                    || optionKey.equals("step") || optionKey.equals("description");
             int separatorIndex = rawValue.indexOf(" - ");
-            if (separatorIndex >= 0) {
-                description = rawValue.substring(separatorIndex + 3).trim();
+            if (isRangeMetadata && separatorIndex >= 0) {
+                value = rawValue.substring(separatorIndex + 3).trim();
             } else {
-                description = rawValue;
+                value = rawValue;
             }
 
             grouped.computeIfAbsent(paramName, k -> new ArrayList<>())
-                    .add(new OptionMapping(optionKey, description));
+                    .add(new OptionMapping(optionKey, value));
         });
 
         configOptions = grouped.entrySet().stream()
