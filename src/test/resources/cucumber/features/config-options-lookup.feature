@@ -10,8 +10,8 @@ Feature: Config Options Lookup API
     Given the config options service is initialized
     When I request all config options
     Then the parameter "COMM_FAIL" should have 2 option mappings
-    And the parameter "COMM_FAIL" should contain option "0" with value "normal"
-    And the parameter "COMM_FAIL" should contain option "1" with value "fault"
+    And the parameter "COMM_FAIL" should contain option "0" with value "0 - normal"
+    And the parameter "COMM_FAIL" should contain option "1" with value "1 - fault"
 
   Scenario: ConfigOptionsService returns range-based parameter metadata
     Given the config options service is initialized
