@@ -30,6 +30,6 @@ Feature: Config Options Lookup API
 
   Scenario: ConfigOptionsController returns HTTP 200 with config options
     Given the config options service is initialized
-    When I call GET /v1/configoptions
+    When I call GET /api/configoptions
     Then the HTTP response status should be 200
     And the response body should be a non-empty JSON array

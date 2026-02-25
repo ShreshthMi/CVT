@@ -13,7 +13,7 @@ import com.frauscher.ConfigurationValidationService.service.ConfigOptionsService
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/v1/configoptions")
+@RequestMapping("/api/configoptions")
 @RequiredArgsConstructor
 public class ConfigOptionsController {
 
