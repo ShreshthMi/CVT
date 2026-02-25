@@ -35,7 +35,7 @@ public class ConfigOptionsSteps {
         configOptionsList = configOptionsService.getConfigOptions();
     }
 
-    @When("I call GET \\/v1\\/configoptions")
+    @When("I call GET \\/api\\/configoptions")
     public void iCallGetConfigOptions() {
         httpResponse = configOptionsController.getConfigOptions();
         configOptionsList = httpResponse.getBody();
