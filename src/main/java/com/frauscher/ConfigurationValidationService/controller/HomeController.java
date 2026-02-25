@@ -1,4 +1,4 @@
-package com.frauscher.configvalidator.controller;
+package com.frauscher.ConfigurationValidationService.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
