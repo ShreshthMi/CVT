@@ -7,5 +7,336 @@
     "min": 1,
     "max": 4095,
     "SkipComFile": false
+  },
+  {
+    "RuleType": "DuplicateCheck",
+    "ConfigBlockName": "ID",
+    "ConfigEntryKey": "ID",
+    "UIInputRequired": "No",
+    "SkipComFile": false
+  },
+
+  {
+    "RuleType": "InputMatch",
+    "ConfigBlockName": "CFG_BEHAV_TGGL",
+    "ConfigEntryKey": "BEHAV_RESET",
+    "UIInputRequired": "Yes",
+    "SkipComFile": true
+  },
+  {
+    "RuleType": "InputMatch",
+    "ConfigBlockName": "CFG_BEHAV_TGGL",
+    "ConfigEntryKey": "BEHAV_SIMUL",
+    "UIInputRequired": "Yes",
+    "SkipComFile": true
+  },
+
+  {
+    "RuleType": "InputMatch",
+    "ConfigBlockName": "CFG_SECTION",
+    "ConfigEntryKey": "COMM_FAIL",
+    "UIInputRequired": "Yes",
+    "ValidateOnlyInFilesWith": "TRACKSECTIONDETAILS",
+    "SkipComFile": true
+  },
+  {
+    "RuleType": "InputMatch",
+    "ConfigBlockName": "CFG_SECTION",
+    "ConfigEntryKey": "BEHAV_GE",
+    "UIInputRequired": "Yes",
+    "ValidateOnlyInFilesWith": "TRACKSECTIONDETAILS",
+    "SkipComFile": true
+  },
+  {
+    "RuleType": "InputMatch",
+    "ConfigBlockName": "CFG_SECTION",
+    "ConfigEntryKey": "CLR_TRACK",
+    "UIInputRequired": "Yes",
+    "ValidateOnlyInFilesWith": "TRACKSECTIONDETAILS",
+    "SkipComFile": true
+  },
+  {
+    "RuleType": "InputMatch",
+    "ConfigBlockName": "CFG_SECTION",
+    "ConfigEntryKey": "RESET_IN",
+    "UIInputRequired": "Yes",
+    "ValidateOnlyInFilesWith": "TRACKSECTIONDETAILS",
+    "SkipComFile": true
+  },
+  {
+    "RuleType": "OptionalInputMatch",
+    "ConfigBlockName": "CFG_SECTION",
+    "ConfigEntryKey": "RESET_OUT",
+    "UIInputRequired": "Yes",
+    "ValidateOnlyInFilesWith": "TRACKSECTIONDETAILS",
+    "SkipComFile": true
+  },
+
+  {
+    "RuleType": "InputMatch",
+    "ConfigBlockName": "CFG_AXCNT",
+    "ConfigEntryKey": "BEHAV_INPUT1",
+    "UIInputRequired": "Yes",
+    "ValidateOnlyInFilesWith": "IOEXBDETAILS",
+    "SkipComFile": true
+  },
+  {
+    "RuleType": "InputMatch",
+    "ConfigBlockName": "CFG_AXCNT",
+    "ConfigEntryKey": "BEHAV_INPUT2",
+    "UIInputRequired": "Yes",
+    "ValidateOnlyInFilesWith": "IOEXBDETAILS",
+    "SkipComFile": true
+  },
+  {
+    "RuleType": "OptionalInputMatch",
+    "ConfigBlockName": "CFG_AXCNT",
+    "ConfigEntryKey": "BEHAV_INPUT3",
+    "UIInputRequired": "Yes",
+    "ValidateOnlyInFilesWith": "IOEXBDETAILS",
+    "SkipComFile": true
+  },
+  {
+    "RuleType": "InputMatch",
+    "ConfigBlockName": "CFG_AXCNT",
+    "ConfigEntryKey": "TYPE_IN1",
+    "UIInputRequired": "Yes",
+    "ValidateOnlyInFilesWith": "IOEXBDETAILS",
+    "SkipComFile": true
+  },
+  {
+    "RuleType": "InputMatch",
+    "ConfigBlockName": "CFG_AXCNT",
+    "ConfigEntryKey": "TYPE_IN2",
+    "UIInputRequired": "Yes",
+    "ValidateOnlyInFilesWith": "IOEXBDETAILS",
+    "SkipComFile": true
+  },
+  {
+    "RuleType": "InputMatch",
+    "ConfigBlockName": "CFG_AXCNT",
+    "ConfigEntryKey": "TYPE_IN3",
+    "UIInputRequired": "Yes",
+    "ValidateOnlyInFilesWith": "IOEXBDETAILS",
+    "SkipComFile": true
+  },
+  {
+    "RuleType": "InputMatch",
+    "ConfigBlockName": "CFG_AXCNT",
+    "ConfigEntryKey": "BEHAV_IOEXB",
+    "UIInputRequired": "Yes",
+    "ValidateOnlyInFilesWith": "IOEXBDETAILS",
+    "SkipComFile": true
+  },
+
+  {
+    "RuleType": "InputMatch",
+    "ConfigBlockName": "CFG_SECTION_OUT",
+    "ConfigEntryKey": "CLR_OCC",
+    "UIInputRequired": "Yes",
+    "ValidateOnlyInFilesWith": "IOEXBDETAILS",
+    "SkipComFile": true
+  },
+  {
+    "RuleType": "InputMatch",
+    "ConfigBlockName": "CFG_SECTION_OUT",
+    "ConfigEntryKey": "TYPE_AUX1",
+    "UIInputRequired": "Yes",
+    "ValidateOnlyInFilesWith": "IOEXBDETAILS",
+    "SkipComFile": true
+  },
+  {
+    "RuleType": "InputMatch",
+    "ConfigBlockName": "CFG_SECTION_OUT",
+    "ConfigEntryKey": "TYPE_AUX2",
+    "UIInputRequired": "Yes",
+    "ValidateOnlyInFilesWith": "IOEXBDETAILS",
+    "SkipComFile": true
+  },
+  {
+    "RuleType": "InputMatch",
+    "ConfigBlockName": "CFG_SECTION_OUT",
+    "ConfigEntryKey": "AUX1_OUT",
+    "UIInputRequired": "Yes",
+    "ValidateOnlyInFilesWith": "IOEXBDETAILS",
+    "SkipComFile": true
+  },
+  {
+    "RuleType": "InputMatch",
+    "ConfigBlockName": "CFG_SECTION_OUT",
+    "ConfigEntryKey": "AUX2_OUT",
+    "UIInputRequired": "Yes",
+    "ValidateOnlyInFilesWith": "IOEXBDETAILS",
+    "SkipComFile": true
+  },
+  {
+    "RuleType": "InputMatch",
+    "ConfigBlockName": "CFG_SECTION_OUT",
+    "ConfigEntryKey": "AUX1_NO_NC",
+    "UIInputRequired": "Yes",
+    "ValidateOnlyInFilesWith": "IOEXBDETAILS",
+    "SkipComFile": true
+  },
+  {
+    "RuleType": "InputMatch",
+    "ConfigBlockName": "CFG_SECTION_OUT",
+    "ConfigEntryKey": "AUX2_NO_NC",
+    "UIInputRequired": "Yes",
+    "ValidateOnlyInFilesWith": "IOEXBDETAILS",
+    "SkipComFile": true
+  },
+
+  {
+    "RuleType": "InputMatchOrBlockNotFound",
+    "ConfigBlockName": "CFG_OCC",
+    "ConfigEntryKey": "OCC_DELAY",
+    "UIInputRequired": "Yes",
+    "SkipComFile": true
+  },
+  {
+    "RuleType": "InputMatchOrBlockNotFound",
+    "ConfigBlockName": "CFG_OCC",
+    "ConfigEntryKey": "OCC_EXT",
+    "UIInputRequired": "Yes",
+    "SkipComFile": true
+  },
+
+  {
+    "RuleType": "InputMatchOrBlockNotFound",
+    "ConfigBlockName": "CFG_RESET",
+    "ConfigEntryKey": "RESET_LD_TIME",
+    "UIInputRequired": "Yes",
+    "SkipComFile": true
+  },
+  {
+    "RuleType": "InputMatchOrBlockNotFound",
+    "ConfigBlockName": "CFG_RESET",
+    "ConfigEntryKey": "RESET_OP_TIME",
+    "UIInputRequired": "Yes",
+    "SkipComFile": true
+  },
+
+  {
+    "RuleType": "InputMatchOrBlockNotFound",
+    "ConfigBlockName": "CFG_PARAM_TROLLEY_SUPP",
+    "ConfigEntryKey": "AXLE_DISTANCE",
+    "UIInputRequired": "No",
+    "DefaultValue": "0",
+    "SkipComFile": true
+  },
+  {
+    "RuleType": "InputMatchOrBlockNotFound",
+    "ConfigBlockName": "CFG_PARAM_TROLLEY_SUPP",
+    "ConfigEntryKey": "DIAMETER",
+    "UIInputRequired": "No",
+    "DefaultValue": "0",
+    "SkipComFile": true
+  },
+  {
+    "RuleType": "InputMatchOrBlockNotFound",
+    "ConfigBlockName": "CFG_PARAM_TROLLEY_SUPP",
+    "ConfigEntryKey": "SPEED_TOLERANCE",
+    "UIInputRequired": "No",
+    "DefaultValue": "0",
+    "SkipComFile": true
+  },
+  {
+    "RuleType": "InputMatchOrBlockNotFound",
+    "ConfigBlockName": "CFG_PARAM_TROLLEY_SUPP",
+    "ConfigEntryKey": "SUPP_TIME",
+    "UIInputRequired": "No",
+    "DefaultValue": "0",
+    "SkipComFile": true
+  },
+
+  {
+    "RuleType": "ProjectBlockCheck",
+    "ConfigBlockName": "CFG_PROJECT_AEB",
+    "ConfigEntryKey": "BLOCK_EXISTS",
+    "UIInputRequired": "Yes",
+    "SkipComFile": true
+  },
+  {
+    "RuleType": "InputMatchOrBlockNotFound",
+    "ConfigBlockName": "CFG_PROJECT_AEB",
+    "ConfigEntryKey": "PROJECT_NUMBER",
+    "UIInputRequired": "Yes",
+    "SkipComFile": true
+  },
+
+  {
+    "RuleType": "InputMatchOrBlockNotFound",
+    "ConfigBlockName": "CFG_RSR_TYPE",
+    "ConfigEntryKey": "RSR_TYPE",
+    "UIInputRequired": "No",
+    "DefaultValue": "1",
+    "SkipComFile": true
+  },
+
+  {
+    "RuleType": "MultipleBlockMultipleInputMatch",
+    "ConfigBlockName": "CFG_TIMEOUT",
+    "ConfigEntryKey": "TIMEOUT_VALUE",
+    "UIInputRequired": "Yes",
+    "SkipComFile": true
+  },
+
+  {
+    "RuleType": "InputMatchOrBlockNotFound",
+    "ConfigBlockName": "CFG_TROLLEY_SUPP",
+    "ConfigEntryKey": "TROLLEY_SUPP",
+    "UIInputRequired": "No",
+    "DefaultValue": "0",
+    "SkipComFile": true
+  },
+
+  {
+    "RuleType": "InputMatchOrBlockNotFound",
+    "ConfigBlockName": "CFG_TYPE_PRTCT",
+    "ConfigEntryKey": "TYPE_PRTCT_CODE",
+    "UIInputRequired": "No",
+    "DefaultValue": "0x00000000",
+    "SkipComFile": true
+  },
+
+  {
+    "RuleType": "InputMatch",
+    "ConfigBlockName": "CFG_ZP",
+    "ConfigEntryKey": "INTERVAL",
+    "UIInputRequired": "Yes",
+    "ValidateOnlyInFilesWith": "TRACKSECTIONDETAILS",
+    "SkipComFile": true
+  },
+  {
+    "RuleType": "InputMatch",
+    "ConfigBlockName": "CFG_ZP",
+    "ConfigEntryKey": "SUPERVIS_COUNT",
+    "UIInputRequired": "Yes",
+    "ValidateOnlyInFilesWith": "TRACKSECTIONDETAILS",
+    "SkipComFile": true
+  },
+  {
+    "RuleType": "InputMatch",
+    "ConfigBlockName": "CFG_ZP",
+    "ConfigEntryKey": "SYSTEM_COUNT",
+    "UIInputRequired": "Yes",
+    "ValidateOnlyInFilesWith": "TRACKSECTIONDETAILS",
+    "SkipComFile": true
+  },
+  {
+    "RuleType": "InputMatch",
+    "ConfigBlockName": "CFG_ZP",
+    "ConfigEntryKey": "PARTIAL_COUNT",
+    "UIInputRequired": "Yes",
+    "ValidateOnlyInFilesWith": "TRACKSECTIONDETAILS",
+    "SkipComFile": true
+  },
+  {
+    "RuleType": "InputMatchOrBlockNotFound",
+    "ConfigBlockName": "CFG_ZP",
+    "ConfigEntryKey": "SUPERVIS_COUNT_LMT",
+    "UIInputRequired": "Yes",
+    "ValidateOnlyInFilesWith": "TRACKSECTIONDETAILS",
+    "SkipComFile": true
   }
 ]

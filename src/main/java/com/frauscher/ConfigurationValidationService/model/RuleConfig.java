@@ -36,6 +36,9 @@ public class RuleConfig {
     @JsonProperty("SkipComFile")
     private Boolean skipComFile;
 
+    @JsonProperty("DefaultValue")
+    private String defaultValue;
+
     private RuleOrigin origin;
 
     public RuleOrigin getOrigin() {
