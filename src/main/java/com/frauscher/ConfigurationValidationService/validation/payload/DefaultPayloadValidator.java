@@ -46,6 +46,23 @@ public class DefaultPayloadValidator implements PayloadValidator {
         }
 
         // ------------------------------------------------
+        // Inject defaults for rules with DefaultValue
+        // when payload is absent
+        // ------------------------------------------------
+        for (Map.Entry<ValidationKey, List<RuleConfig>> ruleEntry : rulesByKey.entrySet()) {
+            ValidationKey key = ruleEntry.getKey();
+            if (resolvedPayloads.containsKey(key)) continue;
+
+            for (RuleConfig rule : ruleEntry.getValue()) {
+                if (rule.getDefaultValue() != null) {
+                    resolvedPayloads.put(key,
+                            ResolvedPayload.present(rule.getDefaultValue()));
+                    break;
+                }
+            }
+        }
+
+        // ------------------------------------------------
         // Validate payload ONLY for configured rules
         // ------------------------------------------------
         for (Map.Entry<ValidationKey, List<RuleConfig>> entry : rulesByKey.entrySet()) {

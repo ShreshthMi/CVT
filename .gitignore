@@ -38,5 +38,6 @@ build/
 /logs/
 target/
 *.log
+docs/
 
 bin/
