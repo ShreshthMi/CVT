@@ -8,8 +8,6 @@ import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-
 import com.frauscher.ConfigurationValidationService.model.ValidationResult;
 
 /**
@@ -90,49 +88,22 @@ public class ExcelDataProcessor {
      */
     private void applyDataStyling(Cell cell, Object obj, Field field, String sheetName, int rowIdx) {
         try {
-            // Get column header name
-            String fieldName = field.getName();
-            String headerName = getColumnName(sheetName, fieldName);
-            
-            // Apply base styling for the column
-            CellStyle cellStyle = styleManager.getCellStyleForColumn(headerName, fieldName, rowIdx, sheetName);
-            
-            // Apply special styling for failed validations in Validation Results sheet
+            // Apply fail row styling for Validation Results sheet
             if ("Validation Results".equals(sheetName) && obj instanceof ValidationResult) {
-                // Check if validation failed
-                boolean isFailedValidation = false;
                 Field statusField = obj.getClass().getDeclaredField("status");
                 statusField.setAccessible(true);
                 Object statusValue = statusField.get(obj);
-                isFailedValidation = "FAIL".equalsIgnoreCase(String.valueOf(statusValue));
-                
-                // Apply #FACACA color to failed validation rows
-                if (isFailedValidation) {
-                    CellStyle failTextStyle = cell.getSheet().getWorkbook().createCellStyle();
-                    failTextStyle.cloneStyleFrom(cellStyle);
-                    
-                    // Create #FACACA font
-                    org.apache.poi.ss.usermodel.Font failFont = cell.getSheet().getWorkbook().createFont();
-                    if (cell.getSheet().getWorkbook() instanceof XSSFWorkbook) {
-                        // Use custom RGB for .xlsx files
-                        org.apache.poi.xssf.usermodel.XSSFFont xssfFont = (org.apache.poi.xssf.usermodel.XSSFFont) failFont;
-                        xssfFont.setColor(new org.apache.poi.xssf.usermodel.XSSFColor(new byte[]{(byte)0xFA, (byte)0xCA, (byte)0xCA}, null));
-                    } else {
-                        // Use indexed color for .xls files
-                        failFont.setColor(org.apache.poi.ss.usermodel.IndexedColors.PINK.getIndex());
-                    }
-                    failFont.setBold(false);
-                    failTextStyle.setFont(failFont);
-                    
-                    cell.setCellStyle(failTextStyle);
-                } else {
-                    cell.setCellStyle(cellStyle);
+                if ("FAIL".equalsIgnoreCase(String.valueOf(statusValue))) {
+                    cell.setCellStyle(styleManager.getFailRowStyle(rowIdx));
+                    return;
                 }
-            } else {
-                cell.setCellStyle(cellStyle);
             }
+
+            String fieldName = field.getName();
+            String headerName = getColumnName(sheetName, fieldName);
+            CellStyle cellStyle = styleManager.getCellStyleForColumn(headerName, fieldName, rowIdx, sheetName);
+            cell.setCellStyle(cellStyle);
         } catch (Exception e) {
-            // Keep default styling if access fails
             cell.setCellStyle(styleManager.getDataRowStyle(rowIdx));
         }
     }
