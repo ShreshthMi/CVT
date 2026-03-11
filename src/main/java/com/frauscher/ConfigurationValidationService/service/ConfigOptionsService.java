@@ -13,17 +13,19 @@ import org.springframework.stereotype.Service;
 import com.frauscher.ConfigurationValidationService.model.ConfigOptions;
 import com.frauscher.ConfigurationValidationService.model.OptionMapping;
 
-import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
 public class ConfigOptionsService {
 
-    private List<ConfigOptions> configOptions;
+    private final List<ConfigOptions> configOptions;
 
-    @PostConstruct
-    private void loadConfigOptions() {
+    public ConfigOptionsService() {
+        this.configOptions = loadConfigOptions();
+    }
+
+    private List<ConfigOptions> loadConfigOptions() {
         Properties properties = new Properties();
 
         try (InputStream inputStream = getClass().getClassLoader()
@@ -36,8 +38,7 @@ public class ConfigOptionsService {
 
         } catch (IOException e) {
             log.error("Failed to load value-mappings.properties", e);
-            configOptions = List.of();
-            return;
+            return List.of();
         }
 
         Map<String, List<OptionMapping>> grouped = new LinkedHashMap<>();
@@ -68,7 +69,7 @@ public class ConfigOptionsService {
                     .add(new OptionMapping(optionKey, value));
         });
 
-        configOptions = grouped.entrySet().stream()
+        return grouped.entrySet().stream()
                 .map(entry -> new ConfigOptions(entry.getKey(), entry.getValue()))
                 .toList();
     }

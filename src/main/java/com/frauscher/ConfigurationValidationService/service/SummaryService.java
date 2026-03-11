@@ -41,23 +41,21 @@ public class SummaryService {
     private final DataTransmissionExtractorService dataTransmissionExtractorService;
     private final EthernetDetailExtractorService ethernetDetailExtractorService;
 
-    private List<ValidationResult> validationResults;
-    
     /**
      * Generates validation summary from uploaded files
      */
-    public ValidationSummary generateSummary(MultipartFile[] files) {
+    public ValidationSummary generateSummary(MultipartFile[] files, List<ValidationResult> validationResults) {
 
         // Parse files with sorting and validation
         List<ParsedConfigFile> parsedFiles = configParsingService.parseFiles(files);
-        
-        return generateSummary(parsedFiles);
+
+        return generateSummary(parsedFiles, validationResults);
     }
-    
+
     /**
      * Generates validation summary from parsed files
      */
-    public ValidationSummary generateSummary(List<ParsedConfigFile> parsedFiles) {
+    public ValidationSummary generateSummary(List<ParsedConfigFile> parsedFiles, List<ValidationResult> validationResults) {
         
         // Extract DP details
         List<DpDetail> dpDetails = extractDpDetails(parsedFiles);
@@ -112,11 +110,4 @@ public class SummaryService {
     }
 
 
-	public List<ValidationResult> getValidationResults() {
-		return validationResults;
-	}
-	
-	public void setValidationResults(List<ValidationResult> validationResults) {
-		this.validationResults = validationResults;
-	}
 }
