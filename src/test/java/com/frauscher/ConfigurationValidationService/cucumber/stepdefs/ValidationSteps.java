@@ -557,18 +557,18 @@ public class ValidationSteps {
         if (!blockShouldExist) {
             if (blockExists) {
                 // Block should NOT exist but it does - FAIL
-                return createResult(rule, blockName, entryKey, "CONFIG_BLOCK_OR_PARAM_NOT_FOUND", 
+                return createResult(rule, blockName, entryKey, "PROJECT_BLOCK_NOT_EXPECTED",
                     "CONFIG_BLOCK_FOUND", "FAIL");
             }
             // Block should NOT exist and it doesn't - PASS
-            return createResult(rule, blockName, entryKey, "CONFIG_BLOCK_OR_PARAM_NOT_FOUND", 
-                "CONFIG_BLOCK_OR_PARAM_NOT_FOUND", "PASS");
+            return createResult(rule, blockName, entryKey, "PROJECT_BLOCK_NOT_CONFIGURED",
+                "PROJECT_BLOCK_NOT_CONFIGURED", "PASS");
         }
-        
+
         // CASE 2: BLOCK_EXISTS = true but block missing
         if (!blockExists) {
-            return createResult(rule, blockName, entryKey, expected != null ? expected : "N/A", 
-                "CONFIG_BLOCK_OR_PARAM_NOT_FOUND", "FAIL");
+            return createResult(rule, blockName, entryKey, expected != null ? expected : "N/A",
+                "PROJECT_BLOCK_NOT_FOUND", "FAIL");
         }
         
         // CASE 3: BLOCK_EXISTS = true & block exists - InputMatch

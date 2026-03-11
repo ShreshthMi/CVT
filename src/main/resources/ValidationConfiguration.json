@@ -252,13 +252,6 @@
   {
     "RuleType": "ProjectBlockCheck",
     "ConfigBlockName": "CFG_PROJECT_AEB",
-    "ConfigEntryKey": "BLOCK_EXISTS",
-    "UIInputRequired": "Yes",
-    "SkipComFile": true
-  },
-  {
-    "RuleType": "InputMatchOrBlockNotFound",
-    "ConfigBlockName": "CFG_PROJECT_AEB",
     "ConfigEntryKey": "PROJECT_NUMBER",
     "UIInputRequired": "Yes",
     "SkipComFile": true
