@@ -99,24 +99,12 @@ public class ExcelDataProcessor {
                 }
             }
 
-            String fieldName = field.getName();
-            String headerName = getColumnName(sheetName, fieldName);
-            CellStyle cellStyle = styleManager.getCellStyleForColumn(headerName, fieldName, rowIdx, sheetName);
-            cell.setCellStyle(cellStyle);
+            cell.setCellStyle(styleManager.getDataRowStyle(rowIdx));
         } catch (Exception e) {
             cell.setCellStyle(styleManager.getDataRowStyle(rowIdx));
         }
     }
-    
-    /**
-     * Gets column name for a field in a specific sheet.
-     * This mirrors the getColumnName method from the original ExcelSummaryUtil.
-     */
-    private String getColumnName(String sheetName, String fieldName) {
-        // For now, return field name - this could be enhanced to match original column naming
-        return fieldName;
-    }
-    
+
     /**
      * Auto-sizes columns to fit content and adjusts row heights.
      */

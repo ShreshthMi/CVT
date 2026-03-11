@@ -2,7 +2,6 @@ package com.frauscher.ConfigurationValidationService.util.excel;
 
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.DataFormat;
-import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -128,31 +127,10 @@ public class ExcelStyleManager {
         return dataStyle;
     }
 
-    /**
-     * Creates a font with specified RGB color.
-     */
-    public Font createFontWithColor(byte r, byte g, byte b) {
-        if (workbook instanceof XSSFWorkbook) {
-            XSSFWorkbook xssfWb = (XSSFWorkbook) workbook;
-            XSSFFont font = xssfWb.createFont();
-            font.setFontName("Calibri");
-            font.setFontHeightInPoints((short)11);
-            font.setBold(true);
-            XSSFColor color = new XSSFColor(new byte[]{r, g, b}, null);
-            font.setColor(color);
-            return font;
-        }
-        return workbook.createFont();
-    }
-
     // Getter methods for styles
     public CellStyle getHeaderStyle() { return headerStyle; }
     public CellStyle getDataRowStyle1() { return dataRowStyle1; }
     public CellStyle getDataRowStyle2() { return dataRowStyle2; }
-    public CellStyle getGreenTextStyle1() { return dataRowStyle1; }
-    public CellStyle getGreenTextStyle2() { return dataRowStyle2; }
-    public CellStyle getYellowTextStyle1() { return dataRowStyle1; }
-    public CellStyle getYellowTextStyle2() { return dataRowStyle2; }
     public CellStyle getFailRowStyle1() { return failRowStyle1; }
     public CellStyle getFailRowStyle2() { return failRowStyle2; }
     public CellStyle getStringStyle() { return stringStyle; }
@@ -171,18 +149,4 @@ public class ExcelStyleManager {
         return (rowIndex % 2 == 0) ? failRowStyle1 : failRowStyle2;
     }
 
-    /**
-     * Gets colored text style based on row index and color.
-     * All colors now return the standard data row style (black font on light grey).
-     */
-    public CellStyle getColoredTextStyle(int rowIndex, String color) {
-        return getDataRowStyle(rowIndex);
-    }
-
-    /**
-     * Gets cell style for any column. Returns standard data row style (light grey + black font).
-     */
-    public CellStyle getCellStyleForColumn(String headerName, String fieldName, int rowIndex, String sheetName) {
-        return getDataRowStyle(rowIndex);
-    }
 }

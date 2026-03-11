@@ -10,8 +10,6 @@ import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellRangeAddress;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-
 import com.frauscher.ConfigurationValidationService.model.ValidationResult;
 
 /**
@@ -44,192 +42,10 @@ public class ExcelHeaderProcessor {
     }
     
     /**
-     * Applies conditional styling to header cells based on sheet type and field name.
+     * Applies header styling to all header cells consistently (black bold text on grey).
      */
     private void applyHeaderStyling(Cell headerCell, String fieldName, String sheetName) {
-        if ("CHC Details".equals(sheetName)) {
-            applyCHCDetailsStyling(headerCell, fieldName);
-        } else if ("Track Section Details".equals(sheetName)) {
-            applyTrackSectionDetailsStyling(headerCell, fieldName);
-        } else if ("Supervisor Details".equals(sheetName)) {
-            applySupervisorDetailsStyling(headerCell, fieldName);
-        } else if ("IOEXB Behaviour Details".equals(sheetName)) {
-            applyIOEXBBehaviourDetailsStyling(headerCell, fieldName);
-        } else if ("IOEXB ACO Details".equals(sheetName)) {
-            applyIOEXBAcoDetailsStyling(headerCell, fieldName);
-        } else if ("Data Transmission Details".equals(sheetName)) {
-            applyDataTransmissionDetailsStyling(headerCell, fieldName);
-        } else if ("Ethernet Details".equals(sheetName)) {
-            applyEthernetDetailsStyling(headerCell, fieldName);
-        } else {
-            // Default header styling
-            headerCell.setCellStyle(styleManager.getHeaderStyle());
-        }
-    }
-    
-    /**
-     * Applies CHC Details specific header styling with colored text.
-     */
-    private void applyCHCDetailsStyling(Cell headerCell, String fieldName) {
-        CellStyle coloredHeaderStyle = headerCell.getSheet().getWorkbook().createCellStyle();
-        coloredHeaderStyle.cloneStyleFrom(styleManager.getHeaderStyle());
-        
-        if (headerCell.getSheet().getWorkbook() instanceof XSSFWorkbook) {
-            
-            // Apply green text for tsName1 group fields
-            if (fieldName.equals("tsName1") || fieldName.equals("timeout1") || 
-                fieldName.equals("dpId1") || fieldName.equals("dpName1") || 
-                fieldName.equals("fmaDtl1")) {
-                coloredHeaderStyle.setFont(styleManager.createFontWithColor((byte)0x41, (byte)0xD9, (byte)0x74));
-                headerCell.setCellStyle(coloredHeaderStyle);
-            }
-            // Apply yellow text for tsName2 group fields
-            else if (fieldName.equals("tsName2") || fieldName.equals("timeout2") || 
-                     fieldName.equals("dpId2") || fieldName.equals("dpName2") || 
-                     fieldName.equals("fmaDtl2")) {
-                coloredHeaderStyle.setFont(styleManager.createFontWithColor((byte)0xFF, (byte)0xFF, (byte)0x00));
-                headerCell.setCellStyle(coloredHeaderStyle);
-            }
-            // Default white text for other fields
-            else {
-                headerCell.setCellStyle(styleManager.getHeaderStyle());
-            }
-        }
-    }
-    
-    /**
-     * Applies Track Section Details specific header styling.
-     */
-    private void applyTrackSectionDetailsStyling(Cell headerCell, String fieldName) {
-        CellStyle coloredHeaderStyle = headerCell.getSheet().getWorkbook().createCellStyle();
-        coloredHeaderStyle.cloneStyleFrom(styleManager.getHeaderStyle());
-        
-        if (headerCell.getSheet().getWorkbook() instanceof XSSFWorkbook) {
-            // Apply green text for CH fields
-            if (fieldName.startsWith("ch")) {
-                coloredHeaderStyle.setFont(styleManager.createFontWithColor((byte)0x41, (byte)0xD9, (byte)0x74));
-                headerCell.setCellStyle(coloredHeaderStyle);
-            }
-            // Apply yellow text for ICH fields
-            else if (fieldName.startsWith("iCh")) {
-                coloredHeaderStyle.setFont(styleManager.createFontWithColor((byte)0xFF, (byte)0xFF, (byte)0x00));
-                headerCell.setCellStyle(coloredHeaderStyle);
-            }
-            // Default white text for other fields
-            else {
-                headerCell.setCellStyle(styleManager.getHeaderStyle());
-            }
-        }
-    }
-    
-    /**
-     * Applies Ethernet Details specific header styling.
-     */
-    private void applyEthernetDetailsStyling(Cell headerCell, String fieldName) {
-        CellStyle coloredHeaderStyle = headerCell.getSheet().getWorkbook().createCellStyle();
-        coloredHeaderStyle.cloneStyleFrom(styleManager.getHeaderStyle());
-        
-        if (headerCell.getSheet().getWorkbook() instanceof XSSFWorkbook) {
-            
-            // Apply yellow text for "Own IP Address" group fields
-            if (fieldName.equals("ipNw1") || fieldName.equals("subnetMask1") || 
-                fieldName.equals("ipNw2") || fieldName.equals("subnetMask2")) {
-                coloredHeaderStyle.setFont(styleManager.createFontWithColor((byte)0xFF, (byte)0xFF, (byte)0x00));
-                headerCell.setCellStyle(coloredHeaderStyle);
-            }
-            // Apply green text for "Destination" group fields
-            else if (fieldName.equals("destIpNw1") || fieldName.equals("destIpNw2")) {
-                coloredHeaderStyle.setFont(styleManager.createFontWithColor((byte)0x41, (byte)0xD9, (byte)0x74));
-                headerCell.setCellStyle(coloredHeaderStyle);
-            }
-            // Default white text for other fields (comId, fwrdAcdToDpIds, fwrdAcdToDpDtls, interval)
-            else {
-                headerCell.setCellStyle(styleManager.getHeaderStyle());
-            }
-        }
-    }
-    
-    /**
-     * Applies Supervisor Details specific header styling.
-     */
-    private void applySupervisorDetailsStyling(Cell headerCell, String fieldName) {
-        CellStyle coloredHeaderStyle = headerCell.getSheet().getWorkbook().createCellStyle();
-        coloredHeaderStyle.cloneStyleFrom(styleManager.getHeaderStyle());
-        
-        if (headerCell.getSheet().getWorkbook() instanceof XSSFWorkbook) {
-            // Apply yellow text for supervised by fields
-            if (fieldName.equals("supByTs") || fieldName.equals("supByTsDpId") ||
-                fieldName.equals("supByTsDpName") || fieldName.equals("supByTsFma") ||
-                fieldName.equals("timeOut") || fieldName.equals("logicType")) {
-                coloredHeaderStyle.setFont(styleManager.createFontWithColor((byte)0xFF, (byte)0xFF, (byte)0x00));
-                headerCell.setCellStyle(coloredHeaderStyle);
-            }
-            // Default white text for other fields (reset information group)
-            else {
-                headerCell.setCellStyle(styleManager.getHeaderStyle());
-            }
-        }
-    }
-    
-    /**
-     * Applies IOEXB Behaviour Details specific header styling.
-     */
-    private void applyIOEXBBehaviourDetailsStyling(Cell headerCell, String fieldName) {
-        // Apply yellow text for BEHAV_INPUT and TYPE_IN columns and BEHAV_IOEXB and TYPE_IOEXB
-        if (fieldName.equals("behavInput1") || fieldName.equals("typeIn1") ||
-            fieldName.equals("behavInput2") || fieldName.equals("typeIn2") ||
-            fieldName.equals("behavInput3") || fieldName.equals("typeIn3") ||
-            fieldName.equals("behavIoexb") || fieldName.equals("typeIoexb")) {
-            CellStyle coloredHeaderStyle = headerCell.getSheet().getWorkbook().createCellStyle();
-            coloredHeaderStyle.cloneStyleFrom(styleManager.getHeaderStyle());
-            coloredHeaderStyle.setFont(styleManager.createFontWithColor((byte)0xFF, (byte)0xFF, (byte)0x00));
-            headerCell.setCellStyle(coloredHeaderStyle);
-        }
-        // Apply white text for CO-OP Reset Applied?, Reset Type, Control Type, Reset Timeout
-        else if (fieldName.equals("isCoopReset") || fieldName.equals("coopResetType") ||
-                 fieldName.equals("coopControlType") || fieldName.equals("resetTimeout")) {
-            CellStyle whiteHeaderStyle = headerCell.getSheet().getWorkbook().createCellStyle();
-            whiteHeaderStyle.cloneStyleFrom(styleManager.getHeaderStyle());
-            whiteHeaderStyle.setFont(styleManager.createFontWithColor((byte)0xFF, (byte)0xFF, (byte)0xFF));
-            headerCell.setCellStyle(whiteHeaderStyle);
-        } else {
-            // Default white text for all other fields
-            headerCell.setCellStyle(styleManager.getHeaderStyle());
-        }
-    }
-    
-    /**
-     * Applies IOEXB ACO Details specific header styling.
-     */
-    private void applyIOEXBAcoDetailsStyling(Cell headerCell, String fieldName) {
-        // Default white text for all fields - no conditional styling in original ExcelSummaryUtil
         headerCell.setCellStyle(styleManager.getHeaderStyle());
-    }
-    
-    /**
-     * Applies Data Transmission Details specific header styling.
-     */
-    private void applyDataTransmissionDetailsStyling(Cell headerCell, String fieldName) {
-        // Apply green text for Data Safety Level fields
-        if (fieldName.equals("safetyLevelIn") || fieldName.equals("safetyLevelOut") || 
-            fieldName.equals("safeOutFdbckQuad")) {
-            CellStyle coloredHeaderStyle = headerCell.getSheet().getWorkbook().createCellStyle();
-            coloredHeaderStyle.cloneStyleFrom(styleManager.getHeaderStyle());
-            coloredHeaderStyle.setFont(styleManager.createFontWithColor((byte)0x41, (byte)0xD9, (byte)0x74));
-            headerCell.setCellStyle(coloredHeaderStyle);
-        }
-        // Apply yellow text for Output data transmission fields
-        else if (fieldName.equals("sourceDpId") || fieldName.equals("sourceDpName") || 
-                 fieldName.equals("timeout") || fieldName.equals("nmbrOut") ||
-                 fieldName.equals("position")) {
-            CellStyle coloredHeaderStyle = headerCell.getSheet().getWorkbook().createCellStyle();
-            coloredHeaderStyle.cloneStyleFrom(styleManager.getHeaderStyle());
-            coloredHeaderStyle.setFont(styleManager.createFontWithColor((byte)0xFF, (byte)0xFF, (byte)0x00));
-            headerCell.setCellStyle(coloredHeaderStyle);
-        } else {
-            // Default white text for all other fields
-            headerCell.setCellStyle(styleManager.getHeaderStyle());
-        }
     }
     
     /**
@@ -340,8 +156,7 @@ public class ExcelHeaderProcessor {
     
     
     /**
-     * Applies center alignment and conditional text coloring to merged cells.
-     * This method applies the same logic as the original ExcelSummaryUtil for grouped headers.
+     * Applies center alignment to merged cells in the grouped header row.
      */
     private void applyCenterAlignmentToMergedCells(Sheet sheet) {
         for (int i = 0; i < sheet.getNumMergedRegions(); i++) {
@@ -352,37 +167,9 @@ public class ExcelHeaderProcessor {
                     Cell firstCell = firstRow.getCell(mergedRegion.getFirstColumn());
                     if (firstCell != null) {
                         CellStyle style = sheet.getWorkbook().createCellStyle();
-                        style.cloneStyleFrom(firstCell.getCellStyle());
+                        style.cloneStyleFrom(styleManager.getHeaderStyle());
                         style.setAlignment(org.apache.poi.ss.usermodel.HorizontalAlignment.CENTER);
                         style.setVerticalAlignment(org.apache.poi.ss.usermodel.VerticalAlignment.CENTER);
-                        
-                        // Apply colored text based on the merged region content (matching original ExcelSummaryUtil)
-                        String cellValue = firstCell.getStringCellValue();
-                        if ("Own IP Address".equals(cellValue)) {
-                            // Yellow text for "Own IP Address"
-                            style.setFont(styleManager.createFontWithColor((byte)0xFF, (byte)0xFF, (byte)0x00));
-                        } else if ("Destination".equals(cellValue)) {
-                            // Green text for "Destination"
-                            style.setFont(styleManager.createFontWithColor((byte)0x41, (byte)0xD9, (byte)0x74));
-                        } else if ("Data Safety Level".equals(cellValue)) {
-                            // Green text for "Data Safety Level"
-                            style.setFont(styleManager.createFontWithColor((byte)0x41, (byte)0xD9, (byte)0x74));
-                        } else if ("Output data transmission".equals(cellValue)) {
-                            // Yellow text for "Output data transmission"
-                            style.setFont(styleManager.createFontWithColor((byte)0xFF, (byte)0xFF, (byte)0x00));
-                        } else if ("Input Reset Information".equals(cellValue)) {
-                            // Yellow text for "Input Reset Information"
-                            style.setFont(styleManager.createFontWithColor((byte)0xFF, (byte)0xFF, (byte)0x00));
-                        } else if ("Co-operative Reset Information".equals(cellValue)) {
-                            // White text for "Co-operative Reset Information"
-                            style.setFont(styleManager.createFontWithColor((byte)0xFF, (byte)0xFF, (byte)0xFF));
-                        } else if ("IOEXB Axle Counting Information".equals(cellValue)) {
-                            // White text for "IOEXB Axle Counting Information"
-                            style.setFont(styleManager.createFontWithColor((byte)0xFF, (byte)0xFF, (byte)0xFF));
-                        }
-                        // "Axle Counting Data Forwarding" keeps default white text
-                        // "Controlled by Track Section" groups keep default white text
-                        
                         firstCell.setCellStyle(style);
                     }
                 }
@@ -472,11 +259,6 @@ public class ExcelHeaderProcessor {
             } else if (fieldName.equals("supByTs")) {
                 // "Supervised by" - merge supByTs through logicType (7 cells total: columns 4-10)
                 groupedCell.setCellValue("Supervised by");
-                // Apply yellow text color (#FFFF00) for supervised by group
-                CellStyle yellowHeaderStyle = sheet.getWorkbook().createCellStyle();
-                yellowHeaderStyle.cloneStyleFrom(styleManager.getHeaderStyle());
-                yellowHeaderStyle.setFont(styleManager.createFontWithColor((byte)0xFF, (byte)0xFF, (byte)0x00));
-                groupedCell.setCellStyle(yellowHeaderStyle);
                 
                 Integer supByTsDpIdIdx = fieldIndexMap.get("supByTsDpId");
                 Integer supByTsDpNameIdx = fieldIndexMap.get("supByTsDpName");
@@ -648,11 +430,6 @@ public class ExcelHeaderProcessor {
             } else if (fieldName.equals("tsName1")) {
                 // "Controlled by Track Section" - merge tsName1 through fmaDtl1
                 groupedCell.setCellValue("Controlled by Track Section");
-                // Apply green text color (#41D974) for tsName1 group
-                CellStyle greenHeaderStyle = sheet.getWorkbook().createCellStyle();
-                greenHeaderStyle.cloneStyleFrom(styleManager.getHeaderStyle());
-                greenHeaderStyle.setFont(styleManager.createFontWithColor((byte)0x41, (byte)0xD9, (byte)0x74));
-                groupedCell.setCellStyle(greenHeaderStyle);
                 
                 Integer timeout1Idx = fieldIndexMap.get("timeout1");
                 Integer dpId1Idx = fieldIndexMap.get("dpId1");
@@ -666,11 +443,6 @@ public class ExcelHeaderProcessor {
             } else if (fieldName.equals("tsName2")) {
                 // "Controlled by Track Section" - merge tsName2 through fmaDtl2
                 groupedCell.setCellValue("Controlled by Track Section");
-                // Apply yellow text color (#FFFF00) for tsName2 group
-                CellStyle yellowHeaderStyle = sheet.getWorkbook().createCellStyle();
-                yellowHeaderStyle.cloneStyleFrom(styleManager.getHeaderStyle());
-                yellowHeaderStyle.setFont(styleManager.createFontWithColor((byte)0xFF, (byte)0xFF, (byte)0x00));
-                groupedCell.setCellStyle(yellowHeaderStyle);
                 
                 Integer timeout2Idx = fieldIndexMap.get("timeout2");
                 Integer dpId2Idx = fieldIndexMap.get("dpId2");
@@ -742,11 +514,6 @@ public class ExcelHeaderProcessor {
             } else if (fieldName.equals("chDpId")) {
                 // "Counting Head" - merge chDpId through chSlctTimeout
                 groupedCell.setCellValue("Counting Head (DIR_INV = 0)");
-                // Apply green text color (#41D974) for counting head group
-                CellStyle greenHeaderStyle = sheet.getWorkbook().createCellStyle();
-                greenHeaderStyle.cloneStyleFrom(styleManager.getHeaderStyle());
-                greenHeaderStyle.setFont(styleManager.createFontWithColor((byte)0x41, (byte)0xD9, (byte)0x74));
-                groupedCell.setCellStyle(greenHeaderStyle);
                 
                 Integer chDpNameIdx = fieldIndexMap.get("chDpName");
                 Integer chSlctTimeoutIdx = fieldIndexMap.get("chSlctTimeout");
@@ -758,11 +525,6 @@ public class ExcelHeaderProcessor {
             } else if (fieldName.equals("iChDpId")) {
                 // "Inverse Counting Head" - merge iChDpId through iChSlctTimeout
                 groupedCell.setCellValue("Inverse Counting Head (DIR_INV = 1)");
-                // Apply yellow text color (#FFFF00) for inverse counting head group
-                CellStyle yellowHeaderStyle = sheet.getWorkbook().createCellStyle();
-                yellowHeaderStyle.cloneStyleFrom(styleManager.getHeaderStyle());
-                yellowHeaderStyle.setFont(styleManager.createFontWithColor((byte)0xFF, (byte)0xFF, (byte)0x00));
-                groupedCell.setCellStyle(yellowHeaderStyle);
                 
                 Integer iChDpNameIdx = fieldIndexMap.get("iChDpName");
                 Integer iChSlctTimeoutIdx = fieldIndexMap.get("iChSlctTimeout");
