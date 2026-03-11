@@ -62,7 +62,7 @@ public class ProjectBlockCheckRule implements ValidationRule {
                 return List.of(create(
                         context.fileContext().file(),
                         context.rule(),
-                        ValidationConstants.CONFIG_BLOCK_OR_PARAM_NOT_FOUND,
+                        ValidationConstants.PROJECT_BLOCK_NOT_EXPECTED,
                         actual,
                         ValidationStatus.FAIL
                 ));
@@ -71,8 +71,8 @@ public class ProjectBlockCheckRule implements ValidationRule {
             return List.of(create(
                     context.fileContext().file(),
                     context.rule(),
-                    ValidationConstants.CONFIG_BLOCK_OR_PARAM_NOT_FOUND,
-                    ValidationConstants.CONFIG_BLOCK_OR_PARAM_NOT_FOUND,
+                    ValidationConstants.PROJECT_BLOCK_NOT_CONFIGURED,
+                    ValidationConstants.PROJECT_BLOCK_NOT_CONFIGURED,
                     ValidationStatus.PASS
             ));
         }
@@ -81,8 +81,8 @@ public class ProjectBlockCheckRule implements ValidationRule {
             return List.of(create(
                     context.fileContext().file(),
                     context.rule(),
-                    context.payload().asString(), // PROJECT_NUMBER
-                    ValidationConstants.CONFIG_BLOCK_OR_PARAM_NOT_FOUND,
+                    context.payload().asString(),
+                    ValidationConstants.PROJECT_BLOCK_NOT_FOUND,
                     ValidationStatus.FAIL
             ));
         }
@@ -95,7 +95,7 @@ public class ProjectBlockCheckRule implements ValidationRule {
                     context.fileContext().file(),
                     context.rule(),
                     context.payload().asString(),
-                    ValidationConstants.CONFIG_BLOCK_OR_PARAM_NOT_FOUND,
+                    ValidationConstants.PROJECT_ENTRY_NOT_FOUND,
                     ValidationStatus.FAIL
             ));
         }
