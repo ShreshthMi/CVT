@@ -273,35 +273,35 @@
   },
 
   {
-    "RuleType": "InputMatchOrBlockNotFound",
+    "RuleType": "InputMatch",
     "ConfigBlockName": "CFG_TROLLEY_SUPP",
     "ConfigEntryKey": "TROLLEY_SUPP",
     "UIInputRequired": "No",
     "SkipComFile": true
   },
   {
-    "RuleType": "InputMatchOrBlockNotFound",
+    "RuleType": "InputMatch",
     "ConfigBlockName": "CFG_PARAM_TROLLEY_SUPP",
     "ConfigEntryKey": "AXLE_DISTANCE",
     "UIInputRequired": "No",
     "SkipComFile": true
   },
   {
-    "RuleType": "InputMatchOrBlockNotFound",
+    "RuleType": "InputMatch",
     "ConfigBlockName": "CFG_PARAM_TROLLEY_SUPP",
     "ConfigEntryKey": "DIAMETER",
     "UIInputRequired": "No",
     "SkipComFile": true
   },
   {
-    "RuleType": "InputMatchOrBlockNotFound",
+    "RuleType": "InputMatch",
     "ConfigBlockName": "CFG_PARAM_TROLLEY_SUPP",
     "ConfigEntryKey": "SPEED_TOLERANCE",
     "UIInputRequired": "No",
     "SkipComFile": true
   },
   {
-    "RuleType": "InputMatchOrBlockNotFound",
+    "RuleType": "InputMatch",
     "ConfigBlockName": "CFG_PARAM_TROLLEY_SUPP",
     "ConfigEntryKey": "SUPP_TIME",
     "UIInputRequired": "No",
@@ -309,7 +309,7 @@
   },
 
   {
-    "RuleType": "InputMatchOrBlockNotFound",
+    "RuleType": "InputMatch",
     "ConfigBlockName": "CFG_RSR_TYPE",
     "ConfigEntryKey": "RSR_TYPE",
     "UIInputRequired": "No",
@@ -317,7 +317,7 @@
   },
 
   {
-    "RuleType": "InputMatchOrBlockNotFound",
+    "RuleType": "InputMatch",
     "ConfigBlockName": "CFG_TYPE_PRTCT",
     "ConfigEntryKey": "TYPE_PRTCT_CODE",
     "UIInputRequired": "No",
