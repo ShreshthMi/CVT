@@ -235,11 +235,11 @@ public class ExcelDataProcessor {
             cell.setCellStyle(styleManager.getHeaderStyle());
             
             if (colIdx == 0) {
-                cell.setCellValue("Validation Result");
+                cell.setCellValue("VALIDATION RESULT");
             } else if (colIdx <= 5) { // Columns 1-5 (upto Actual Value) will be merged
                 cell.setCellValue(""); // Empty cells for merging
             } else if (colIdx == fields.length - 1) { // Status column
-                cell.setCellValue("Pass: " + passCount + ", Fail: " + failCount);
+                cell.setCellValue("PASS: " + passCount + ", FAIL: " + failCount);
             } else {
                 cell.setCellValue("");
             }

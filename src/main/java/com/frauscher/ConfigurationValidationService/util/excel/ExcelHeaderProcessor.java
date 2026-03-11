@@ -115,7 +115,7 @@ public class ExcelHeaderProcessor {
                 groupedCell.setCellValue("");
             } else if (fieldName.equals("acoFma1")) {
                 // "IOEXB Axle Counting Information" - merge acoFma1 through timeOut (11 cells total: columns 3-13)
-                groupedCell.setCellValue("IOEXB Axle Counting Information");
+                groupedCell.setCellValue("IOEXB AXLE COUNTING INFORMATION");
                 
                 Integer clrOccIdx = fieldIndexMap.get("clrOcc");
                 Integer typeAux1Idx = fieldIndexMap.get("typeAux1");
@@ -199,7 +199,7 @@ public class ExcelHeaderProcessor {
                 groupedCell.setCellValue("");
             } else if (fieldName.equals("behavInput1")) {
                 // "Input Reset Information" - merge behavInput1 through typeIoexb (9 cells total: columns 3-11)
-                groupedCell.setCellValue("Input Reset Information");
+                groupedCell.setCellValue("INPUT RESET INFORMATION");
                 
                 Integer typeIoexbIdx = fieldIndexMap.get("typeIoexb");
                 
@@ -209,7 +209,7 @@ public class ExcelHeaderProcessor {
                 }
             } else if (fieldName.equals("behavOutput1")) {
                 // "Output Reset Information" - merge behavOutput1 through typeIoexbOut (9 cells total: columns 12-20)
-                groupedCell.setCellValue("Output Reset Information");
+                groupedCell.setCellValue("OUTPUT RESET INFORMATION");
                 
                 Integer typeIoexbOutIdx = fieldIndexMap.get("typeIoexbOut");
                 
@@ -219,7 +219,7 @@ public class ExcelHeaderProcessor {
                 }
             } else if (fieldName.equals("isCoopReset")) {
                 // "Co-operative Reset Information" - merge isCoopReset through resetTimeout (4 cells total)
-                groupedCell.setCellValue("Co-operative Reset Information");
+                groupedCell.setCellValue("CO-OPERATIVE RESET INFORMATION");
                 
                 Integer resetTimeoutIdx = fieldIndexMap.get("resetTimeout");
                 
@@ -258,7 +258,7 @@ public class ExcelHeaderProcessor {
                 groupedCell.setCellValue("");
             } else if (fieldName.equals("supByTs")) {
                 // "Supervised by" - merge supByTs through logicType (7 cells total: columns 4-10)
-                groupedCell.setCellValue("Supervised by");
+                groupedCell.setCellValue("SUPERVISED BY");
                 
                 Integer supByTsDpIdIdx = fieldIndexMap.get("supByTsDpId");
                 Integer supByTsDpNameIdx = fieldIndexMap.get("supByTsDpName");
@@ -273,7 +273,7 @@ public class ExcelHeaderProcessor {
                 }
             } else if (fieldName.equals("resetType")) {
                 // "Reset Information" - merge resetType through resetTimer (5 cells total: columns 10-14)
-                groupedCell.setCellValue("Reset Information");
+                groupedCell.setCellValue("RESET INFORMATION");
                 
                 Integer resetDelayIdx = fieldIndexMap.get("resetDelay");
                 Integer autoResetTypeIdx = fieldIndexMap.get("autoResetType");
@@ -314,7 +314,7 @@ public class ExcelHeaderProcessor {
                 groupedCell.setCellValue("");
             } else if (fieldName.equals("safetyLevelIn")) {
                 // "Data Safety Level" - merge safetyLevelIn through safeOutFdbckQuad (4 cells total: columns 3-6)
-                groupedCell.setCellValue("Data Safety Level");
+                groupedCell.setCellValue("DATA SAFETY LEVEL");
                 
                 Integer safetyLevelOutIdx = fieldIndexMap.get("safetyLevelOut");
                 Integer safeOutFdbckQuadIdx = fieldIndexMap.get("safeOutFdbckQuad");
@@ -325,7 +325,7 @@ public class ExcelHeaderProcessor {
                 }
             } else if (fieldName.equals("sourceDpId")) {
                 // "Output data transmission" - merge sourceDpId through position (6 cells total: columns 7-12)
-                groupedCell.setCellValue("Output data transmission");
+                groupedCell.setCellValue("OUTPUT DATA TRANSMISSION");
                 
                 Integer sourceDpNameIdx = fieldIndexMap.get("sourceDpName");
                 Integer timeoutIdx = fieldIndexMap.get("timeout");
@@ -367,7 +367,7 @@ public class ExcelHeaderProcessor {
                 groupedCell.setCellValue("");
             } else if (fieldName.equals("ipNw1")) {
                 // "Own IP Address" - merge ipNw1 through subnetMask2 (4 cells total: columns 2-5)
-                groupedCell.setCellValue("Own IP Address");
+                groupedCell.setCellValue("OWN IP ADDRESS");
                 
                 Integer subnetMask1Idx = fieldIndexMap.get("subnetMask1");
                 Integer ipNw2Idx = fieldIndexMap.get("ipNw2");
@@ -379,7 +379,7 @@ public class ExcelHeaderProcessor {
                 }
             } else if (fieldName.equals("destIpNw1")) {
                 // "Destination" - merge destIpNw1 through destIpNw2 (2 cells total: columns 6-7)
-                groupedCell.setCellValue("Destination");
+                groupedCell.setCellValue("DESTINATION");
                 
                 Integer destIpNw2Idx = fieldIndexMap.get("destIpNw2");
                 
@@ -389,7 +389,7 @@ public class ExcelHeaderProcessor {
                 }
             } else if (fieldName.equals("fwrdAcdToDpIds")) {
                 // "Axle Counting Data Forwarding" - merge fwrdAcdToDpIds through interval (3 cells total: columns 8-10)
-                groupedCell.setCellValue("Axle Counting Data Forwarding");
+                groupedCell.setCellValue("AXLE COUNTING DATA FORWARDING");
                 
                 Integer fwrdAcdToDpDtlsIdx = fieldIndexMap.get("fwrdAcdToDpDtls");
                 Integer intervalIdx = fieldIndexMap.get("interval");
@@ -429,7 +429,7 @@ public class ExcelHeaderProcessor {
                 groupedCell.setCellValue("");
             } else if (fieldName.equals("tsName1")) {
                 // "Controlled by Track Section" - merge tsName1 through fmaDtl1
-                groupedCell.setCellValue("Controlled by Track Section");
+                groupedCell.setCellValue("CONTROLLED BY TRACK SECTION");
                 
                 Integer timeout1Idx = fieldIndexMap.get("timeout1");
                 Integer dpId1Idx = fieldIndexMap.get("dpId1");
@@ -442,7 +442,7 @@ public class ExcelHeaderProcessor {
                 }
             } else if (fieldName.equals("tsName2")) {
                 // "Controlled by Track Section" - merge tsName2 through fmaDtl2
-                groupedCell.setCellValue("Controlled by Track Section");
+                groupedCell.setCellValue("CONTROLLED BY TRACK SECTION");
                 
                 Integer timeout2Idx = fieldIndexMap.get("timeout2");
                 Integer dpId2Idx = fieldIndexMap.get("dpId2");
@@ -500,7 +500,7 @@ public class ExcelHeaderProcessor {
                 groupedCell.setCellStyle(styleManager.getHeaderStyle());
             } else if (fieldName.equals("dpId")) {
                 // "Evaluating Counting Head" - merge dpId through fma
-                groupedCell.setCellValue("Evaluating Counting Head");
+                groupedCell.setCellValue("EVALUATING COUNTING HEAD");
                 // Apply default header style for evaluating counting head group
                 groupedCell.setCellStyle(styleManager.getHeaderStyle());
                 
@@ -513,7 +513,7 @@ public class ExcelHeaderProcessor {
                 }
             } else if (fieldName.equals("chDpId")) {
                 // "Counting Head" - merge chDpId through chSlctTimeout
-                groupedCell.setCellValue("Counting Head (DIR_INV = 0)");
+                groupedCell.setCellValue("COUNTING HEAD DIR_INV = 0");
                 
                 Integer chDpNameIdx = fieldIndexMap.get("chDpName");
                 Integer chSlctTimeoutIdx = fieldIndexMap.get("chSlctTimeout");
@@ -524,7 +524,7 @@ public class ExcelHeaderProcessor {
                 }
             } else if (fieldName.equals("iChDpId")) {
                 // "Inverse Counting Head" - merge iChDpId through iChSlctTimeout
-                groupedCell.setCellValue("Inverse Counting Head (DIR_INV = 1)");
+                groupedCell.setCellValue("INVERSE COUNTING HEAD DIR_INV = 1");
                 
                 Integer iChDpNameIdx = fieldIndexMap.get("iChDpName");
                 Integer iChSlctTimeoutIdx = fieldIndexMap.get("iChSlctTimeout");
@@ -579,11 +579,11 @@ public class ExcelHeaderProcessor {
             cell.setCellStyle(styleManager.getHeaderStyle());
             
             if (colIdx == 0) {
-                cell.setCellValue("Validation Result");
+                cell.setCellValue("VALIDATION RESULT");
             } else if (colIdx <= 5) { // Columns 1-5 (upto Actual Value) will be merged
                 cell.setCellValue(""); // Empty cells for merging
             } else if (colIdx == fields.length - 1) { // Status column
-                cell.setCellValue("Pass: " + passCount + ", Fail: " + failCount);
+                cell.setCellValue("PASS: " + passCount + ", FAIL: " + failCount);
             } else {
                 cell.setCellValue("");
             }
