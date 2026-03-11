@@ -54,8 +54,7 @@ public class ConfigValidationController {
         List<ValidationResult> results =
                 configValidationService.validateParsedFiles(parsedConfigFiles, userValidationInputCriteria.getSections());
 
-        summaryService.setValidationResults(results);
-        ValidationSummary summary = summaryService.generateSummary(parsedConfigFiles);
+        ValidationSummary summary = summaryService.generateSummary(parsedConfigFiles, results);
         
         return ResponseEntity.ok(summary);
     }
