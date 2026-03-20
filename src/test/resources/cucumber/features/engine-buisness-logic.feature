@@ -30,11 +30,11 @@ Feature: Engine Layer Tests
       """
       CFG_SECTION.RESET_OUT = 0
       """
-    And the file type is "IOEXBDETAILS"
+    And the file type is "ACOIOEXBDETAILS"
     When I validate the input
     Then no validation results should be returned
 
-  Scenario: RuleExecutionEngine - should execute rule when ValidateOnlyInFilesWith matches IOEXBDETAILS
+  Scenario: RuleExecutionEngine - should execute rule when ValidateOnlyInFilesWith matches ACOIOEXBDETAILS
     Given I have the following payload:
       """
       {
@@ -51,7 +51,7 @@ Feature: Engine Layer Tests
           "ConfigBlockName": "CFG_SECTION_OUT",
           "ConfigEntryKey": "CLR_OCC",
           "UIInputRequired": "Yes",
-          "ValidateOnlyInFilesWith": "IOEXBDETAILS"
+          "ValidateOnlyInFilesWith": "ACOIOEXBDETAILS"
         }
       ]
       """
@@ -59,7 +59,7 @@ Feature: Engine Layer Tests
       """
       CFG_SECTION_OUT.CLR_OCC = 0
       """
-    And the file type is "IOEXBDETAILS"
+    And the file type is "ACOIOEXBDETAILS"
     When I validate the input
     Then the validation should pass for "CFG_SECTION_OUT.CLR_OCC"
 

@@ -24,7 +24,7 @@ public class DataTransmissionExtractorService {
 
         for (ParsedConfigFile file : parsedFiles) {
             // Only process IOEXB files
-            if (!file.isIoexbDetails()) {
+            if (!file.isDtIoexbDetails()) {
                 continue;
             }
 

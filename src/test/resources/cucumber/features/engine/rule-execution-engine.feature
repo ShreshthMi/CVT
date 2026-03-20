@@ -17,7 +17,8 @@ Feature: Rule Execution Engine
         "fileName": "test.cfg",
         "id": 1,
         "trackSectionDetails": false,
-        "ioexbDetails": false,
+        "acoIoexbDetails": false,
+        "dtIoexbDetails": false,
         "comDetails": false,
         "blocks": []
       }
@@ -48,7 +49,8 @@ Feature: Rule Execution Engine
         "fileName": "non_track.cfg",
         "id": 1,
         "trackSectionDetails": false,
-        "ioexbDetails": false,
+        "acoIoexbDetails": false,
+        "dtIoexbDetails": false,
         "comDetails": false,
         "blocks": []
       }
@@ -79,7 +81,8 @@ Feature: Rule Execution Engine
         "fileName": "com_file.cfg",
         "id": 1,
         "trackSectionDetails": false,
-        "ioexbDetails": false,
+        "acoIoexbDetails": false,
+        "dtIoexbDetails": false,
         "comDetails": true,
         "blocks": []
       }
@@ -110,7 +113,8 @@ Feature: Rule Execution Engine
         "fileName": "com_file.cfg",
         "id": 1,
         "trackSectionDetails": false,
-        "ioexbDetails": false,
+        "acoIoexbDetails": false,
+        "dtIoexbDetails": false,
         "comDetails": true,
         "blocks": [
           {

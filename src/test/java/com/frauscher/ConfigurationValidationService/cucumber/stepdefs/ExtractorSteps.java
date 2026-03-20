@@ -57,11 +57,19 @@ public class ExtractorSteps {
         TestContext.get().addParsedConfigFile(file);
     }
 
-    @Given("I have a parsed config file {string} with ioexbDetails={word}:")
-    public void iHaveAParsedConfigFileWithIoexbDetails(String fileName, String flag, String jsonContent) throws Exception {
+    @Given("I have a parsed config file {string} with acoIoexbDetails={word}:")
+    public void iHaveAParsedConfigFileWithAcoIoexbDetails(String fileName, String flag, String jsonContent) throws Exception {
         ParsedConfigFile file = DataHelper.parseParsedConfigFile(jsonContent);
         file.setFileName(fileName);
-        file.setIoexbDetails(Boolean.parseBoolean(flag));
+        file.setAcoIoexbDetails(Boolean.parseBoolean(flag));
+        TestContext.get().addParsedConfigFile(file);
+    }
+
+    @Given("I have a parsed config file {string} with dtIoexbDetails={word}:")
+    public void iHaveAParsedConfigFileWithDtIoexbDetails(String fileName, String flag, String jsonContent) throws Exception {
+        ParsedConfigFile file = DataHelper.parseParsedConfigFile(jsonContent);
+        file.setFileName(fileName);
+        file.setDtIoexbDetails(Boolean.parseBoolean(flag));
         TestContext.get().addParsedConfigFile(file);
     }
 

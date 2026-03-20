@@ -67,7 +67,8 @@ public final class CfgParserUtil {
         enrichBlockOccurrences(blocks);
 
         boolean trackSectionDetails = false;
-        boolean ioexbDetails = false;
+        boolean acoIoexbDetails = false;
+        boolean dtIoexbDetails = false;
         boolean comDetails = false;
 
         for (ConfigBlock block : blocks) {
@@ -78,10 +79,12 @@ public final class CfgParserUtil {
                 trackSectionDetails = true;
             }
 
-            if ("CFG_AXCNT".equalsIgnoreCase(blockName) || "CFG_SECTION_OUT".equalsIgnoreCase(blockName)
-                    || "CFG_DATA_SAFETY_LEVEL".equalsIgnoreCase(blockName)
-                    || "CFG_DATA_OUT".equalsIgnoreCase(blockName)) {
-                ioexbDetails = true;
+            if ("CFG_AXCNT".equalsIgnoreCase(blockName) || "CFG_SECTION_OUT".equalsIgnoreCase(blockName)) {
+                acoIoexbDetails = true;
+            }
+
+            if ("CFG_DATA_SAFETY_LEVEL".equalsIgnoreCase(blockName) || "CFG_DATA_OUT".equalsIgnoreCase(blockName)) {
+                dtIoexbDetails = true;
             }
 
             if ("CFG_MY_IP_NW1".equalsIgnoreCase(blockName)) {
@@ -106,7 +109,7 @@ public final class CfgParserUtil {
             }
         }
 
-        return new ParsedConfigFile(file.getOriginalFilename(), blocks, trackSectionDetails, ioexbDetails, comDetails, fileId);
+        return new ParsedConfigFile(file.getOriginalFilename(), blocks, trackSectionDetails, acoIoexbDetails, dtIoexbDetails, comDetails, fileId);
     }
 
     private static ConfigEntry parseEntry(String line) {

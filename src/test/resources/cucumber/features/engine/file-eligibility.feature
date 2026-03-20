@@ -24,7 +24,8 @@ Feature: File Eligibility for Rule Application
         "fileName": "test.cfg",
         "id": 1,
         "trackSectionDetails": false,
-        "ioexbDetails": false,
+        "acoIoexbDetails": false,
+        "dtIoexbDetails": false,
         "comDetails": false,
         "blocks": []
       }
@@ -52,7 +53,8 @@ Feature: File Eligibility for Rule Application
         "fileName": "track.cfg",
         "id": 1,
         "trackSectionDetails": true,
-        "ioexbDetails": false,
+        "acoIoexbDetails": false,
+        "dtIoexbDetails": false,
         "comDetails": false,
         "blocks": []
       }
@@ -80,7 +82,8 @@ Feature: File Eligibility for Rule Application
         "fileName": "other.cfg",
         "id": 1,
         "trackSectionDetails": false,
-        "ioexbDetails": false,
+        "acoIoexbDetails": false,
+        "dtIoexbDetails": false,
         "comDetails": false,
         "blocks": []
       }
@@ -89,7 +92,7 @@ Feature: File Eligibility for Rule Application
     When I invoke the validation decision engine
     Then the validation decision should be IGNORE
 
-  Scenario: Rule with IOEXBDETAILS applies only to IOEXB files
+  Scenario: Rule with ACOIOEXBDETAILS applies only to ACO IOEXB files
     Given I have the following configured rules:
       """
       [
@@ -98,7 +101,7 @@ Feature: File Eligibility for Rule Application
           "ConfigBlockName": "TEST_BLOCK",
           "ConfigEntryKey": "TEST_KEY",
           "UIInputRequired": "YES",
-          "ValidateOnlyInFilesWith": "IOEXBDETAILS"
+          "ValidateOnlyInFilesWith": "ACOIOEXBDETAILS"
         }
       ]
       """
@@ -108,7 +111,8 @@ Feature: File Eligibility for Rule Application
         "fileName": "ioexb.cfg",
         "id": 1,
         "trackSectionDetails": false,
-        "ioexbDetails": true,
+        "acoIoexbDetails": true,
+        "dtIoexbDetails": false,
         "comDetails": false,
         "blocks": []
       }
@@ -117,7 +121,7 @@ Feature: File Eligibility for Rule Application
     When I invoke the validation decision engine
     Then the validation decision should be APPLY_RULE
 
-  Scenario: Rule with IOEXBDETAILS ignores non-IOEXB files
+  Scenario: Rule with ACOIOEXBDETAILS ignores non-ACO IOEXB files
     Given I have the following configured rules:
       """
       [
@@ -126,7 +130,7 @@ Feature: File Eligibility for Rule Application
           "ConfigBlockName": "TEST_BLOCK",
           "ConfigEntryKey": "TEST_KEY",
           "UIInputRequired": "YES",
-          "ValidateOnlyInFilesWith": "IOEXBDETAILS"
+          "ValidateOnlyInFilesWith": "ACOIOEXBDETAILS"
         }
       ]
       """
@@ -136,7 +140,8 @@ Feature: File Eligibility for Rule Application
         "fileName": "other.cfg",
         "id": 1,
         "trackSectionDetails": false,
-        "ioexbDetails": false,
+        "acoIoexbDetails": false,
+        "dtIoexbDetails": false,
         "comDetails": false,
         "blocks": []
       }
@@ -165,7 +170,8 @@ Feature: File Eligibility for Rule Application
         "fileName": "com.cfg",
         "id": 1,
         "trackSectionDetails": false,
-        "ioexbDetails": false,
+        "acoIoexbDetails": false,
+        "dtIoexbDetails": false,
         "comDetails": true,
         "blocks": []
       }
@@ -193,7 +199,8 @@ Feature: File Eligibility for Rule Application
         "fileName": "other.cfg",
         "id": 1,
         "trackSectionDetails": false,
-        "ioexbDetails": false,
+        "acoIoexbDetails": false,
+        "dtIoexbDetails": false,
         "comDetails": false,
         "blocks": []
       }

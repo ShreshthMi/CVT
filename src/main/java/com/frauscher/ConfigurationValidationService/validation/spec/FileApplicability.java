@@ -16,10 +16,16 @@ public enum FileApplicability {
             return file.isTrackSectionDetails();
         }
     },
-    IOEXBDETAILS {
+    ACOIOEXBDETAILS {
         @Override
         public boolean applies(ParsedConfigFile file) {
-            return file.isIoexbDetails();
+            return file.isAcoIoexbDetails();
+        }
+    },
+    DTIOEXBDETAILS {
+        @Override
+        public boolean applies(ParsedConfigFile file) {
+            return file.isDtIoexbDetails();
         }
     },
     COMDETAILS {
