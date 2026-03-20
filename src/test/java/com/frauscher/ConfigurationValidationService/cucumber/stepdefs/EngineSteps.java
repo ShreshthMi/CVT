@@ -54,9 +54,14 @@ public class EngineSteps {
         TestContext.get().getParsedConfigFile().setTrackSectionDetails(Boolean.parseBoolean(flag));
     }
 
-    @Given("the file has ioexbDetails marker set to {word}")
-    public void theFileHasIoexbDetailsMarker(String flag) {
-        TestContext.get().getParsedConfigFile().setIoexbDetails(Boolean.parseBoolean(flag));
+    @Given("the file has acoIoexbDetails marker set to {word}")
+    public void theFileHasAcoIoexbDetailsMarker(String flag) {
+        TestContext.get().getParsedConfigFile().setAcoIoexbDetails(Boolean.parseBoolean(flag));
+    }
+
+    @Given("the file has dtIoexbDetails marker set to {word}")
+    public void theFileHasDtIoexbDetailsMarker(String flag) {
+        TestContext.get().getParsedConfigFile().setDtIoexbDetails(Boolean.parseBoolean(flag));
     }
 
     @Given("the file has comDetails marker set to {word}")

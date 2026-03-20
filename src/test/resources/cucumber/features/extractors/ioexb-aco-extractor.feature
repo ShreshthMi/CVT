@@ -6,12 +6,12 @@ Feature: IOEXB ACO Extractor Service
     Given the extractor service is initialized
 
   Scenario: Extract IOEXB ACO details from IOEXB file
-    Given I have a parsed config file "ioexb_aco_001.ADC" with ioexbDetails=true:
+    Given I have a parsed config file "ioexb_aco_001.ADC" with acoIoexbDetails=true:
       """
       {
         "fileName": "ioexb_aco_001.ADC",
         "id": 500,
-        "ioexbDetails": true,
+        "acoIoexbDetails": true,
         "blocks": [
           {
             "name": "ID",

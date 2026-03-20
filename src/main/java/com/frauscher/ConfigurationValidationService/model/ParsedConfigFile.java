@@ -15,7 +15,8 @@ public class ParsedConfigFile {
     private String fileName;
     private List<ConfigBlock> blocks;
     private boolean trackSectionDetails;
-    private boolean ioexbDetails;
+    private boolean acoIoexbDetails;
+    private boolean dtIoexbDetails;
     private boolean comDetails;
     private int id;
 }

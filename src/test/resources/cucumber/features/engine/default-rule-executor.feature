@@ -17,7 +17,8 @@ Feature: Default Rule Executor
         "fileName": "test.cfg",
         "id": 1,
         "trackSectionDetails": false,
-        "ioexbDetails": false,
+        "acoIoexbDetails": false,
+        "dtIoexbDetails": false,
         "comDetails": false,
         "blocks": []
       }
@@ -33,7 +34,8 @@ Feature: Default Rule Executor
         "fileName": "test.cfg",
         "id": 1,
         "trackSectionDetails": false,
-        "ioexbDetails": false,
+        "acoIoexbDetails": false,
+        "dtIoexbDetails": false,
         "comDetails": false,
         "blocks": []
       }
@@ -49,7 +51,8 @@ Feature: Default Rule Executor
         "fileName": "test.cfg",
         "id": 1,
         "trackSectionDetails": false,
-        "ioexbDetails": false,
+        "acoIoexbDetails": false,
+        "dtIoexbDetails": false,
         "comDetails": true,
         "blocks": []
       }
@@ -65,7 +68,8 @@ Feature: Default Rule Executor
         "fileName": "test.cfg",
         "id": 1,
         "trackSectionDetails": false,
-        "ioexbDetails": false,
+        "acoIoexbDetails": false,
+        "dtIoexbDetails": false,
         "comDetails": false,
         "blocks": []
       }

@@ -6,12 +6,12 @@ Feature: IOEXB Behaviour Extractor Service
     Given the extractor service is initialized
 
   Scenario: Extract IOEXB behaviour from IOEXB file
-    Given I have a parsed config file "ioexb_001.ADC" with ioexbDetails=true:
+    Given I have a parsed config file "ioexb_001.ADC" with acoIoexbDetails=true:
       """
       {
         "fileName": "ioexb_001.ADC",
         "id": 300,
-        "ioexbDetails": true,
+        "acoIoexbDetails": true,
         "blocks": [
           {
             "name": "ID",

@@ -117,7 +117,8 @@ public class RuleExecutionEngine {
         }
 
         return switch (marker.toUpperCase()) {
-            case "IOEXBDETAILS" -> file.isIoexbDetails();
+            case "ACOIOEXBDETAILS" -> file.isAcoIoexbDetails();
+            case "DTIOEXBDETAILS" -> file.isDtIoexbDetails();
             case "TRACKSECTIONDETAILS" -> file.isTrackSectionDetails();
             case "COMDETAILS" -> file.isComDetails();
             default -> false;

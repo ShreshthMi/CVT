@@ -27,7 +27,7 @@ paths:
       description: |
         Validates parsed configuration files against user-defined validation criteria.
         The validation engine applies various rules (RangeCheck, DuplicateCheck, InputMatch, etc.)
-        based on the configuration file markers (IOEXBDETAILS, TRACKSECTIONDETAILS, COMDETAILS).
+        based on the configuration file markers (ACOIOEXBDETAILS, DTIOEXBDETAILS, TRACKSECTIONDETAILS, COMDETAILS).
       operationId: validateConfigFiles
       requestBody:
         required: true
@@ -47,7 +47,8 @@ paths:
                             - key: "ID"
                               value: "1234"
                       trackSectionDetails: true
-                      ioexbDetails: false
+                      acoIoexbDetails: false
+                      dtIoexbDetails: false
                       comDetails: false
                       id: 1
                   userInput:
@@ -119,7 +120,7 @@ paths:
       description: |
         Uploads .cfg configuration files and parses them into structured format.
         Files are automatically classified based on their content (trackSectionDetails, 
-        ioexbDetails, comDetails) and an ID is extracted if present.
+        acoIoexbDetails, dtIoexbDetails, comDetails) and an ID is extracted if present.
       operationId: uploadAdcFiles
       requestBody:
         required: true
@@ -159,7 +160,8 @@ paths:
                             - key: "SPEED_LIMIT"
                               value: "100"
                       trackSectionDetails: true
-                      ioexbDetails: false
+                      acoIoexbDetails: false
+                      dtIoexbDetails: false
                       comDetails: false
                       id: 1
                     - fileName: "ioexb_config.cfg"
@@ -169,7 +171,8 @@ paths:
                             - key: "AXIS_COUNT"
                               value: "4"
                       trackSectionDetails: false
-                      ioexbDetails: true
+                      acoIoexbDetails: true
+                      dtIoexbDetails: false
                       comDetails: false
                       id: 2
         '400':
@@ -337,7 +340,8 @@ components:
                   - key: "ID"
                     value: "100"
             trackSectionDetails: false
-            ioexbDetails: false
+            acoIoexbDetails: false
+            dtIoexbDetails: false
             comDetails: false
             id: 1
         userInput:
@@ -352,7 +356,8 @@ components:
         - fileName
         - blocks
         - trackSectionDetails
-        - ioexbDetails
+        - acoIoexbDetails
+        - dtIoexbDetails
         - comDetails
         - id
       properties:
@@ -369,9 +374,13 @@ components:
           type: boolean
           description: Indicates if file contains track section configuration blocks
           example: true
-        ioexbDetails:
+        acoIoexbDetails:
           type: boolean
-          description: Indicates if file contains IOEXB configuration blocks
+          description: Indicates if file contains ACO IOEXB configuration blocks (CFG_AXCNT, CFG_SECTION_OUT)
+          example: false
+        dtIoexbDetails:
+          type: boolean
+          description: Indicates if file contains DT IOEXB configuration blocks (CFG_DATA_SAFETY_LEVEL, CFG_DATA_OUT)
           example: false
         comDetails:
           type: boolean

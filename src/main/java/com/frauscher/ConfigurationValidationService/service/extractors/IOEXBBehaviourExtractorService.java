@@ -24,7 +24,7 @@ public class IOEXBBehaviourExtractorService {
 
     /**
      * Extracts IOEXB behaviour details from parsed configuration files
-     * Only processes files where ioexbDetails is true
+     * Only processes files where acoIoexbDetails is true
      * 
      * @param parsedFiles list of parsed configuration files
      * @return list of IOEXB behaviour details
@@ -34,7 +34,7 @@ public class IOEXBBehaviourExtractorService {
 
         for (ParsedConfigFile file : parsedFiles) {
             // Only process files with IOEXB details
-            if (!file.isIoexbDetails()) {
+            if (!file.isAcoIoexbDetails()) {
                 continue;
             }
 

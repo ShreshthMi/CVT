@@ -140,11 +140,13 @@ public class DataHelper {
      */
     public static ParsedConfigFile createParsedConfigFile(String fileName, int id,
                                                           boolean trackSectionDetails,
-                                                          boolean ioexbDetails,
+                                                          boolean acoIoexbDetails,
+                                                          boolean dtIoexbDetails,
                                                           boolean comDetails) {
         ParsedConfigFile file = createParsedConfigFile(fileName, id);
         file.setTrackSectionDetails(trackSectionDetails);
-        file.setIoexbDetails(ioexbDetails);
+        file.setAcoIoexbDetails(acoIoexbDetails);
+        file.setDtIoexbDetails(dtIoexbDetails);
         file.setComDetails(comDetails);
         return file;
     }

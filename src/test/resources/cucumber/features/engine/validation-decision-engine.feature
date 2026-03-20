@@ -26,7 +26,8 @@ Feature: Validation Decision Engine
         "fileName": "test.cfg",
         "id": 1,
         "trackSectionDetails": false,
-        "ioexbDetails": false,
+        "acoIoexbDetails": false,
+        "dtIoexbDetails": false,
         "comDetails": false,
         "blocks": []
       }
@@ -53,7 +54,8 @@ Feature: Validation Decision Engine
         "fileName": "test.cfg",
         "id": 1,
         "trackSectionDetails": false,
-        "ioexbDetails": false,
+        "acoIoexbDetails": false,
+        "dtIoexbDetails": false,
         "comDetails": false,
         "blocks": []
       }
@@ -71,7 +73,8 @@ Feature: Validation Decision Engine
         "fileName": "test.cfg",
         "id": 1,
         "trackSectionDetails": false,
-        "ioexbDetails": false,
+        "acoIoexbDetails": false,
+        "dtIoexbDetails": false,
         "comDetails": false,
         "blocks": []
       }
@@ -89,7 +92,8 @@ Feature: Validation Decision Engine
         "fileName": "test.cfg",
         "id": 1,
         "trackSectionDetails": false,
-        "ioexbDetails": false,
+        "acoIoexbDetails": false,
+        "dtIoexbDetails": false,
         "comDetails": false,
         "blocks": []
       }
@@ -117,7 +121,8 @@ Feature: Validation Decision Engine
         "fileName": "test.cfg",
         "id": 1,
         "trackSectionDetails": false,
-        "ioexbDetails": false,
+        "acoIoexbDetails": false,
+        "dtIoexbDetails": false,
         "comDetails": false,
         "blocks": []
       }
@@ -145,7 +150,8 @@ Feature: Validation Decision Engine
         "fileName": "test.cfg",
         "id": 1,
         "trackSectionDetails": false,
-        "ioexbDetails": false,
+        "acoIoexbDetails": false,
+        "dtIoexbDetails": false,
         "comDetails": true,
         "blocks": []
       }
@@ -172,7 +178,8 @@ Feature: Validation Decision Engine
         "fileName": "test.cfg",
         "id": 1,
         "trackSectionDetails": false,
-        "ioexbDetails": false,
+        "acoIoexbDetails": false,
+        "dtIoexbDetails": false,
         "comDetails": true,
         "blocks": []
       }
@@ -200,7 +207,8 @@ Feature: Validation Decision Engine
         "fileName": "test.cfg",
         "id": 1,
         "trackSectionDetails": false,
-        "ioexbDetails": false,
+        "acoIoexbDetails": false,
+        "dtIoexbDetails": false,
         "comDetails": true,
         "blocks": []
       }
@@ -228,7 +236,8 @@ Feature: Validation Decision Engine
         "fileName": "test.cfg",
         "id": 1,
         "trackSectionDetails": false,
-        "ioexbDetails": false,
+        "acoIoexbDetails": false,
+        "dtIoexbDetails": false,
         "comDetails": false,
         "blocks": []
       }
@@ -256,7 +265,8 @@ Feature: Validation Decision Engine
         "fileName": "test.cfg",
         "id": 1,
         "trackSectionDetails": true,
-        "ioexbDetails": false,
+        "acoIoexbDetails": false,
+        "dtIoexbDetails": false,
         "comDetails": false,
         "blocks": []
       }

@@ -6,12 +6,12 @@ Feature: Data Transmission Extractor Service
     Given the extractor service is initialized
 
   Scenario: Extract data transmission details from IOEXB file
-    Given I have a parsed config file "ioexb_trans_001.ADC" with ioexbDetails=true:
+    Given I have a parsed config file "ioexb_trans_001.ADC" with dtIoexbDetails=true:
       """
       {
         "fileName": "ioexb_trans_001.ADC",
         "id": 800,
-        "ioexbDetails": true,
+        "dtIoexbDetails": true,
         "blocks": [
           {
             "name": "ID",
