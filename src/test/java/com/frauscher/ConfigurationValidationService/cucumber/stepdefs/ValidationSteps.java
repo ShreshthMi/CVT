@@ -444,26 +444,31 @@ public class ValidationSteps {
 
     private ValidationResult executeInputMatchOrBlockNotFound(RuleConfig rule, Map<String, Object> payload,
             Map<String, String> configFiles, String blockName, String entryKey) {
-        
+
         String expected = getPayloadValue(payload, blockName, entryKey);
-        
+
         List<String> actuals = getConfigValues(configFiles, blockName, entryKey);
-        
-        // Block not found is acceptable for this rule
+
+        // Block not found
         if (actuals.isEmpty()) {
-            // If payload has expected value but block not found, it's PASS
-            // If payload has no expected value, skip validation
-            if (expected != null) {
-                return createResult(rule, blockName, entryKey, expected, "BLOCK_NOT_FOUND", "PASS");
+            if (expected == null) {
+                return null;
             }
-            return null;
+            // Compare against DefaultValue if configured
+            String defaultValue = DataHelper.getField(rule, "defaultValue");
+            if (defaultValue != null) {
+                boolean matchesDefault = defaultValue.equals(expected);
+                return createResult(rule, blockName, entryKey, expected, "BLOCK_NOT_FOUND",
+                        matchesDefault ? "PASS" : "FAIL");
+            }
+            return createResult(rule, blockName, entryKey, expected, "BLOCK_NOT_FOUND", "PASS");
         }
-        
+
         // Block found but no expected value in payload - should FAIL
         if (expected == null) {
             return createResult(rule, blockName, entryKey, "N/A", String.join(",", actuals), "FAIL");
         }
-        
+
         // Block found and expected value present - check match
         boolean matches = actuals.stream().allMatch(expected::equals);
         return createResult(rule, blockName, entryKey, expected, String.join(",", actuals), matches ? "PASS" : "FAIL");

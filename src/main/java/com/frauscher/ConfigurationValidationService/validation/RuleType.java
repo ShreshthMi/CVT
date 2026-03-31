@@ -27,6 +27,10 @@ public enum RuleType {
         return externalName;
     }
 
+    public boolean requiresDefaultValue() {
+        return externalName.contains("OrBlockNotFound");
+    }
+
     public static Set<String> supportedExternalNames() {
         return Arrays.stream(values())
                 .map(RuleType::getExternalName)

@@ -17,49 +17,55 @@
   },
 
   {
-    "RuleType": "InputMatch",
+    "RuleType": "InputMatchOrBlockNotFound",
     "ConfigBlockName": "CFG_BEHAV_TGGL",
     "ConfigEntryKey": "BEHAV_RESET",
     "UIInputRequired": "Yes",
+    "DefaultValue": "4",
     "SkipComFile": true
   },
   {
-    "RuleType": "InputMatch",
+    "RuleType": "InputMatchOrBlockNotFound",
     "ConfigBlockName": "CFG_BEHAV_TGGL",
     "ConfigEntryKey": "BEHAV_SIMUL",
     "UIInputRequired": "Yes",
+    "DefaultValue": "0",
     "SkipComFile": true
   },
 
   {
-    "RuleType": "InputMatch",
+    "RuleType": "InputMatchOrBlockNotFound",
     "ConfigBlockName": "CFG_SECTION",
     "ConfigEntryKey": "COMM_FAIL",
     "UIInputRequired": "Yes",
+    "DefaultValue": "0",
     "ValidateOnlyInFilesWith": "TRACKSECTIONDETAILS",
     "SkipComFile": true
   },
   {
-    "RuleType": "InputMatch",
+    "RuleType": "InputMatchOrBlockNotFound",
     "ConfigBlockName": "CFG_SECTION",
     "ConfigEntryKey": "BEHAV_GE",
     "UIInputRequired": "Yes",
+    "DefaultValue": "1",
     "ValidateOnlyInFilesWith": "TRACKSECTIONDETAILS",
     "SkipComFile": true
   },
   {
-    "RuleType": "InputMatch",
+    "RuleType": "InputMatchOrBlockNotFound",
     "ConfigBlockName": "CFG_SECTION",
     "ConfigEntryKey": "CLR_TRACK",
     "UIInputRequired": "Yes",
+    "DefaultValue": "0",
     "ValidateOnlyInFilesWith": "TRACKSECTIONDETAILS",
     "SkipComFile": true
   },
   {
-    "RuleType": "InputMatch",
+    "RuleType": "InputMatchOrBlockNotFound",
     "ConfigBlockName": "CFG_SECTION",
     "ConfigEntryKey": "RESET_IN",
     "UIInputRequired": "Yes",
+    "DefaultValue": "5",
     "ValidateOnlyInFilesWith": "TRACKSECTIONDETAILS",
     "SkipComFile": true
   },
@@ -73,18 +79,20 @@
   },
 
   {
-    "RuleType": "InputMatch",
+    "RuleType": "InputMatchOrBlockNotFound",
     "ConfigBlockName": "CFG_AXCNT",
     "ConfigEntryKey": "BEHAV_INPUT1",
     "UIInputRequired": "Yes",
+    "DefaultValue": "1",
     "ValidateOnlyInFilesWith": "ACOIOEXBDETAILS",
     "SkipComFile": true
   },
   {
-    "RuleType": "InputMatch",
+    "RuleType": "InputMatchOrBlockNotFound",
     "ConfigBlockName": "CFG_AXCNT",
     "ConfigEntryKey": "BEHAV_INPUT2",
     "UIInputRequired": "Yes",
+    "DefaultValue": "4",
     "ValidateOnlyInFilesWith": "ACOIOEXBDETAILS",
     "SkipComFile": true
   },
@@ -97,26 +105,29 @@
     "SkipComFile": true
   },
   {
-    "RuleType": "InputMatch",
+    "RuleType": "InputMatchOrBlockNotFound",
     "ConfigBlockName": "CFG_AXCNT",
     "ConfigEntryKey": "TYPE_IN1",
     "UIInputRequired": "No",
+    "DefaultValue": "0",
     "ValidateOnlyInFilesWith": "ACOIOEXBDETAILS",
     "SkipComFile": true
   },
   {
-    "RuleType": "InputMatch",
+    "RuleType": "InputMatchOrBlockNotFound",
     "ConfigBlockName": "CFG_AXCNT",
     "ConfigEntryKey": "TYPE_IN2",
     "UIInputRequired": "No",
+    "DefaultValue": "0",
     "ValidateOnlyInFilesWith": "ACOIOEXBDETAILS",
     "SkipComFile": true
   },
   {
-    "RuleType": "InputMatch",
+    "RuleType": "InputMatchOrBlockNotFound",
     "ConfigBlockName": "CFG_AXCNT",
     "ConfigEntryKey": "TYPE_IN3",
     "UIInputRequired": "No",
+    "DefaultValue": "0",
     "ValidateOnlyInFilesWith": "ACOIOEXBDETAILS",
     "SkipComFile": true
   },
@@ -191,6 +202,7 @@
     "ConfigBlockName": "CFG_OCC",
     "ConfigEntryKey": "OCC_DELAY",
     "UIInputRequired": "Yes",
+    "DefaultValue": "0",
     "SkipComFile": true
   },
   {
@@ -198,6 +210,7 @@
     "ConfigBlockName": "CFG_OCC",
     "ConfigEntryKey": "OCC_EXT",
     "UIInputRequired": "Yes",
+    "DefaultValue": "26",
     "SkipComFile": true
   },
 
@@ -206,6 +219,7 @@
     "ConfigBlockName": "CFG_RESET",
     "ConfigEntryKey": "RESET_LD_TIME",
     "UIInputRequired": "Yes",
+    "DefaultValue": "1",
     "SkipComFile": true
   },
   {
@@ -213,6 +227,7 @@
     "ConfigBlockName": "CFG_RESET",
     "ConfigEntryKey": "RESET_OP_TIME",
     "UIInputRequired": "Yes",
+    "DefaultValue": "50",
     "SkipComFile": true
   },
 
@@ -232,34 +247,38 @@
     "SkipComFile": true
   },
   {
-    "RuleType": "InputMatch",
+    "RuleType": "InputMatchOrBlockNotFound",
     "ConfigBlockName": "CFG_ZP",
     "ConfigEntryKey": "INTERVAL",
     "UIInputRequired": "Yes",
+    "DefaultValue": "3",
     "ValidateOnlyInFilesWith": "TRACKSECTIONDETAILS",
     "SkipComFile": true
   },
   {
-    "RuleType": "InputMatch",
+    "RuleType": "InputMatchOrBlockNotFound",
     "ConfigBlockName": "CFG_ZP",
     "ConfigEntryKey": "SUPERVIS_COUNT",
     "UIInputRequired": "Yes",
+    "DefaultValue": "2",
     "ValidateOnlyInFilesWith": "TRACKSECTIONDETAILS",
     "SkipComFile": true
   },
   {
-    "RuleType": "InputMatch",
+    "RuleType": "InputMatchOrBlockNotFound",
     "ConfigBlockName": "CFG_ZP",
     "ConfigEntryKey": "SYSTEM_COUNT",
     "UIInputRequired": "Yes",
+    "DefaultValue": "2",
     "ValidateOnlyInFilesWith": "TRACKSECTIONDETAILS",
     "SkipComFile": true
   },
   {
-    "RuleType": "InputMatch",
+    "RuleType": "InputMatchOrBlockNotFound",
     "ConfigBlockName": "CFG_ZP",
     "ConfigEntryKey": "PARTIAL_COUNT",
     "UIInputRequired": "Yes",
+    "DefaultValue": "1",
     "ValidateOnlyInFilesWith": "TRACKSECTIONDETAILS",
     "SkipComFile": true
   },
@@ -268,6 +287,7 @@
     "ConfigBlockName": "CFG_ZP",
     "ConfigEntryKey": "SUPERVIS_COUNT_LMT",
     "UIInputRequired": "No",
+    "DefaultValue": "0",
     "ValidateOnlyInFilesWith": "TRACKSECTIONDETAILS",
     "SkipComFile": true
   },
