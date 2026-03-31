@@ -11,6 +11,7 @@ public enum RuleType {
     INPUT_MATCH("InputMatch"),
     INPUT_MATCH_OR_BLOCK_NOT_FOUND("InputMatchOrBlockNotFound"),
     OPTIONAL_INPUT_MATCH("OptionalInputMatch"),
+    OPTIONAL_INPUT_MATCH_OR_BLOCK_NOT_FOUND("OptionalInputMatchOrBlockNotFound"),
     RANGE_CHECK("RangeCheck"),
     DUPLICATE_CHECK("DuplicateCheck"),
     MULTIPLE_BLOCK_SINGLE_INPUT_MATCH("MultipleBlockSingleInputMatch"),

@@ -353,6 +353,8 @@ public class ValidationSteps {
                 return executeInputMatchOrBlockNotFound(rule, payload, configFiles, blockName, entryKey);
             case "OptionalInputMatch":
                 return executeOptionalInputMatch(rule, payload, configFiles, blockName, entryKey);
+            case "OptionalInputMatchOrBlockNotFound":
+                return executeOptionalInputMatchOrBlockNotFound(rule, payload, configFiles, blockName, entryKey);
             case "MultipleBlockSingleInputMatch":
                 return executeMultipleBlockSingleInputMatch(rule, payload, configFiles, blockName, entryKey);
             case "MultipleBlockMultipleInputMatch":
@@ -502,6 +504,30 @@ public class ValidationSteps {
         // Check if ANY actual value is in allowed set (anyMatch)
         boolean matches = actuals.stream().anyMatch(allowedValues::contains);
         return createResult(rule, blockName, entryKey, allowedValues.toString(), String.join(",", actuals), matches ? "PASS" : "FAIL");
+    }
+
+    private ValidationResult executeOptionalInputMatchOrBlockNotFound(RuleConfig rule, Map<String, Object> payload,
+            Map<String, String> configFiles, String blockName, String entryKey) {
+
+        String expected = getPayloadValue(payload, blockName, entryKey);
+
+        if (expected == null) {
+            return null;
+        }
+
+        List<String> actuals = getConfigValues(configFiles, blockName, entryKey);
+
+        if (actuals.isEmpty()) {
+            String defaultValue = DataHelper.getField(rule, "defaultValue");
+            if (defaultValue != null) {
+                boolean matchesDefault = defaultValue.equals(expected);
+                return createResult(rule, blockName, entryKey, expected, "BLOCK_NOT_FOUND",
+                        matchesDefault ? "PASS" : "FAIL");
+            }
+            return createResult(rule, blockName, entryKey, expected, "BLOCK_NOT_FOUND", "PASS");
+        }
+
+        return executeOptionalInputMatch(rule, payload, configFiles, blockName, entryKey);
     }
 
     private ValidationResult executeMultipleBlockSingleInputMatch(RuleConfig rule, Map<String, Object> payload,
