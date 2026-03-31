@@ -34,15 +34,25 @@ public class InputMatchOrBlockNotFoundRule implements ValidationRule {
         if (!context.fileContext().hasBlock(context.key().getBlock())) {
 
             ResolvedPayload payload = context.payload();
-
             String expected = payload.asString();
 
+            if (!payload.isPresent()) {
+                return List.of(create(
+                        context.fileContext().file(),
+                        context.rule(),
+                        expected,
+                        ValidationConstants.CONFIG_BLOCK_NOT_FOUND,
+                        ValidationStatus.PASS));
+            }
+
+            String defaultValue = context.rule().getDefaultValue();
+            boolean matchesDefault = defaultValue.equals(expected);
             return List.of(create(
                     context.fileContext().file(),
                     context.rule(),
                     expected,
                     ValidationConstants.CONFIG_BLOCK_NOT_FOUND,
-                    ValidationStatus.PASS));
+                    matchesDefault ? ValidationStatus.PASS : ValidationStatus.FAIL));
         }
 
         return inputMatchRule.execute(context);

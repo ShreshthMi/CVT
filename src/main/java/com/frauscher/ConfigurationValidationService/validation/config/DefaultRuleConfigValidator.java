@@ -43,6 +43,7 @@ public class DefaultRuleConfigValidator implements RuleConfigValidator {
         ruleConfig.setUiInputRequired(trimToNull(ruleConfig.getUiInputRequired()));
         ruleConfig.setValidateOnlyInFilesWith(
                 trimToNull(ruleConfig.getValidateOnlyInFilesWith()));
+        ruleConfig.setDefaultValue(trimToNull(ruleConfig.getDefaultValue()));
     }
 
     private void validateMandatoryFields(RuleConfig ruleConfig) {
@@ -111,8 +112,9 @@ public class DefaultRuleConfigValidator implements RuleConfigValidator {
 
             case DUPLICATE_CHECK -> validateDuplicateCheck(ruleConfig);
 
+            case INPUT_MATCH_OR_BLOCK_NOT_FOUND -> validateDefaultValue(ruleConfig);
+
             case INPUT_MATCH,
-                 INPUT_MATCH_OR_BLOCK_NOT_FOUND,
                  OPTIONAL_INPUT_MATCH,
                  MULTIPLE_BLOCK_SINGLE_INPUT_MATCH,
                  MULTIPLE_BLOCK_MULTIPLE_INPUT_MATCH,
@@ -153,6 +155,17 @@ public class DefaultRuleConfigValidator implements RuleConfigValidator {
         if (min >= max) {
             throw new RuleConfigurationException(
                     "RangeCheck requires min < max"
+            );
+        }
+    }
+
+    private void validateDefaultValue(RuleConfig ruleConfig) {
+
+        if (ruleConfig.getDefaultValue() == null) {
+            throw new RuleConfigurationException(
+                    "DefaultValue is mandatory for rule type " + ruleConfig.getRuleType() +
+                            " (block=" + ruleConfig.getConfigBlockName() +
+                            ", entry=" + ruleConfig.getConfigEntryKey() + ")"
             );
         }
     }

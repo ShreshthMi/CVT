@@ -43,7 +43,8 @@ public class DataHelper {
         setField(ruleConfig, "configEntryKey", (String) config.get("ConfigEntryKey"));
         setField(ruleConfig, "uiInputRequired", (String) config.get("UIInputRequired"));
         setField(ruleConfig, "validateOnlyInFilesWith", (String) config.get("ValidateOnlyInFilesWith"));
-        
+        setField(ruleConfig, "defaultValue", (String) config.get("DefaultValue"));
+
         if (config.get("SkipComFile") != null) {
             setField(ruleConfig, "skipComFile", config.get("SkipComFile"));
         }

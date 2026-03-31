@@ -21,7 +21,8 @@ Feature: InputMatchOrBlockNotFound Rule
           "RuleType": "InputMatchOrBlockNotFound",
           "ConfigBlockName": "CFG_DIRDEP_OCC",
           "ConfigEntryKey": "FAILSAFE_OCC_FMA1",
-          "UIInputRequired": "Yes"
+          "UIInputRequired": "Yes",
+          "DefaultValue": "1"
         }
       ]
       """
@@ -32,7 +33,7 @@ Feature: InputMatchOrBlockNotFound Rule
     When I validate the input
     Then the validation should pass for "CFG_DIRDEP_OCC.FAILSAFE_OCC_FMA1"
 
-  Scenario: InputMatchOrBlockNotFound - block not found should pass
+  Scenario: InputMatchOrBlockNotFound - block not found with default value should pass
     Given I have the following payload:
       """
       {
@@ -48,7 +49,8 @@ Feature: InputMatchOrBlockNotFound Rule
           "RuleType": "InputMatchOrBlockNotFound",
           "ConfigBlockName": "CFG_DIRDEP_OCC",
           "ConfigEntryKey": "FAILSAFE_OCC_FMA1",
-          "UIInputRequired": "Yes"
+          "UIInputRequired": "Yes",
+          "DefaultValue": "1"
         }
       ]
       """
@@ -58,6 +60,34 @@ Feature: InputMatchOrBlockNotFound Rule
       """
     When I validate the input
     Then the validation should pass for "CFG_DIRDEP_OCC.FAILSAFE_OCC_FMA1"
+
+  Scenario: InputMatchOrBlockNotFound - block not found with non-default value should fail
+    Given I have the following payload:
+      """
+      {
+        "CFG_DIRDEP_OCC": {
+          "FAILSAFE_OCC_FMA1": "2"
+        }
+      }
+      """
+    And I have the following configured rules:
+      """
+      [
+        {
+          "RuleType": "InputMatchOrBlockNotFound",
+          "ConfigBlockName": "CFG_DIRDEP_OCC",
+          "ConfigEntryKey": "FAILSAFE_OCC_FMA1",
+          "UIInputRequired": "Yes",
+          "DefaultValue": "1"
+        }
+      ]
+      """
+    And I have config file "test.ADC" with content:
+      """
+      # No CFG_DIRDEP_OCC entries
+      """
+    When I validate the input
+    Then the validation should fail for "CFG_DIRDEP_OCC.FAILSAFE_OCC_FMA1"
 
   Scenario: InputMatchOrBlockNotFound - non-matching values should fail
     Given I have the following payload:
@@ -75,7 +105,8 @@ Feature: InputMatchOrBlockNotFound Rule
           "RuleType": "InputMatchOrBlockNotFound",
           "ConfigBlockName": "CFG_DIRDEP_OCC",
           "ConfigEntryKey": "FAILSAFE_OCC_FMA1",
-          "UIInputRequired": "Yes"
+          "UIInputRequired": "Yes",
+          "DefaultValue": "1"
         }
       ]
       """
@@ -104,7 +135,8 @@ Feature: InputMatchOrBlockNotFound Rule
           "RuleType": "InputMatchOrBlockNotFound",
           "ConfigBlockName": "CFG_DIRDEP_OCC",
           "ConfigEntryKey": "FAILSAFE_OCC_FMA1",
-          "UIInputRequired": "Yes"
+          "UIInputRequired": "Yes",
+          "DefaultValue": "1"
         }
       ]
       """
@@ -129,7 +161,8 @@ Feature: InputMatchOrBlockNotFound Rule
           "RuleType": "InputMatchOrBlockNotFound",
           "ConfigBlockName": "CFG_DIRDEP_OCC",
           "ConfigEntryKey": "FAILSAFE_OCC_FMA1",
-          "UIInputRequired": "Yes"
+          "UIInputRequired": "Yes",
+          "DefaultValue": "1"
         }
       ]
       """
@@ -156,7 +189,8 @@ Feature: InputMatchOrBlockNotFound Rule
           "RuleType": "InputMatchOrBlockNotFound",
           "ConfigBlockName": "CFG_DIRDEP_OCC",
           "ConfigEntryKey": "FAILSAFE_OCC_FMA1",
-          "UIInputRequired": "Yes"
+          "UIInputRequired": "Yes",
+          "DefaultValue": "1"
         }
       ]
       """
@@ -184,7 +218,8 @@ Feature: InputMatchOrBlockNotFound Rule
           "RuleType": "InputMatchOrBlockNotFound",
           "ConfigBlockName": "CFG_DIRDEP_OCC",
           "ConfigEntryKey": "FAILSAFE_OCC_FMA1",
-          "UIInputRequired": "Yes"
+          "UIInputRequired": "Yes",
+          "DefaultValue": "1"
         }
       ]
       """
