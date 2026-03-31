@@ -3,9 +3,8 @@ package com.frauscher.ConfigurationValidationService.validation.rules;
 import static com.frauscher.ConfigurationValidationService.validation.ValidationResultFactory.create;
 
 import java.util.List;
+import java.util.HashSet;
 import java.util.Set;
-import java.util.TreeSet;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
@@ -34,20 +33,14 @@ public class MultipleBlockMultipleInputMatchRule implements ValidationRule {
             return List.of();
         }
 
-        Set<String> allowedValues =
-                payload.asStringList()
-                        .stream()
-                        .map(String::valueOf)
-                        .collect(Collectors.toCollection(TreeSet::new));
+        List<String> expectedValues = payload.asStringList();
+        Set<String> allowedValues = new HashSet<>(expectedValues);
 
         List<String> actualValues =
                 context.fileContext()
                         .values(
                                 context.key().getBlock(),
-                                context.key().getEntry())
-                        .stream()
-                        .sorted()
-                        .toList();
+                                context.key().getEntry());
 
         // ---------------------------------------------
         // BLOCK OR ENTRY NOT FOUND
@@ -56,7 +49,7 @@ public class MultipleBlockMultipleInputMatchRule implements ValidationRule {
             return List.of(create(
                     context.fileContext().file(),
                     context.rule(),
-                    allowedValues.toString(),
+                    expectedValues.toString(),
                     ValidationConstants.CONFIG_BLOCK_OR_PARAM_NOT_FOUND,
                     ValidationStatus.FAIL
             ));
@@ -72,7 +65,7 @@ public class MultipleBlockMultipleInputMatchRule implements ValidationRule {
         return List.of(create(
                 context.fileContext().file(),
                 context.rule(),
-                allowedValues.toString(),
+                expectedValues.toString(),
                 "[" + String.join(",", actualValues) + "]",
                 allMatch ? ValidationStatus.PASS : ValidationStatus.FAIL
         ));
