@@ -3,7 +3,7 @@ package com.frauscher.ConfigurationValidationService.validation.rules;
 import static com.frauscher.ConfigurationValidationService.validation.ValidationResultFactory.create;
 
 import java.util.List;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.springframework.stereotype.Component;
@@ -34,7 +34,7 @@ public class MultipleBlockMultipleInputMatchRule implements ValidationRule {
         }
 
         List<String> expectedValues = payload.asStringList();
-        Set<String> allowedValues = new HashSet<>(expectedValues);
+        Set<String> allowedValues = new LinkedHashSet<>(expectedValues);
 
         List<String> actualValues =
                 context.fileContext()
