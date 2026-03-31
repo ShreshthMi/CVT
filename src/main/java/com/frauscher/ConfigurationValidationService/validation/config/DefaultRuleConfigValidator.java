@@ -112,7 +112,8 @@ public class DefaultRuleConfigValidator implements RuleConfigValidator {
 
             case DUPLICATE_CHECK -> validateDuplicateCheck(ruleConfig);
 
-            case INPUT_MATCH_OR_BLOCK_NOT_FOUND -> validateDefaultValue(ruleConfig);
+            case INPUT_MATCH_OR_BLOCK_NOT_FOUND,
+                 OPTIONAL_INPUT_MATCH_OR_BLOCK_NOT_FOUND -> validateDefaultValue(ruleConfig);
 
             case INPUT_MATCH,
                  OPTIONAL_INPUT_MATCH,

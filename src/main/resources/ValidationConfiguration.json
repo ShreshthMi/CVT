@@ -70,10 +70,11 @@
     "SkipComFile": true
   },
   {
-    "RuleType": "OptionalInputMatch",
+    "RuleType": "OptionalInputMatchOrBlockNotFound",
     "ConfigBlockName": "CFG_SECTION",
     "ConfigEntryKey": "RESET_OUT",
     "UIInputRequired": "Yes",
+    "DefaultValue": "1",
     "ValidateOnlyInFilesWith": "TRACKSECTIONDETAILS",
     "SkipComFile": true
   },
@@ -97,10 +98,11 @@
     "SkipComFile": true
   },
   {
-    "RuleType": "OptionalInputMatch",
+    "RuleType": "OptionalInputMatchOrBlockNotFound",
     "ConfigBlockName": "CFG_AXCNT",
     "ConfigEntryKey": "BEHAV_INPUT3",
     "UIInputRequired": "Yes",
+    "DefaultValue": "0",
     "ValidateOnlyInFilesWith": "ACOIOEXBDETAILS",
     "SkipComFile": true
   },

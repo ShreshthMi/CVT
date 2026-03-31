@@ -17,11 +17,17 @@ import com.frauscher.ConfigurationValidationService.validation.context.RuleExecu
 import com.frauscher.ConfigurationValidationService.validation.payload.ResolvedPayload;
 
 @Component
-public class OptionalInputMatchRule implements ValidationRule {
+public class OptionalInputMatchOrBlockNotFoundRule implements ValidationRule {
+
+    private final OptionalInputMatchRule optionalInputMatchRule;
+
+    public OptionalInputMatchOrBlockNotFoundRule(OptionalInputMatchRule optionalInputMatchRule) {
+        this.optionalInputMatchRule = optionalInputMatchRule;
+    }
 
     @Override
     public RuleType supportedType() {
-        return RuleType.OPTIONAL_INPUT_MATCH;
+        return RuleType.OPTIONAL_INPUT_MATCH_OR_BLOCK_NOT_FOUND;
     }
 
     @Override
@@ -33,38 +39,24 @@ public class OptionalInputMatchRule implements ValidationRule {
             return List.of();
         }
 
-        Set<String> expectedValues =
-                payload.asStringList()
-                        .stream()
-                        .map(String::valueOf)
-                        .collect(Collectors.toSet());
+        if (!context.fileContext().hasBlock(context.key().getBlock())) {
 
-        List<String> actualValues =
-                context.fileContext()
-                        .values(
-                                context.key().getBlock(),
-                                context.key().getEntry());
+            Set<String> expectedValues = payload.asStringList()
+                    .stream()
+                    .map(String::valueOf)
+                    .collect(Collectors.toSet());
 
-        if (actualValues.isEmpty() && !expectedValues.contains(context.rule().getDefaultValue())) {
+            String defaultValue = context.rule().getDefaultValue();
+            boolean matchesDefault = expectedValues.contains(defaultValue);
+
             return List.of(create(
                     context.fileContext().file(),
                     context.rule(),
                     expectedValues.toString(),
-                    ValidationConstants.CONFIG_BLOCK_OR_PARAM_NOT_FOUND,
-                    ValidationStatus.FAIL
-            ));
+                    ValidationConstants.CONFIG_BLOCK_NOT_FOUND,
+                    matchesDefault ? ValidationStatus.PASS : ValidationStatus.FAIL));
         }
 
-        boolean matches =
-                actualValues.stream()
-                        .anyMatch(expectedValues::contains);
-
-        return List.of(create(
-                context.fileContext().file(),
-                context.rule(),
-                expectedValues.toString(),
-                String.join(",", actualValues),
-                matches ? ValidationStatus.PASS : ValidationStatus.FAIL
-        ));
+        return optionalInputMatchRule.execute(context);
     }
 }
