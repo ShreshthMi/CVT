@@ -67,15 +67,15 @@ public class EthernetDetailExtractorService {
         String subnetMask2 = extractSubnetMask(file, "MY_MASK_NW2");
         builder.subnetMask2(subnetMask2);
 
-        // Extract destination IP addresses for network 1
-        String destIpNw1 = buildIpAddress(file, "CFG_INT_ID_DEST_NW1", 
+        // Extract destination IP addresses for network 1 (multiple blocks possible)
+        List<String> destIpNw1List = buildIpAddressList(file, "CFG_INT_ID_DEST_NW1",
             "DEST_IP_INT_ID_NW1_B1", "DEST_IP_INT_ID_NW1_B2", "DEST_IP_INT_ID_NW1_B3", "DEST_IP_INT_ID_NW1_B4");
-        builder.destIpNw1(destIpNw1);
+        builder.destIpNw1(destIpNw1List);
 
-        // Extract destination IP addresses for network 2
-        String destIpNw2 = buildIpAddress(file, "CFG_INT_ID_DEST_NW2", 
+        // Extract destination IP addresses for network 2 (multiple blocks possible)
+        List<String> destIpNw2List = buildIpAddressList(file, "CFG_INT_ID_DEST_NW2",
             "DEST_IP_INT_ID_NW2_B1", "DEST_IP_INT_ID_NW2_B2", "DEST_IP_INT_ID_NW2_B3", "DEST_IP_INT_ID_NW2_B4");
-        builder.destIpNw2(destIpNw2);
+        builder.destIpNw2(destIpNw2List);
 
         // Extract forwarding ACD details
         List<String> fwrdAcdToDpIds = new ArrayList<>();
@@ -108,7 +108,30 @@ public class EthernetDetailExtractorService {
         return builder.build();
     }
 
-    private String buildIpAddress(ParsedConfigFile file, String blockName, 
+    private List<String> buildIpAddressList(ParsedConfigFile file, String blockName,
+            String b1Key, String b2Key, String b3Key, String b4Key) {
+
+        List<String> ipAddresses = new ArrayList<>();
+
+        List<ConfigBlock> blocks = file.getBlocks().stream()
+                .filter(block -> blockName.equals(block.getName()))
+                .toList();
+
+        for (ConfigBlock block : blocks) {
+            String b1 = extractEntryValueFromBlock(block, b1Key);
+            String b2 = extractEntryValueFromBlock(block, b2Key);
+            String b3 = extractEntryValueFromBlock(block, b3Key);
+            String b4 = extractEntryValueFromBlock(block, b4Key);
+
+            if (!b1.isEmpty() && !b2.isEmpty() && !b3.isEmpty() && !b4.isEmpty()) {
+                ipAddresses.add(b1 + "." + b2 + "." + b3 + "." + b4);
+            }
+        }
+
+        return ipAddresses;
+    }
+
+    private String buildIpAddress(ParsedConfigFile file, String blockName,
             String b1Key, String b2Key, String b3Key, String b4Key) {
         
         String b1 = extractEntryValue(file, blockName, b1Key);

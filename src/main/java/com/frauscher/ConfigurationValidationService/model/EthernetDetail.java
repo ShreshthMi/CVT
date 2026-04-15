@@ -37,10 +37,10 @@ public class EthernetDetail {
     private String subnetMask2;
 
     @JsonProperty("dest_ip_nw_1")
-    private String destIpNw1;
+    private List<String> destIpNw1;
 
     @JsonProperty("dest_ip_nw_2")
-    private String destIpNw2;
+    private List<String> destIpNw2;
 
     @JsonProperty("fwrd_acd_to_dp_ids")
     private List<String> fwrdAcdToDpIds;
