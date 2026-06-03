@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<FAdcWizard>
+  <Configuration>
+    <Version>3.65.0</Version>
+    <Revision>ac351fe</Revision>
+  </Configuration>
+  <Project>
+    <Version>0</Version>
+    <Revision>0</Revision>
+    <AxleCounterType>FAdC</AxleCounterType>
+    <ProjectName>PROJECT0</ProjectName>
+    <CreationDate>2026-05-21T19:15:14</CreationDate>
+    <LastChange>2026-05-21T19:18:27</LastChange>
+    <CreationAuthor>shreshmi</CreationAuthor>
+    <LastAuthor>shreshmi</LastAuthor>
+  </Project>
+  <ProjectElements>
+    <Station name="" description="" internId="1">
+      <Parameter>
+        <MaxElements>0</MaxElements>
+      </Parameter>
+      <Children>
+        <Cubicle name="" description="" internId="2" height="30">
+          <Parameter>
+            <MaxElements>10</MaxElements>
+            <RackType>BGT_07</RackType>
+          </Parameter>
+          <Children>
+            <EmptyRack name="" description="" internId="36" height="1" rackSlot="1"/>
+            <EmptyRack name="" description="" internId="37" height="1" rackSlot="2"/>
+            <EmptyRack name="" description="" internId="38" height="1" rackSlot="3"/>
+            <EmptyRack name="" description="" internId="39" height="1" rackSlot="4"/>
+            <EmptyRack name="" description="" internId="40" height="1" rackSlot="5"/>
+            <EmptyRack name="" description="" internId="41" height="1" rackSlot="6"/>
+            <EmptyRack name="" description="" internId="42" height="1" rackSlot="7"/>
+            <EmptyRack name="" description="" internId="43" height="1" rackSlot="8"/>
+            <EmptyRack name="" description="" internId="44" height="1" rackSlot="9"/>
+            <EmptyRack name="" description="" internId="45" height="1" rackSlot="10"/>
+            <EmptyRack name="" description="" internId="46" height="1" rackSlot="11"/>
+            <EmptyRack name="" description="" internId="47" height="1" rackSlot="12"/>
+            <EmptyRack name="" description="" internId="48" height="1" rackSlot="13"/>
+            <EmptyRack name="" description="" internId="49" height="1" rackSlot="14"/>
+            <EmptyRack name="" description="" internId="50" height="1" rackSlot="15"/>
+            <EmptyRack name="" description="" internId="51" height="1" rackSlot="16"/>
+            <EmptyRack name="" description="" internId="52" height="1" rackSlot="17"/>
+            <EmptyRack name="" description="" internId="53" height="1" rackSlot="18"/>
+            <EmptyRack name="" description="" internId="54" height="1" rackSlot="19"/>
+            <EmptyRack name="" description="" internId="55" height="1" rackSlot="20"/>
+            <EmptyRack name="" description="" internId="56" height="1" rackSlot="21"/>
+            <EmptyRack name="" description="" internId="57" height="1" rackSlot="22"/>
+            <EmptyRack name="" description="" internId="58" height="1" rackSlot="23"/>
+            <EmptyRack name="" description="" internId="59" height="1" rackSlot="24"/>
+            <EmptyRack name="" description="" internId="60" height="1" rackSlot="25"/>
+            <EmptyRack name="" description="" internId="61" height="1" rackSlot="26"/>
+            <EmptyRack name="" description="" internId="62" height="1" rackSlot="27"/>
+            <Rack name="" description="" internId="64" height="3" rackSlot="0">
+              <Parameter>
+                <RackType>BGT_07</RackType>
+              </Parameter>
+              <Children>
+                <Bp name="" description="" internId="65" positionOnRack="1">
+                  <Parameter>
+                    <StartSlotId>1</StartSlotId>
+                    <BpType>BP_PWR8</BpType>
+                    <CanConnections/>
+                  </Parameter>
+                  <Children>
+                    <Psc name="PSC" description="" internId="81" slotId="1">
+                      <PwrConnections>
+                        <ConnectedBp>65</ConnectedBp>
+                      </PwrConnections>
+                    </Psc>
+                    <Com name="COM100" description="" internId="83" slotId="2">
+                      <Id>0</Id>
+                      <ComType>COM_ADC</ComType>
+                      <ComMode>NORMAL</ComMode>
+                      <ConfigurationServer>true</ConfigurationServer>
+                      <ComVersion>GS02</ComVersion>
+                      <DipSwitch12>false</DipSwitch12>
+                      <IpSwitching ipSwitchoverTime="10">false</IpSwitching>
+                      <Interval>3</Interval>
+                    </Com>
+                    <Aeb name="AEB1" description="" internId="75" slotId="3" cpName="" dontUseTypeProtectedValues="0">
+                      <Id>1</Id>
+                      <Information device="GS02" rsrType="RSR180"/>
+                      <DipSwitch14>false</DipSwitch14>
+                      <AnalogDoubleUsageDisabled>true</AnalogDoubleUsageDisabled>
+                      <Timeouts>
+                        <Timeout id="0">500</Timeout>
+                      </Timeouts>
+                      <IoExbBehaviour in1="1" in2="4" in3="0" typeIn1="0" typeIn2="0" typeIn3="0" resetOpterationTimeInMs="500" toggleSwitches="4" typeInIoExb="0"/>
+                    </Aeb>
+                    <Aeb name="AEB2" description="" internId="84" slotId="4" cpName="" dontUseTypeProtectedValues="0">
+                      <Id>1</Id>
+                      <Information device="GS02" rsrType="RSR180"/>
+                      <DipSwitch14>false</DipSwitch14>
+                      <AnalogDoubleUsageDisabled>true</AnalogDoubleUsageDisabled>
+                      <Timeouts>
+                        <Timeout id="0">500</Timeout>
+                      </Timeouts>
+                      <IoExbBehaviour in1="1" in2="4" in3="0" typeIn1="0" typeIn2="0" typeIn3="0" resetOpterationTimeInMs="500" toggleSwitches="4" typeInIoExb="0"/>
+                    </Aeb>
+                    <EmptySlot name="" description="" internId="70" slotId="5"/>
+                    <EmptySlot name="" description="" internId="71" slotId="6"/>
+                    <EmptySlot name="" description="" internId="72" slotId="7"/>
+                    <EmptySlot name="" description="" internId="73" slotId="8"/>
+                    <EmptySlot name="" description="" internId="74" slotId="9"/>
+                  </Children>
+                </Bp>
+              </Children>
+            </Rack>
+          </Children>
+        </Cubicle>
+      </Children>
+    </Station>
+    <UnsortedFmas/>
+  </ProjectElements>
+</FAdcWizard>

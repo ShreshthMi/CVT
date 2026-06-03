@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<FAdcWizard>
+  <Configuration>
+    <Version>3.65.0</Version>
+    <Revision>ac351fe</Revision>
+  </Configuration>
+  <Project>
+    <Version>0</Version>
+    <Revision>0</Revision>
+    <AxleCounterType>FAdC</AxleCounterType>
+    <ProjectName>SCR</ProjectName>
+    <CreationDate>2026-04-22T15:45:29</CreationDate>
+    <LastChange>2026-05-21T15:56:15</LastChange>
+    <CreationAuthor>sureshar</CreationAuthor>
+    <LastAuthor>shreshmi</LastAuthor>
+  </Project>
+  <ProjectElements>
+    <Station name="Station-1" description="" internId="1">
+      <Parameter>
+        <MaxElements>0</MaxElements>
+      </Parameter>
+      <Children>
+        <Cubicle name="ACC1" description="" internId="2" height="30">
+          <Parameter>
+            <MaxElements>10</MaxElements>
+            <RackType>BGT_07</RackType>
+          </Parameter>
+          <Children>
+            <EmptyRack name="" description="" internId="42" height="1" rackSlot="3"/>
+            <EmptyRack name="" description="" internId="43" height="1" rackSlot="4"/>
+            <EmptyRack name="" description="" internId="44" height="1" rackSlot="5"/>
+            <EmptyRack name="" description="" internId="45" height="1" rackSlot="6"/>
+            <EmptyRack name="" description="" internId="46" height="1" rackSlot="7"/>
+            <EmptyRack name="" description="" internId="47" height="1" rackSlot="8"/>
+            <EmptyRack name="" description="" internId="48" height="1" rackSlot="9"/>
+            <EmptyRack name="" description="" internId="49" height="1" rackSlot="10"/>
+            <EmptyRack name="" description="" internId="50" height="1" rackSlot="11"/>
+            <EmptyRack name="" description="" internId="51" height="1" rackSlot="12"/>
+            <EmptyRack name="" description="" internId="52" height="1" rackSlot="13"/>
+            <EmptyRack name="" description="" internId="53" height="1" rackSlot="14"/>
+            <EmptyRack name="" description="" internId="54" height="1" rackSlot="15"/>
+            <EmptyRack name="" description="" internId="55" height="1" rackSlot="16"/>
+            <EmptyRack name="" description="" internId="56" height="1" rackSlot="17"/>
+            <EmptyRack name="" description="" internId="57" height="1" rackSlot="18"/>
+            <EmptyRack name="" description="" internId="58" height="1" rackSlot="19"/>
+            <EmptyRack name="" description="" internId="59" height="1" rackSlot="20"/>
+            <EmptyRack name="" description="" internId="60" height="1" rackSlot="21"/>
+            <EmptyRack name="" description="" internId="61" height="1" rackSlot="22"/>
+            <EmptyRack name="" description="" internId="62" height="1" rackSlot="23"/>
+            <Rack name="BGT-1" description="" internId="65" height="3" rackSlot="0">
+              <Parameter>
+                <RackType>BGT_07</RackType>
+              </Parameter>
+              <Children>
+                <Bp name="" description="" internId="84" positionOnRack="1">
+                  <Parameter>
+                    <StartSlotId>11</StartSlotId>
+                    <BpType>BP_PWR8</BpType>
+                    <CanConnections next="119"/>
+                  </Parameter>
+                  <Children>
+                    <Psc name="PSC" description="" internId="94" slotId="11">
+                      <PwrConnections>
+                        <ConnectedBp>84</ConnectedBp>
+                        <ConnectedBp>119</ConnectedBp>
+                      </PwrConnections>
+                    </Psc>
+                    <Com name="COM100" description="" internId="95" slotId="12">
+                      <Id>100</Id>
+                      <ComType>COM_ADC</ComType>
+                      <ComMode>NORMAL</ComMode>
+                      <ConfigurationServer>true</ConfigurationServer>
+                      <ComVersion>GS02</ComVersion>
+                      <DipSwitch12>false</DipSwitch12>
+                      <IpSwitching ipSwitchoverTime="10">false</IpSwitching>
+                      <Interval>3</Interval>
+                    </Com>
+                    <Aeb name="AEB_DP2A" description="" internId="96" slotId="13" cpName="DP2A" dontUseTypeProtectedValues="0">
+                      <Id>1</Id>
+                      <Information device="GS07" rsrType="RSR180"/>
+                      <DipSwitch14>false</DipSwitch14>
+                      <AnalogDoubleUsageDisabled>true</AnalogDoubleUsageDisabled>
+                      <Timeouts>
+                        <Timeout id="0">500</Timeout>
+                      </Timeouts>
+                      <Fmas>
+                        <Fma name="2AXT1" description="" internId="130" fmaId="0" aebInternId="96">
+                          <FailsafeOccupancy>0</FailsafeOccupancy>
+                          <OccupiedControl>0</OccupiedControl>
+                          <Supervision logicType="0" resetDelay="3" resetType="0"/>
+                          <Synchronisations syncType="SAFETY"/>
+                          <AutoResetFma resetType="0" isUsed="false" resetTimer="10"/>
+                        </Fma>
+                      </Fmas>
+                      <IoExbBehaviour in1="1" in2="4" in3="0" typeIn1="0" typeIn2="0" typeIn3="0" resetOpterationTimeInMs="500" toggleSwitches="4" typeInIoExb="0"/>
+                      <IoExbControl inputSv="0" positionInputSv="0" inputChc="0" positionInputChc="0" timeoutId="0"/>
+                      <SpeedLimits axlesAveraged="0" timeoutAveraging="1" constantForCalculatingUserDefinedSpeed="1">
+                        <speedLimit1 hasSpeedLimit="0" speedLimit="1" unitForSpeedLimit="0" outputExtension="1"/>
+                        <speedLimit2 hasSpeedLimit="0" speedLimit="1" unitForSpeedLimit="0" outputExtension="1"/>
+                      </SpeedLimits>
+                    </Aeb>
+                    <Aeb name="AEB_DP3A" description="" internId="100" slotId="14" cpName="DP3A" dontUseTypeProtectedValues="0">
+                      <Id>2</Id>
+                      <Information device="GS07" rsrType="RSR180"/>
+                      <DipSwitch14>false</DipSwitch14>
+                      <AnalogDoubleUsageDisabled>true</AnalogDoubleUsageDisabled>
+                      <Timeouts>
+                        <Timeout id="0">500</Timeout>
+                      </Timeouts>
+                      <Fmas>
+                        <Fma name="201AXT" description="" internId="165" fmaId="0" aebInternId="100">
+                          <FailsafeOccupancy>0</FailsafeOccupancy>
+                          <OccupiedControl>0</OccupiedControl>
+                          <Supervision logicType="0" resetDelay="3" resetType="0"/>
+                          <Synchronisations syncType="SAFETY"/>
+                          <AutoResetFma resetType="0" isUsed="false" resetTimer="10"/>
+                        </Fma>
+                      </Fmas>
+                      <IoExbBehaviour in1="1" in2="4" in3="0" typeIn1="0" typeIn2="0" typeIn3="0" resetOpterationTimeInMs="500" toggleSwitches="4" typeInIoExb="0"/>
+                      <IoExbControl inputSv="0" positionInputSv="0" inputChc="0" positionInputChc="0" timeoutId="0"/>
+                      <SpeedLimits axlesAveraged="0" timeoutAveraging="1" constantForCalculatingUserDefinedSpeed="1">
+                        <speedLimit1 hasSpeedLimit="0" speedLimit="1" unitForSpeedLimit="0" outputExtension="1"/>
+                        <speedLimit2 hasSpeedLimit="0" speedLimit="1" unitForSpeedLimit="0" outputExtension="1"/>
+                      </SpeedLimits>
+                    </Aeb>
+                    <Aeb name="AEB_DP4" description="" internId="104" slotId="15" cpName="DP4" dontUseTypeProtectedValues="0">
+                      <Id>3</Id>
+                      <Information device="GS07" rsrType="RSR180"/>
+                      <DipSwitch14>false</DipSwitch14>
+                      <AnalogDoubleUsageDisabled>true</AnalogDoubleUsageDisabled>
+                      <Timeouts>
+                        <Timeout id="0">500</Timeout>
+                      </Timeouts>
+                      <IoExbBehaviour in1="1" in2="4" in3="0" typeIn1="0" typeIn2="0" typeIn3="0" resetOpterationTimeInMs="500" toggleSwitches="4" typeInIoExb="0"/>
+                      <IoExbControl inputSv="0" positionInputSv="0" inputChc="0" positionInputChc="0" timeoutId="0"/>
+                      <SpeedLimits axlesAveraged="0" timeoutAveraging="1" constantForCalculatingUserDefinedSpeed="1">
+                        <speedLimit1 hasSpeedLimit="0" speedLimit="1" unitForSpeedLimit="0" outputExtension="1"/>
+                        <speedLimit2 hasSpeedLimit="0" speedLimit="1" unitForSpeedLimit="0" outputExtension="1"/>
+                      </SpeedLimits>
+                    </Aeb>
+                    <Aeb name="AEB_DP5" description="" internId="108" slotId="16" cpName="DP5" dontUseTypeProtectedValues="0">
+                      <Id>4</Id>
+                      <Information device="GS07" rsrType="RSR180"/>
+                      <DipSwitch14>false</DipSwitch14>
+                      <AnalogDoubleUsageDisabled>true</AnalogDoubleUsageDisabled>
+                      <Timeouts>
+                        <Timeout id="0">500</Timeout>
+                      </Timeouts>
+                      <IoExbBehaviour in1="1" in2="4" in3="0" typeIn1="0" typeIn2="0" typeIn3="0" resetOpterationTimeInMs="500" toggleSwitches="4" typeInIoExb="0"/>
+                      <IoExbControl inputSv="0" positionInputSv="0" inputChc="0" positionInputChc="0" timeoutId="0"/>
+                      <SpeedLimits axlesAveraged="0" timeoutAveraging="1" constantForCalculatingUserDefinedSpeed="1">
+                        <speedLimit1 hasSpeedLimit="0" speedLimit="1" unitForSpeedLimit="0" outputExtension="1"/>
+                        <speedLimit2 hasSpeedLimit="0" speedLimit="1" unitForSpeedLimit="0" outputExtension="1"/>
+                      </SpeedLimits>
+                    </Aeb>
+                    <BlankingPlate name="" description="" internId="112" slotId="17" pitchUnits="4"/>
+                    <BlankingPlate name="" description="" internId="113" slotId="18" pitchUnits="4"/>
+                    <BlankingPlate name="" description="" internId="114" slotId="19" pitchUnits="4"/>
+                  </Children>
+                </Bp>
+                <Bp name="" description="" internId="119" positionOnRack="2">
+                  <Parameter>
+                    <StartSlotId>20</StartSlotId>
+                    <BpType>BP_EXB2</BpType>
+                    <CanConnections previous="84"/>
+                  </Parameter>
+                  <Children>
+                    <Aeb name="AEB_DP1A" description="" internId="123" slotId="20" cpName="DP1A" dontUseTypeProtectedValues="0">
+                      <Id>5</Id>
+                      <Information device="GS07" rsrType="RSR180"/>
+                      <DipSwitch14>false</DipSwitch14>
+                      <AnalogDoubleUsageDisabled>true</AnalogDoubleUsageDisabled>
+                      <Timeouts>
+                        <Timeout id="0">500</Timeout>
+                      </Timeouts>
+                      <Fmas>
+                        <Fma name="1AXT1" description="" internId="159" fmaId="0" aebInternId="123">
+                          <FailsafeOccupancy>0</FailsafeOccupancy>
+                          <OccupiedControl>0</OccupiedControl>
+                          <Supervision logicType="0" resetDelay="3" resetType="0"/>
+                          <Synchronisations syncType="SAFETY"/>
+                          <AutoResetFma resetType="0" isUsed="false" resetTimer="10"/>
+                        </Fma>
+                        <Fma name="SUP1-AXT1" description="" internId="153" fmaId="1" aebInternId="123">
+                          <FailsafeOccupancy>0</FailsafeOccupancy>
+                          <OccupiedControl>0</OccupiedControl>
+                          <Supervision logicType="0" resetDelay="3" resetType="0"/>
+                          <Synchronisations syncType="SAFETY"/>
+                          <AutoResetFma resetType="0" isUsed="false" resetTimer="10"/>
+                        </Fma>
+                      </Fmas>
+                      <IoExbBehaviour in1="1" in2="4" in3="0" typeIn1="0" typeIn2="0" typeIn3="0" resetOpterationTimeInMs="500" toggleSwitches="4" typeInIoExb="0"/>
+                      <IoExbControl inputSv="0" positionInputSv="0" inputChc="0" positionInputChc="0" timeoutId="0"/>
+                      <SpeedLimits axlesAveraged="0" timeoutAveraging="1" constantForCalculatingUserDefinedSpeed="1">
+                        <speedLimit1 hasSpeedLimit="0" speedLimit="1" unitForSpeedLimit="0" outputExtension="1"/>
+                        <speedLimit2 hasSpeedLimit="0" speedLimit="1" unitForSpeedLimit="0" outputExtension="1"/>
+                      </SpeedLimits>
+                    </Aeb>
+                    <IoExb name="ACO" description="" internId="127" slotId="21">
+                      <RefAeb>123</RefAeb>
+                      <AxleCountingOutput>
+                        <OutputFma1 timeout="0" typeAux1="0" aux1="2" aux1NoNc="0" typeAux2="0" aux2="4" aux2NoNc="0" clearOccupied="0">159</OutputFma1>
+                      </AxleCountingOutput>
+                    </IoExb>
+                    <IoExb name="ACO" description="" internId="128" slotId="22">
+                      <RefAeb>123</RefAeb>
+                      <AxleCountingOutput>
+                        <OutputFma1 timeout="0" typeAux1="0" aux1="2" aux1NoNc="0" typeAux2="0" aux2="4" aux2NoNc="0" clearOccupied="0">165</OutputFma1>
+                        <OutputFma2 timeout="0" typeAux1="0" aux1="2" aux1NoNc="0" typeAux2="0" aux2="4" aux2NoNc="0" clearOccupied="0">130</OutputFma2>
+                      </AxleCountingOutput>
+                    </IoExb>
+                  </Children>
+                </Bp>
+              </Children>
+            </Rack>
+            <Rack name="BGT-2" description="" internId="173" height="3" rackSlot="1">
+              <Parameter>
+                <RackType>BGT_07</RackType>
+              </Parameter>
+              <Children>
+                <Bp name="" description="" internId="174" positionOnRack="1">
+                  <Parameter>
+                    <StartSlotId>23</StartSlotId>
+                    <BpType>BP_PWR4</BpType>
+                    <CanConnections next="180"/>
+                  </Parameter>
+                  <Children>
+                    <Psc name="PSC" description="" internId="183" slotId="23">
+                      <PwrConnections>
+                        <ConnectedBp>174</ConnectedBp>
+                        <ConnectedBp>180</ConnectedBp>
+                      </PwrConnections>
+                    </Psc>
+                    <Com name="COM200" description="" internId="184" slotId="24">
+                      <Id>200</Id>
+                      <ComType>COM_ADC</ComType>
+                      <ComMode>NORMAL</ComMode>
+                      <ConfigurationServer>true</ConfigurationServer>
+                      <ComVersion>GS02</ComVersion>
+                      <DipSwitch12>false</DipSwitch12>
+                      <IpSwitching ipSwitchoverTime="10">false</IpSwitching>
+                      <Interval>3</Interval>
+                    </Com>
+                    <Aeb name="AEB_DP2B" description="" internId="185" slotId="25" cpName="DP2B" dontUseTypeProtectedValues="0">
+                      <Id>6</Id>
+                      <Information device="GS02" rsrType="RSR180"/>
+                      <DipSwitch14>false</DipSwitch14>
+                      <AnalogDoubleUsageDisabled>true</AnalogDoubleUsageDisabled>
+                      <Timeouts>
+                        <Timeout id="0">500</Timeout>
+                      </Timeouts>
+                      <Fmas>
+                        <Fma name="2AXT2" description="" internId="200" fmaId="0" aebInternId="185">
+                          <FailsafeOccupancy>0</FailsafeOccupancy>
+                          <OccupiedControl>0</OccupiedControl>
+                          <Supervision logicType="0" resetDelay="3" resetType="1"/>
+                          <Synchronisations syncType="SAFETY"/>
+                          <AutoResetFma/>
+                        </Fma>
+                      </Fmas>
+                      <IoExbBehaviour in1="1" in2="4" in3="0" typeIn1="0" typeIn2="0" typeIn3="0" resetOpterationTimeInMs="500" toggleSwitches="4" typeInIoExb="0"/>
+                    </Aeb>
+                    <Aeb name="AEB_DP3B" description="" internId="189" slotId="26" cpName="DP3B" dontUseTypeProtectedValues="0">
+                      <Id>7</Id>
+                      <Information device="GS02" rsrType="RSR180"/>
+                      <DipSwitch14>false</DipSwitch14>
+                      <AnalogDoubleUsageDisabled>true</AnalogDoubleUsageDisabled>
+                      <Timeouts>
+                        <Timeout id="0">500</Timeout>
+                      </Timeouts>
+                      <IoExbBehaviour in1="1" in2="4" in3="0" typeIn1="0" typeIn2="0" typeIn3="0" resetOpterationTimeInMs="500" toggleSwitches="4" typeInIoExb="0"/>
+                    </Aeb>
+                    <BlankingPlate name="" description="" internId="197" slotId="27" pitchUnits="4"/>
+                  </Children>
+                </Bp>
+                <Bp name="" description="" internId="180" positionOnRack="2">
+                  <Parameter>
+                    <StartSlotId>28</StartSlotId>
+                    <BpType>BP_EXB1</BpType>
+                    <CanConnections previous="174"/>
+                  </Parameter>
+                  <Children>
+                    <Aeb name="AEB_DP1B" description="" internId="193" slotId="28" cpName="DP1B" dontUseTypeProtectedValues="0">
+                      <Id>8</Id>
+                      <Information device="GS02" rsrType="RSR180"/>
+                      <DipSwitch14>false</DipSwitch14>
+                      <AnalogDoubleUsageDisabled>true</AnalogDoubleUsageDisabled>
+                      <Timeouts>
+                        <Timeout id="0">500</Timeout>
+                      </Timeouts>
+                      <Fmas>
+                        <Fma name="1AXT2" description="" internId="208" fmaId="0" aebInternId="193">
+                          <FailsafeOccupancy>0</FailsafeOccupancy>
+                          <OccupiedControl>0</OccupiedControl>
+                          <Supervision logicType="0" resetDelay="3" resetType="1"/>
+                          <Synchronisations syncType="SAFETY"/>
+                          <AutoResetFma resetType="0" isUsed="false" resetTimer="10"/>
+                        </Fma>
+                        <Fma name="SUP1-AXT2" description="" internId="214" fmaId="1" aebInternId="193">
+                          <FailsafeOccupancy>0</FailsafeOccupancy>
+                          <OccupiedControl>0</OccupiedControl>
+                          <Supervision logicType="0" resetDelay="3" resetType="1"/>
+                          <Synchronisations syncType="SAFETY"/>
+                          <AutoResetFma/>
+                        </Fma>
+                      </Fmas>
+                      <IoExbBehaviour in1="1" in2="4" in3="0" typeIn1="0" typeIn2="0" typeIn3="0" resetOpterationTimeInMs="500" toggleSwitches="4" typeInIoExb="0"/>
+                    </Aeb>
+                    <IoExb name="ACO" description="" internId="207" slotId="29">
+                      <RefAeb>193</RefAeb>
+                      <AxleCountingOutput>
+                        <OutputFma1 timeout="0" typeAux1="0" aux1="2" aux1NoNc="0" typeAux2="0" aux2="4" aux2NoNc="0" clearOccupied="0">208</OutputFma1>
+                        <OutputFma2 timeout="0" typeAux1="0" aux1="2" aux1NoNc="0" typeAux2="0" aux2="4" aux2NoNc="0" clearOccupied="0">200</OutputFma2>
+                      </AxleCountingOutput>
+                    </IoExb>
+                  </Children>
+                </Bp>
+              </Children>
+            </Rack>
+            <Rack name="" description="" internId="241" height="3" rackSlot="2">
+              <Parameter>
+                <RackType>BGT_07</RackType>
+              </Parameter>
+              <Children/>
+            </Rack>
+          </Children>
+        </Cubicle>
+      </Children>
+    </Station>
+    <UnsortedFmas/>
+  </ProjectElements>
+</FAdcWizard>
