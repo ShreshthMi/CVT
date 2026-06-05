@@ -19,8 +19,9 @@ import lombok.RequiredArgsConstructor;
 /**
  * Orchestrates PDQ workbook parsing for BE-01: opens the {@code .xlsx} read-only from the upload
  * stream (in-memory, no spool, no file lock), reads the PDQ-sheet header and the CQ-IR sheet, and
- * assembles the {@link PdqUploadResponse}. {@code controlTable} / {@code dataTransmission} are filled
- * by BE-02 and remain {@code null} here.
+ * assembles the {@link PdqUploadResponse}, including the Control table and the conditional Data
+ * Transmission sub-sheet ({@code dataTransmission} is {@code null} when that sheet is absent or carries
+ * only headers).
  */
 @Service
 @RequiredArgsConstructor
@@ -29,11 +30,15 @@ public class PdqParsingService {
     private final PdqWorkbookContract contract;
     private final PdqSheetHeaderParser headerParser;
     private final CqIrSheetParser cqIrSheetParser;
+    private final ControlTableParser controlTableParser;
+    private final DataTransmissionParser dataTransmissionParser;
 
     public PdqUploadResponse parse(InputStream xlsx) {
         try (Workbook workbook = WorkbookFactory.create(xlsx)) {
             Sheet pdqSheet = requireSheet(workbook, contract.pdqSheet());
             Sheet cqIrSheet = requireSheet(workbook, contract.cqirSheet());
+            Sheet controlTableSheet = requireSheet(workbook, contract.controlTableSheet());
+            Sheet dataTransmissionSheet = workbook.getSheet(contract.dataTransmissionSheet()); // conditional
 
             PdqHeader header = headerParser.parse(pdqSheet);
             Map<String, Map<String, Object>> cqIrParameters =
@@ -44,8 +49,8 @@ public class PdqParsingService {
                     .projectCode(header.projectCode())
                     .aebEquipmentVersion(header.aebEquipmentVersion())
                     .cqIrParameters(cqIrParameters)
-                    .controlTable(null)        // BE-02 (VTF-332)
-                    .dataTransmission(null)    // BE-02 (VTF-332)
+                    .controlTable(controlTableParser.parse(controlTableSheet))
+                    .dataTransmission(dataTransmissionParser.parse(dataTransmissionSheet))
                     .build();
         } catch (IOException e) {
             throw new PdqInvalidException(PdqInvalidReason.WORKBOOK_UNREADABLE,

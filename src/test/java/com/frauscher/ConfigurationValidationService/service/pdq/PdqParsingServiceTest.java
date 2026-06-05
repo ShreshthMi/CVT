@@ -3,7 +3,6 @@ package com.frauscher.ConfigurationValidationService.service.pdq;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.io.File;
 import java.io.InputStream;
@@ -17,9 +16,10 @@ import com.frauscher.ConfigurationValidationService.dto.pdq.PdqUploadResponse;
 import com.frauscher.ConfigurationValidationService.testsupport.PdqFixtures;
 
 /**
- * End-to-end parse of the real fixture workbook (GS05, Single redundancy) through
- * {@link PdqParsingService}. Asserts the header/project-block invariants and dumps the full
- * response to {@code build/pdq-result.json} for eyeballing.
+ * End-to-end parse of the fully-populated fixture workbook (GS05, Single redundancy) through
+ * {@link PdqParsingService}. Asserts the header/project-block invariants and the BE-02
+ * control-table / data-transmission state, and dumps the full response to
+ * {@code build/pdq-result.json} for eyeballing.
  */
 class PdqParsingServiceTest {
 
@@ -32,13 +32,15 @@ class PdqParsingServiceTest {
         service = new PdqParsingService(
                 contract,
                 new PdqSheetHeaderParser(contract),
-                new CqIrSheetParser(new CqIrValueNormalizer(mapping), mapping, contract));
+                new CqIrSheetParser(new CqIrValueNormalizer(mapping), mapping, contract),
+                new ControlTableParser(contract),
+                new DataTransmissionParser(contract));
     }
 
     @Test
     void parsesFullFixture() throws Exception {
         PdqUploadResponse response;
-        try (InputStream in = PdqFixtures.openWorkbook()) {
+        try (InputStream in = PdqFixtures.openDtioWorkbook()) {
             response = service.parse(in);
         }
 
@@ -60,9 +62,13 @@ class PdqParsingServiceTest {
         assertFalse(cqir.get("CFG_ZP").containsKey("SUPERVIS_COUNT_LMT"));
         assertFalse(cqir.get("CFG_SECTION_OUT").containsKey("TYPE_AUX1"));
 
-        // BE-02 sections still null.
-        assertNull(response.getControlTable());
-        assertNull(response.getDataTransmission());
+        // BE-02: control table + data transmission both populated in the fully-populated fixture.
+        assertNotNull(response.getControlTable());
+        assertEquals(7, response.getControlTable().trackSections().size());
+        assertEquals(8, response.getControlTable().dpTable().size());
+        assertNotNull(response.getDataTransmission());
+        assertEquals(2, response.getDataTransmission().dataSafetyLevels().size());
+        assertEquals(2, response.getDataTransmission().outputDataTransmission().size());
 
         // Dump for inspection.
         new ObjectMapper().writerWithDefaultPrettyPrinter()

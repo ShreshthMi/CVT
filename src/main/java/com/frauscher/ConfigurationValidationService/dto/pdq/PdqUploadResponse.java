@@ -36,9 +36,9 @@ public class PdqUploadResponse {
     /** Block-grouped CQ-IR parameters. BE-01 (VTF-331). */
     private Map<String, Map<String, Object>> cqIrParameters;
 
-    /** ConfigControlTable (trackSections[] + dpTable[]). BE-02 (VTF-332) — null until then. */
-    private Object controlTable;
+    /** ConfigControlTable — trackSections[] + dpTable[]. */
+    private ControlTable controlTable;
 
-    /** Data Transmission inputs; null when the DT sheet is absent. BE-02 (VTF-332). */
-    private Object dataTransmission;
+    /** Data Transmission inputs; null when the DT sheet is absent or carries only headers. */
+    private DataTransmission dataTransmission;
 }
