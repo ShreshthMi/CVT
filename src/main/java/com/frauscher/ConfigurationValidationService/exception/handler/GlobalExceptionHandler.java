@@ -32,10 +32,22 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(PdqInvalidException.class)
     public ResponseEntity<ApiErrorResponse> handlePdqInvalid(
             PdqInvalidException ex) {
-                log.warn("PDQ upload rejected [{}]", ex.getReason());
 
+        // External response carries only the PDQ_INVALID code; the reason is for logs.
+        log.warn("PDQ upload rejected [{}]", ex.getReason());
         return ResponseEntity.badRequest().body(error(ex));
     }
+
+    @ExceptionHandler(FctInvalidException.class)
+    public ResponseEntity<ApiErrorResponse> handleFctInvalid(
+            FctInvalidException ex) {
+
+        // External response carries one of the two FCT codes; the reason is for logs.
+        log.warn("FCT upload rejected [{}]", ex.getReason());
+        return ResponseEntity.badRequest().body(error(ex));
+    }
+
+
 
     @ExceptionHandler(MissingServletRequestPartException.class)
     public ResponseEntity<ApiErrorResponse> handleMissingMultipartPart(
@@ -55,11 +67,11 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MaxUploadSizeExceededException.class)
-    public ResponseEntity<ApiErrorResponse> handleMaxUploadSizeExceeded(
+    public ResponseEntity<ApiErrorResponse> handleMaxUpload(
             MaxUploadSizeExceededException ex) {
 
         ApiErrorResponse response = ApiErrorResponse.builder()
-                .errorCode("UPLOAD_SIZE_EXCEEDED")
+                .errorCode("PAYLOAD_TOO_LARGE")
                 .message("Uploaded file exceeds the maximum allowed size")
                 .timestamp(Instant.now())
                 .build();
