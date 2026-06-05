@@ -16,3 +16,9 @@ Feature: PDQ workbook upload parsing
     And cqIrParameters block "CFG_SUPERVIS_FMA2" has "RESET_TYPE" equal to "3"
     And cqIrParameters block "CFG_PROJECT_AEB" has "BLOCK_EXISTS" equal to "true"
     And cqIrParameters block "CFG_ZP" does not contain "SUPERVIS_COUNT_LMT"
+
+  Scenario: The sample PDQ workbook parses the control table and data transmission
+    Given the sample PDQ workbook
+    When the PDQ workbook is parsed
+    Then the control table has 7 track sections and 8 DP rows
+    And the data transmission has 2 data-safety rows and 2 output rows
