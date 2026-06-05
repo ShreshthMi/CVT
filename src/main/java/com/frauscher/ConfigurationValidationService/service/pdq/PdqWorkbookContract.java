@@ -2,8 +2,11 @@ package com.frauscher.ConfigurationValidationService.service.pdq;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Properties;
 
+import org.apache.poi.ss.util.CellReference;
 import org.springframework.stereotype.Service;
 
 /**
@@ -59,4 +62,33 @@ public class PdqWorkbookContract {
     // Data Transmission Inputs sub-table section anchors (BE-02).
     public String dtDataSafetyLevelsLabel() { return require("dt.section.dataSafetyLevels"); }
     public String dtOutputDataTransmissionLabel() { return require("dt.section.outputDataTransmission"); }
+
+    // Control table (BE-02): header anchor + sub-table column maps (field -> 0-based column index).
+    public String controlTableHeaderLabel() { return require("controlTable.headerLabel"); }
+    public Map<String, Integer> controlTableTrackSectionColumns() { return columnIndexes("controlTable.trackSections."); }
+    public Map<String, Integer> controlTableDpTableColumns() { return columnIndexes("controlTable.dpTable."); }
+
+    private Map<String, Integer> columnIndexes(String prefix) {
+        Map<String, Integer> cols = new LinkedHashMap<>();
+        for (String key : properties.stringPropertyNames()) {
+            if (key.startsWith(prefix)) {
+                cols.put(key.substring(prefix.length()), CellReference.convertColStringToIndex(require(key)));
+            }
+        }
+        return cols;
+    }
+
+    // Data Transmission sub-table columns (BE-02): field -> header label the parser scans for.
+    public Map<String, String> dtDataSafetyLevelColumns() { return columnLabels("dt.dataSafetyLevels.col."); }
+    public Map<String, String> dtOutputDataTransmissionColumns() { return columnLabels("dt.outputDataTransmission.col."); }
+
+    private Map<String, String> columnLabels(String prefix) {
+        Map<String, String> labels = new LinkedHashMap<>();
+        for (String key : properties.stringPropertyNames()) {
+            if (key.startsWith(prefix)) {
+                labels.put(key.substring(prefix.length()), require(key));
+            }
+        }
+        return labels;
+    }
 }
