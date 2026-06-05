@@ -30,5 +30,17 @@ public enum PdqInvalidReason {
     MAPPING_LOOKUP_FAILED,
 
     /** A range value (e.g. IDENTIFICATION) is not a well-formed "min to max". */
-    RANGE_INVALID
+    RANGE_INVALID,
+
+    /** Control table fadcAutoReset cell mixes OR and AND operators. */
+    MIXED_OPERATOR_FADC,
+
+    /** Control table Track Output is not PHYSICAL / VIRTUAL. */
+    UNSUPPORTED_TRACK_OUTPUT,
+
+    /** Control table DP-table POSITION is not ABOVE / BELOW THE RAIL. */
+    UNSUPPORTED_POSITION,
+
+    /** A YES / NO cell holds an unexpected value. */
+    INVALID_YES_NO
 }
