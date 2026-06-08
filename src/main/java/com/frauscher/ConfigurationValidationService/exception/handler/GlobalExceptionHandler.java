@@ -49,6 +49,15 @@ public class GlobalExceptionHandler {
 
 
 
+    @ExceptionHandler(Phase2InputsIncompleteException.class)
+    public ResponseEntity<ApiErrorResponse> handlePhase2InputsIncomplete(
+            Phase2InputsIncompleteException ex) {
+
+        // Coupled-artifacts gate failure: surfaces PHASE2_INPUTS_INCOMPLETE.
+        log.warn("v2 validate rejected [{}]", ex.getErrorCode());
+        return ResponseEntity.badRequest().body(error(ex));
+    }
+
     @ExceptionHandler(MissingServletRequestPartException.class)
     public ResponseEntity<ApiErrorResponse> handleMissingMultipartPart(
             MissingServletRequestPartException ex) {
