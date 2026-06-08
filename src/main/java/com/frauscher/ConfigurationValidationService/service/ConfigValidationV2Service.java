@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.frauscher.ConfigurationValidationService.dto.Phase2ValidationInput;
+import com.frauscher.ConfigurationValidationService.dto.ValidationInputV2;
 import com.frauscher.ConfigurationValidationService.model.ParsedConfigFile;
 import com.frauscher.ConfigurationValidationService.model.ValidationResult;
 import com.frauscher.ConfigurationValidationService.model.ValidationSummary;
@@ -29,7 +29,7 @@ public class ConfigValidationV2Service {
     private final ExpectationsPreprocessor expectationsPreprocessor;
     private final SummaryService summaryService;
 
-    public ValidationSummary validate(List<ParsedConfigFile> parsedConfigFiles, Phase2ValidationInput userInput) {
+    public ValidationSummary validate(List<ParsedConfigFile> parsedConfigFiles, ValidationInputV2 userInput) {
 
         Expectations expectations =
                 expectationsPreprocessor.preprocess(userInput.getFctData(), userInput.getPdqData());

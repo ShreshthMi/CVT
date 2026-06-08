@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.frauscher.ConfigurationValidationService.dto.Phase2ValidationInput;
+import com.frauscher.ConfigurationValidationService.dto.ValidationInputV2;
 import com.frauscher.ConfigurationValidationService.model.ParsedConfigFile;
 import com.frauscher.ConfigurationValidationService.model.ValidationSummary;
 import com.frauscher.ConfigurationValidationService.service.ConfigValidationV2Service;
@@ -56,12 +56,12 @@ public class ConfigValidationV2Steps {
     @Autowired
     private ObjectMapper objectMapper;
 
-    private Phase2ValidationInput userInput;
+    private ValidationInputV2 userInput;
     private ValidationSummary summary;
 
     @Given("a v2 validation input built from the sample FCT and PDQ")
     public void aV2ValidationInput() {
-        userInput = new Phase2ValidationInput();
+        userInput = new ValidationInputV2();
         userInput.setFctData(fctParsingService.parse(FctFixtures.acoBytes()));
         userInput.setPdqData(pdqParsingService.parse(new ByteArrayInputStream(PdqFixtures.workbookBytes())));
     }

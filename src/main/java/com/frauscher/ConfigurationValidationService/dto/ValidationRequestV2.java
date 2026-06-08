@@ -10,12 +10,12 @@ import lombok.NoArgsConstructor;
 
 /**
  * Request body for {@code POST /api/config/v2/validate}. Mirrors {@link ValidationRequestWrapper}
- * but carries the upload-sourced {@link Phase2ValidationInput} (FCT + PDQ baseline) as its userInput.
+ * but carries the upload-sourced {@link ValidationInputV2} (FCT + PDQ baseline) as its userInput.
  */
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 public class ValidationRequestV2 {
     private List<ParsedConfigFile> parsedConfigFiles;
-    private Phase2ValidationInput userInput;
+    private ValidationInputV2 userInput;
 }

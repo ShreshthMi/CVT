@@ -22,7 +22,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class Phase2ValidationInput {
+public class ValidationInputV2 {
 
     private ComAebMap fctData;
     private PdqUploadResponse pdqData;

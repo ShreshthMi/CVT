@@ -8,10 +8,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.frauscher.ConfigurationValidationService.dto.Phase2ValidationInput;
+import com.frauscher.ConfigurationValidationService.dto.ValidationInputV2;
 import com.frauscher.ConfigurationValidationService.dto.ValidationRequestV2;
 import com.frauscher.ConfigurationValidationService.exception.InvalidUserValidationInputException;
-import com.frauscher.ConfigurationValidationService.exception.Phase2InputsIncompleteException;
+import com.frauscher.ConfigurationValidationService.exception.IncompleteBaselineInputException;
 import com.frauscher.ConfigurationValidationService.model.ParsedConfigFile;
 import com.frauscher.ConfigurationValidationService.model.ValidationSummary;
 import com.frauscher.ConfigurationValidationService.service.ConfigValidationV2Service;
@@ -35,7 +35,7 @@ public class ConfigValidationV2Controller {
             @RequestBody ValidationRequestV2 request) {
 
         List<ParsedConfigFile> parsedConfigFiles = request.getParsedConfigFiles();
-        Phase2ValidationInput userInput = request.getUserInput();
+        ValidationInputV2 userInput = request.getUserInput();
 
         if (parsedConfigFiles == null || parsedConfigFiles.isEmpty()) {
             throw new InvalidUserValidationInputException("At least one config file is required");
@@ -43,7 +43,7 @@ public class ConfigValidationV2Controller {
 
         // Coupled-artifacts gate: both baseline uploads are mandatory on the v2 path.
         if (userInput == null || userInput.getFctData() == null || userInput.getPdqData() == null) {
-            throw new Phase2InputsIncompleteException();
+            throw new IncompleteBaselineInputException();
         }
 
         return ResponseEntity.ok(configValidationV2Service.validate(parsedConfigFiles, userInput));

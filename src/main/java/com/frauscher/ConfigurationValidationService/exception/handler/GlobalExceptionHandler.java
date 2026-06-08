@@ -49,9 +49,9 @@ public class GlobalExceptionHandler {
 
 
 
-    @ExceptionHandler(Phase2InputsIncompleteException.class)
-    public ResponseEntity<ApiErrorResponse> handlePhase2InputsIncomplete(
-            Phase2InputsIncompleteException ex) {
+    @ExceptionHandler(IncompleteBaselineInputException.class)
+    public ResponseEntity<ApiErrorResponse> handleIncompleteBaselineInput(
+            IncompleteBaselineInputException ex) {
 
         // Coupled-artifacts gate failure: surfaces PHASE2_INPUTS_INCOMPLETE.
         log.warn("v2 validate rejected [{}]", ex.getErrorCode());
