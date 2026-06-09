@@ -1,0 +1,87 @@
+{
+  "chains": [
+    {
+      "com": {
+        "comId": "201",
+        "comName": "COM_A"
+      },
+      "redundantComPresent": false,
+      "aebs": [
+        {
+          "dpId": "855",
+          "dpName": "DP26",
+          "evaluatedFmas": [
+            {
+              "fmaName": "105A-AXT1",
+              "fmaId": "0",
+              "dpId": "855"
+            },
+            {
+              "fmaName": "105B-AXT2",
+              "fmaId": "1",
+              "dpId": "855"
+            }
+          ],
+          "acoIoExbs": [
+            {
+              "label": "ACO",
+              "outputFma1Name": "105A-AXT1",
+              "outputFma1Id": "0",
+              "outputFma1DpId": "855",
+              "outputFma2Name": "105B-AXT2",
+              "outputFma2Id": "1",
+              "outputFma2DpId": "855"
+            },
+            {
+              "label": "ACO",
+              "outputFma1Name": "106-AXT",
+              "outputFma1Id": "0",
+              "outputFma1DpId": "855"
+            }
+          ],
+          "dtIoExbCount": 2
+        },
+        {
+          "dpId": "846",
+          "dpName": "DP22",
+          "evaluatedFmas": [
+            {
+              "fmaName": "104A-AXT1",
+              "fmaId": "0",
+              "dpId": "846"
+            }
+          ],
+          "acoIoExbs": [],
+          "dtIoExbCount": 0
+        }
+      ]
+    },
+    {
+      "com": {
+        "comId": "202",
+        "comName": "COM_B"
+      },
+      "redundantComPresent": true,
+      "aebs": [
+        {
+          "dpId": "860",
+          "dpName": "DP30",
+          "evaluatedFmas": [
+            {
+              "fmaName": "107A-AXT1",
+              "fmaId": "0",
+              "dpId": "860"
+            },
+            {
+              "fmaName": "107B-AXT2",
+              "fmaId": "1",
+              "dpId": "860"
+            }
+          ],
+          "acoIoExbs": [],
+          "dtIoExbCount": 0
+        }
+      ]
+    }
+  ]
+}

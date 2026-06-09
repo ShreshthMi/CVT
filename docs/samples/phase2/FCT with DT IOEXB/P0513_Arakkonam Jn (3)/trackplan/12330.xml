@@ -1,0 +1,1470 @@
+<Trackplan>
+<Fds></Fds>
+<Stations></Stations>
+<Track  width="62"  height="29">
+	<Rail type="LINE" id="16755"  angle="0"  mirror="0"  x="19"  y="4" />
+	<Rail type="LINE" id="16756"  angle="0"  mirror="0"  x="20"  y="4" />
+	<Rail type="LINE" id="16757"  angle="0"  mirror="0"  x="21"  y="4" />
+	<Rail type="LINE" id="16758"  angle="0"  mirror="0"  x="22"  y="4" />
+	<Rail type="LINE" id="16759"  angle="90"  mirror="0"  x="23"  y="4" />
+	<Rail type="LINE" id="16760"  angle="270"  mirror="1"  x="24"  y="5" />
+	<Rail type="SWITCH" id="16761"  angle="0"  mirror="0"  x="25"  y="6" />
+	<Rail type="LINE" id="16762"  angle="0"  mirror="0"  x="19"  y="6" />
+	<Rail type="LINE" id="16763"  angle="0"  mirror="0"  x="20"  y="6" />
+	<Rail type="LINE" id="16764"  angle="0"  mirror="0"  x="21"  y="6" />
+	<Rail type="LINE" id="16765"  angle="0"  mirror="0"  x="22"  y="6" />
+	<Rail type="LINE" id="16766"  angle="0"  mirror="0"  x="23"  y="6" />
+	<Rail type="LINE" id="16767"  angle="0"  mirror="0"  x="24"  y="6" />
+	<Rail type="LINE" id="16768"  angle="0"  mirror="0"  x="26"  y="6" />
+	<Sensor id="16769" angle="0" name="DP159" refId="3222" fma0="7002" x="22"  y="6" />
+	<Sensor id="16770" angle="0" name="DP160" refId="3266" fma0="7065" x="22"  y="4" />
+	<Fma id="7065" angle="0" name="01_01AT" refId="16770" x="14"  y="4">
+		<Rails>
+			<Ref refId="18343"/>
+			<Ref refId="18344"/>
+			<Ref refId="17504"/>
+			<Ref refId="17505"/>
+			<Ref refId="17506"/>
+			<Ref refId="17390"/>
+			<Ref refId="17391"/>
+			<Ref refId="17392"/>
+			<Ref refId="17393"/>
+			<Ref refId="17394"/>
+			<Ref refId="17395"/>
+			<Ref refId="17396"/>
+			<Ref refId="17397"/>
+			<Ref refId="17398"/>
+			<Ref refId="17399"/>
+			<Ref refId="17400"/>
+			<Ref refId="16755"/>
+			<Ref refId="16756"/>
+			<Ref refId="16757"/>
+			<Ref refId="16758"/>
+		</Rails>
+		<Sensors>
+		<Ref refId="16770" fmaPosition="left"/>
+		</Sensors>
+	</Fma>
+	<Fma id="7002" angle="0" name="02_02AT" refId="16769" x="14"  y="6">
+		<Rails>
+			<Ref refId="17501"/>
+			<Ref refId="17502"/>
+			<Ref refId="17503"/>
+			<Ref refId="18341"/>
+			<Ref refId="18342"/>
+			<Ref refId="17401"/>
+			<Ref refId="17402"/>
+			<Ref refId="17403"/>
+			<Ref refId="17404"/>
+			<Ref refId="17405"/>
+			<Ref refId="17406"/>
+			<Ref refId="17407"/>
+			<Ref refId="17408"/>
+			<Ref refId="17409"/>
+			<Ref refId="17410"/>
+			<Ref refId="17411"/>
+			<Ref refId="16762"/>
+			<Ref refId="16763"/>
+			<Ref refId="16764"/>
+			<Ref refId="16765"/>
+		</Rails>
+		<Sensors>
+		<Ref refId="16769" fmaPosition="left"/>
+		</Sensors>
+	</Fma>
+	<Fma id="7026" angle="0" name="257T" refId="16774" x="24"  y="6">
+		<Rails>
+			<Ref refId="16758"/>
+			<Ref refId="16759"/>
+			<Ref refId="16760"/>
+			<Ref refId="16761"/>
+			<Ref refId="16765"/>
+			<Ref refId="16766"/>
+			<Ref refId="16767"/>
+			<Ref refId="16768"/>
+		</Rails>
+		<Sensors>
+		<Ref refId="16770" fmaPosition="right"/>
+		<Ref refId="16774" fmaPosition="left"/>
+		<Ref refId="16769" fmaPosition="right"/>
+		</Sensors>
+	</Fma>
+	<Sensor id="16774" angle="0" name="DP161" refId="3242" fma0="7026" fma1="7032" x="26"  y="6" />
+	<Rail type="LINE" id="16775"  angle="0"  mirror="0"  x="19"  y="9" />
+	<Rail type="LINE" id="16776"  angle="0"  mirror="0"  x="20"  y="9" />
+	<Rail type="LINE" id="16777"  angle="0"  mirror="0"  x="21"  y="9" />
+	<Rail type="LINE" id="16778"  angle="0"  mirror="0"  x="22"  y="9" />
+	<Rail type="LINE" id="16779"  angle="0"  mirror="0"  x="23"  y="9" />
+	<Rail type="LINE" id="16780"  angle="0"  mirror="0"  x="24"  y="9" />
+	<Rail type="LINE" id="16781"  angle="0"  mirror="0"  x="25"  y="9" />
+	<Rail type="LINE" id="16782"  angle="0"  mirror="0"  x="26"  y="9" />
+	<Rail type="SWITCH" id="16783"  angle="180"  mirror="0"  x="27"  y="6" />
+	<Rail type="LINE" id="16784"  angle="270"  mirror="1"  x="28"  y="7" />
+	<Rail type="LINE" id="16785"  angle="270"  mirror="1"  x="29"  y="8" />
+	<Rail type="SWITCH" id="16786"  angle="0"  mirror="0"  x="30"  y="9" />
+	<Rail type="LINE" id="16787"  angle="0"  mirror="0"  x="37"  y="9" />
+	<Rail type="LINE" id="16788"  angle="0"  mirror="0"  x="28"  y="9" />
+	<Rail type="LINE" id="16789"  angle="0"  mirror="0"  x="29"  y="9" />
+	<Rail type="LINE" id="16790"  angle="0"  mirror="0"  x="28"  y="6" />
+	<Rail type="LINE" id="16791"  angle="0"  mirror="0"  x="29"  y="6" />
+	<Rail type="LINE" id="16792"  angle="0"  mirror="0"  x="30"  y="6" />
+	<Fma id="7032" angle="0" name="260T" refId="16774" x="28"  y="6">
+		<Rails>
+			<Ref refId="16768"/>
+			<Ref refId="16783"/>
+			<Ref refId="16784"/>
+			<Ref refId="16790"/>
+			<Ref refId="16791"/>
+			<Ref refId="16785"/>
+			<Ref refId="16792"/>
+			<Ref refId="16794"/>
+		</Rails>
+		<Sensors>
+		<Ref refId="16774" fmaPosition="right"/>
+		<Ref refId="16795" fmaPosition="left"/>
+		</Sensors>
+	</Fma>
+	<Rail type="STOP" id="16794"  angle="180"  mirror="0"  x="31"  y="6" />
+	<Sensor id="16795" angle="135" name="DP162" refId="3226" x="29"  y="8" />
+	<Sensor id="16796" angle="180" name="DP164" refId="3506" fma0="7186" fma1="7192" x="31"  y="9" />
+	<Rail type="LINE" id="16797"  angle="0"  mirror="0"  x="31"  y="9" />
+	<Fma id="7017" angle="0" name="03_03AT" refId="16799" x="14"  y="9">
+		<Rails>
+			<Ref refId="16775"/>
+			<Ref refId="16776"/>
+			<Ref refId="16777"/>
+			<Ref refId="16778"/>
+			<Ref refId="16779"/>
+			<Ref refId="16780"/>
+			<Ref refId="17412"/>
+			<Ref refId="17413"/>
+			<Ref refId="17414"/>
+			<Ref refId="17415"/>
+			<Ref refId="17416"/>
+			<Ref refId="17417"/>
+			<Ref refId="17418"/>
+			<Ref refId="17419"/>
+			<Ref refId="17420"/>
+			<Ref refId="17421"/>
+			<Ref refId="17422"/>
+			<Ref refId="17498"/>
+			<Ref refId="17499"/>
+			<Ref refId="17500"/>
+			<Ref refId="18339"/>
+			<Ref refId="18340"/>
+			<Ref refId="16781"/>
+		</Rails>
+		<Sensors>
+		<Ref refId="16799" fmaPosition="left"/>
+		</Sensors>
+	</Fma>
+	<Sensor id="16799" angle="180" name="DP158" refId="3238" fma0="7017" x="25"  y="9" />
+	<Rail type="SWITCH" id="16800"  angle="180"  mirror="1"  x="27"  y="9" />
+	<Rail type="LINE" id="16801"  angle="270"  mirror="0"  x="26"  y="10" />
+	<Rail type="SWITCH" id="16802"  angle="0"  mirror="1"  x="25"  y="11" />
+	<Rail type="LINE" id="16803"  angle="0"  mirror="0"  x="28"  y="11" />
+	<Rail type="LINE" id="16804"  angle="0"  mirror="0"  x="26"  y="11" />
+	<Rail type="LINE" id="16805"  angle="0"  mirror="0"  x="27"  y="11" />
+	<Rail type="SWITCH" id="16806"  angle="180"  mirror="1"  x="23"  y="11" />
+	<Rail type="LINE" id="16807"  angle="270"  mirror="0"  x="22"  y="12" />
+	<Rail type="LINE" id="16808"  angle="270"  mirror="0"  x="21"  y="13" />
+	<Rail type="LINE" id="17299"  angle="0"  mirror="0"  x="22"  y="11" />
+	<Rail type="LINE" id="17300"  angle="0"  mirror="0"  x="21"  y="11" />
+	<Rail type="LINE" id="17301"  angle="0"  mirror="0"  x="20"  y="11" />
+	<Rail type="LINE" id="17302"  angle="0"  mirror="0"  x="19"  y="11" />
+	<Rail type="LINE" id="17303"  angle="0"  mirror="0"  x="18"  y="11" />
+	<Rail type="SWITCH" id="17304"  angle="0"  mirror="1"  x="20"  y="14" />
+	<Rail type="LINE" id="17305"  angle="0"  mirror="0"  x="19"  y="14" />
+	<Rail type="LINE" id="17306"  angle="0"  mirror="0"  x="23"  y="14" />
+	<Rail type="LINE" id="17307"  angle="0"  mirror="0"  x="17"  y="14" />
+	<Sensor id="17308" angle="225" name="DP163" refId="3230" x="26"  y="10" />
+	<Rail type="LINE" id="17309"  angle="0"  mirror="0"  x="24"  y="11" />
+	<Sensor id="17310" angle="0" name="DP157" refId="3234" fma0="7008" x="24"  y="11" />
+	<Sensor id="17312" angle="225" name="DP155" refId="3262" x="21"  y="13" />
+	<Rail type="LINE" id="17314"  angle="0"  mirror="0"  x="21"  y="14" />
+	<Rail type="LINE" id="17315"  angle="0"  mirror="0"  x="22"  y="14" />
+	<Fma id="7041" angle="0" name="249BT" refId="17318" x="16"  y="14">
+		<Rails>
+			<Ref refId="17325"/>
+			<Ref refId="17324"/>
+			<Ref refId="17323"/>
+			<Ref refId="17307"/>
+			<Ref refId="17320"/>
+			<Ref refId="17319"/>
+			<Ref refId="17305"/>
+			<Ref refId="17321"/>
+		</Rails>
+		<Sensors>
+		<Ref refId="17317" fmaPosition="right"/>
+		<Ref refId="17330" fmaPosition="right"/>
+		<Ref refId="17318" fmaPosition="left"/>
+		</Sensors>
+	</Fma>
+	<Sensor id="17317" angle="180" name="DP152" refId="6368" fma0="6868" x="14"  y="14" />
+	<Sensor id="17318" angle="180" name="DP151" refId="3250" fma0="7041" fma1="7047" x="19"  y="14" />
+	<Rail type="SWITCH" id="17319"  angle="180"  mirror="1"  x="18"  y="14" />
+	<Rail type="LINE" id="17320"  angle="270"  mirror="0"  x="17"  y="15" />
+	<Rail type="LINE" id="17321"  angle="270"  mirror="0"  x="16"  y="16" />
+	<Rail type="SWITCH" id="17322"  angle="0"  mirror="1"  x="15"  y="17" />
+	<Rail type="LINE" id="17323"  angle="0"  mirror="0"  x="16"  y="14" />
+	<Rail type="LINE" id="17324"  angle="0"  mirror="0"  x="15"  y="14" />
+	<Rail type="LINE" id="17325"  angle="0"  mirror="0"  x="14"  y="14" />
+	<Rail type="LINE" id="17326"  angle="0"  mirror="0"  x="16"  y="17" />
+	<Rail type="LINE" id="17327"  angle="0"  mirror="0"  x="17"  y="17" />
+	<Rail type="LINE" id="17328"  angle="0"  mirror="0"  x="18"  y="17" />
+	<Rail type="LINE" id="17329"  angle="0"  mirror="0"  x="14"  y="17" />
+	<Sensor id="17330" angle="225" name="DP150" refId="6396" x="16"  y="16" />
+	<Sensor id="17331" angle="0" name="DP141" refId="6356" fma0="6844" fma1="6850" x="14"  y="17" />
+	<Rail type="LINE" id="17332"  angle="0"  mirror="0"  x="11"  y="17" />
+	<Rail type="LINE" id="17333"  angle="0"  mirror="0"  x="12"  y="17" />
+	<Rail type="SWITCH" id="17334"  angle="180"  mirror="1"  x="13"  y="17" />
+	<Rail type="LINE" id="17335"  angle="270"  mirror="0"  x="12"  y="18" />
+	<Rail type="LINE" id="17336"  angle="270"  mirror="0"  x="11"  y="19" />
+	<Rail type="SWITCH" id="17337"  angle="0"  mirror="1"  x="10"  y="20" />
+	<Rail type="LINE" id="17338"  angle="0"  mirror="0"  x="9"  y="20" />
+	<Rail type="LINE" id="17339"  angle="0"  mirror="0"  x="11"  y="20" />
+	<Rail type="LINE" id="17340"  angle="0"  mirror="0"  x="13"  y="20" />
+	<Rail type="LINE" id="17341"  angle="0"  mirror="0"  x="14"  y="20" />
+	<Sensor id="17342" angle="180" name="DP137" refId="6384" x="9"  y="20" />
+	<Rail type="LINE" id="17347"  angle="0"  mirror="0"  x="7"  y="29" />
+	<Rail type="LINE" id="17348"  angle="0"  mirror="0"  x="8"  y="29" />
+	<Rail type="LINE" id="17349"  angle="0"  mirror="0"  x="9"  y="29" />
+	<Rail type="LINE" id="17350"  angle="0"  mirror="0"  x="10"  y="29" />
+	<Rail type="LINE" id="17351"  angle="0"  mirror="0"  x="6"  y="29" />
+	<Rail type="LINE" id="17352"  angle="0"  mirror="0"  x="11"  y="29" />
+	<Rail type="LINE" id="17353"  angle="0"  mirror="0"  x="15"  y="29" />
+	<Rail type="LINE" id="17354"  angle="0"  mirror="0"  x="13"  y="29" />
+	<Rail type="LINE" id="17355"  angle="0"  mirror="0"  x="14"  y="29" />
+	<Sensor id="17356" angle="180" name="DP128" refId="6364" fma0="6862" x="11"  y="29" />
+	<Rail type="SWITCH" id="17357"  angle="0"  mirror="1"  x="12"  y="29" />
+	<Rail type="SWITCH" id="17358"  angle="45"  mirror="1"  x="13"  y="28" />
+	<Rail type="SWITCH" id="17359"  angle="45"  mirror="1"  x="14"  y="27" />
+	<Rail type="LINE" id="17360"  angle="90"  mirror="1"  x="15"  y="26" />
+	<Rail type="LINE" id="17361"  angle="0"  mirror="0"  x="16"  y="26" />
+	<Rail type="LINE" id="17362"  angle="0"  mirror="0"  x="17"  y="26" />
+	<Rail type="LINE" id="17363"  angle="0"  mirror="0"  x="18"  y="26" />
+	<Rail type="LINE" id="17364"  angle="0"  mirror="0"  x="15"  y="27" />
+	<Rail type="LINE" id="17365"  angle="0"  mirror="0"  x="16"  y="27" />
+	<Rail type="LINE" id="17366"  angle="0"  mirror="0"  x="17"  y="27" />
+	<Rail type="LINE" id="17367"  angle="0"  mirror="0"  x="18"  y="27" />
+	<Rail type="LINE" id="17368"  angle="0"  mirror="0"  x="16"  y="28" />
+	<Rail type="LINE" id="17369"  angle="0"  mirror="0"  x="17"  y="28" />
+	<Rail type="LINE" id="17370"  angle="0"  mirror="0"  x="15"  y="28" />
+	<Rail type="LINE" id="17371"  angle="0"  mirror="0"  x="14"  y="28" />
+	<Rail type="LINE" id="17372"  angle="0"  mirror="0"  x="18"  y="28" />
+	<Rail type="LINE" id="17373"  angle="0"  mirror="0"  x="16"  y="29" />
+	<Rail type="LINE" id="17374"  angle="0"  mirror="0"  x="17"  y="29" />
+	<Rail type="LINE" id="17375"  angle="0"  mirror="0"  x="18"  y="29" />
+	<Rail type="STOP" id="17376"  angle="180"  mirror="0"  x="19"  y="26" />
+	<Rail type="STOP" id="17377"  angle="180"  mirror="0"  x="19"  y="27" />
+	<Rail type="STOP" id="17378"  angle="180"  mirror="0"  x="19"  y="28" />
+	<Rail type="STOP" id="17379"  angle="180"  mirror="0"  x="19"  y="29" />
+	<Fma id="6862" angle="0" name="241T" refId="17356" x="6"  y="29">
+		<Rails>
+			<Ref refId="18331"/>
+			<Ref refId="18332"/>
+			<Ref refId="17443"/>
+			<Ref refId="17351"/>
+			<Ref refId="17347"/>
+			<Ref refId="17348"/>
+			<Ref refId="17349"/>
+			<Ref refId="17350"/>
+			<Ref refId="17352"/>
+		</Rails>
+		<Sensors>
+		<Ref refId="17356" fmaPosition="left"/>
+		</Sensors>
+	</Fma>
+	<Rail type="LINE" id="17385"  angle="0"  mirror="0"  x="15"  y="20" />
+	<Rail type="LINE" id="17386"  angle="0"  mirror="0"  x="16"  y="20" />
+	<Rail type="LINE" id="17387"  angle="0"  mirror="0"  x="17"  y="20" />
+	<Rail type="LINE" id="17388"  angle="0"  mirror="0"  x="18"  y="20" />
+	<Rail type="LINE" id="17389"  angle="0"  mirror="0"  x="19"  y="20" />
+	<Rail type="LINE" id="17390"  angle="0"  mirror="0"  x="8"  y="4" />
+	<Rail type="LINE" id="17391"  angle="0"  mirror="0"  x="9"  y="4" />
+	<Rail type="LINE" id="17392"  angle="0"  mirror="0"  x="10"  y="4" />
+	<Rail type="LINE" id="17393"  angle="0"  mirror="0"  x="11"  y="4" />
+	<Rail type="LINE" id="17394"  angle="0"  mirror="0"  x="12"  y="4" />
+	<Rail type="LINE" id="17395"  angle="0"  mirror="0"  x="13"  y="4" />
+	<Rail type="LINE" id="17396"  angle="0"  mirror="0"  x="14"  y="4" />
+	<Rail type="LINE" id="17397"  angle="0"  mirror="0"  x="15"  y="4" />
+	<Rail type="LINE" id="17398"  angle="0"  mirror="0"  x="16"  y="4" />
+	<Rail type="LINE" id="17399"  angle="0"  mirror="0"  x="17"  y="4" />
+	<Rail type="LINE" id="17400"  angle="0"  mirror="0"  x="18"  y="4" />
+	<Rail type="LINE" id="17401"  angle="0"  mirror="0"  x="8"  y="6" />
+	<Rail type="LINE" id="17402"  angle="0"  mirror="0"  x="9"  y="6" />
+	<Rail type="LINE" id="17403"  angle="0"  mirror="0"  x="10"  y="6" />
+	<Rail type="LINE" id="17404"  angle="0"  mirror="0"  x="11"  y="6" />
+	<Rail type="LINE" id="17405"  angle="0"  mirror="0"  x="12"  y="6" />
+	<Rail type="LINE" id="17406"  angle="0"  mirror="0"  x="13"  y="6" />
+	<Rail type="LINE" id="17407"  angle="0"  mirror="0"  x="14"  y="6" />
+	<Rail type="LINE" id="17408"  angle="0"  mirror="0"  x="15"  y="6" />
+	<Rail type="LINE" id="17409"  angle="0"  mirror="0"  x="16"  y="6" />
+	<Rail type="LINE" id="17410"  angle="0"  mirror="0"  x="17"  y="6" />
+	<Rail type="LINE" id="17411"  angle="0"  mirror="0"  x="18"  y="6" />
+	<Rail type="LINE" id="17412"  angle="0"  mirror="0"  x="8"  y="9" />
+	<Rail type="LINE" id="17413"  angle="0"  mirror="0"  x="9"  y="9" />
+	<Rail type="LINE" id="17414"  angle="0"  mirror="0"  x="10"  y="9" />
+	<Rail type="LINE" id="17415"  angle="0"  mirror="0"  x="11"  y="9" />
+	<Rail type="LINE" id="17416"  angle="0"  mirror="0"  x="12"  y="9" />
+	<Rail type="LINE" id="17417"  angle="0"  mirror="0"  x="13"  y="9" />
+	<Rail type="LINE" id="17418"  angle="0"  mirror="0"  x="14"  y="9" />
+	<Rail type="LINE" id="17419"  angle="0"  mirror="0"  x="15"  y="9" />
+	<Rail type="LINE" id="17420"  angle="0"  mirror="0"  x="16"  y="9" />
+	<Rail type="LINE" id="17421"  angle="0"  mirror="0"  x="17"  y="9" />
+	<Rail type="LINE" id="17422"  angle="0"  mirror="0"  x="18"  y="9" />
+	<Rail type="LINE" id="17423"  angle="0"  mirror="0"  x="8"  y="11" />
+	<Rail type="LINE" id="17424"  angle="0"  mirror="0"  x="9"  y="11" />
+	<Rail type="LINE" id="17425"  angle="0"  mirror="0"  x="10"  y="11" />
+	<Rail type="LINE" id="17426"  angle="0"  mirror="0"  x="11"  y="11" />
+	<Rail type="LINE" id="17427"  angle="0"  mirror="0"  x="12"  y="11" />
+	<Rail type="LINE" id="17428"  angle="0"  mirror="0"  x="13"  y="11" />
+	<Rail type="LINE" id="17429"  angle="0"  mirror="0"  x="14"  y="11" />
+	<Rail type="LINE" id="17430"  angle="0"  mirror="0"  x="15"  y="11" />
+	<Rail type="LINE" id="17431"  angle="0"  mirror="0"  x="16"  y="11" />
+	<Rail type="LINE" id="17432"  angle="0"  mirror="0"  x="17"  y="11" />
+	<Rail type="LINE" id="17433"  angle="0"  mirror="0"  x="8"  y="14" />
+	<Rail type="LINE" id="17434"  angle="0"  mirror="0"  x="9"  y="14" />
+	<Rail type="LINE" id="17435"  angle="0"  mirror="0"  x="10"  y="14" />
+	<Rail type="LINE" id="17436"  angle="0"  mirror="0"  x="11"  y="14" />
+	<Rail type="LINE" id="17437"  angle="0"  mirror="0"  x="12"  y="14" />
+	<Rail type="LINE" id="17438"  angle="0"  mirror="0"  x="13"  y="14" />
+	<Rail type="LINE" id="17439"  angle="0"  mirror="0"  x="8"  y="17" />
+	<Rail type="LINE" id="17440"  angle="0"  mirror="0"  x="9"  y="17" />
+	<Rail type="LINE" id="17441"  angle="0"  mirror="0"  x="10"  y="17" />
+	<Rail type="LINE" id="17443"  angle="0"  mirror="0"  x="5"  y="29" />
+	<Fma id="7186" angle="0" name="259BT" refId="16796" x="28"  y="9">
+		<Rails>
+			<Ref refId="16781"/>
+			<Ref refId="16782"/>
+			<Ref refId="16788"/>
+			<Ref refId="16800"/>
+			<Ref refId="16785"/>
+			<Ref refId="16789"/>
+			<Ref refId="16786"/>
+			<Ref refId="16797"/>
+			<Ref refId="16801"/>
+		</Rails>
+		<Sensors>
+		<Ref refId="16799" fmaPosition="right"/>
+		<Ref refId="17308" fmaPosition="right"/>
+		<Ref refId="16795" fmaPosition="right"/>
+		<Ref refId="16796" fmaPosition="left"/>
+		</Sensors>
+	</Fma>
+	<Rail type="LINE" id="17445"  angle="0"  mirror="0"  x="33"  y="9" />
+	<Rail type="LINE" id="17446"  angle="0"  mirror="0"  x="34"  y="9" />
+	<Fma id="7008" angle="0" name="258BT" refId="17310" x="19"  y="11">
+		<Rails>
+			<Ref refId="17431"/>
+			<Ref refId="17432"/>
+			<Ref refId="17303"/>
+			<Ref refId="17302"/>
+			<Ref refId="17301"/>
+			<Ref refId="17300"/>
+			<Ref refId="16807"/>
+			<Ref refId="17299"/>
+			<Ref refId="16806"/>
+			<Ref refId="17309"/>
+			<Ref refId="16808"/>
+		</Rails>
+		<Sensors>
+		<Ref refId="17448" fmaPosition="right"/>
+		<Ref refId="17312" fmaPosition="right"/>
+		<Ref refId="17310" fmaPosition="left"/>
+		</Sensors>
+	</Fma>
+	<Sensor id="17448" angle="0" name="DP154" refId="3258" x="16"  y="11" />
+	<Fma id="6874" angle="0" name="14T" refId="17450" x="13"  y="11">
+		<Rails>
+			<Ref refId="17425"/>
+			<Ref refId="17426"/>
+			<Ref refId="17427"/>
+			<Ref refId="17428"/>
+			<Ref refId="17429"/>
+			<Ref refId="17430"/>
+			<Ref refId="17431"/>
+		</Rails>
+		<Sensors>
+		<Ref refId="17450" fmaPosition="right"/>
+		<Ref refId="17448" fmaPosition="left"/>
+		</Sensors>
+	</Fma>
+	<Sensor id="17450" angle="0" name="DP153" refId="6372" fma0="6874" fma1="6880" x="10"  y="11" />
+	<Fma id="7047" angle="0" name="258AT" refId="17318" x="21"  y="14">
+		<Rails>
+			<Ref refId="17306"/>
+			<Ref refId="17315"/>
+			<Ref refId="16808"/>
+			<Ref refId="17314"/>
+			<Ref refId="17304"/>
+			<Ref refId="17305"/>
+		</Rails>
+		<Sensors>
+		<Ref refId="17452" fmaPosition="left"/>
+		<Ref refId="17318" fmaPosition="right"/>
+		<Ref refId="17312" fmaPosition="left"/>
+		</Sensors>
+	</Fma>
+	<Sensor id="17452" angle="180" name="DP156" refId="3246" x="23"  y="14" />
+	<Sensor id="17453" angle="0" name="DP142" refId="6388" x="18"  y="17" />
+	<Fma id="6850" angle="0" name="249AT" refId="17331" x="16"  y="17">
+		<Rails>
+			<Ref refId="17328"/>
+			<Ref refId="17327"/>
+			<Ref refId="17321"/>
+			<Ref refId="17326"/>
+			<Ref refId="17322"/>
+			<Ref refId="17329"/>
+		</Rails>
+		<Sensors>
+		<Ref refId="17453" fmaPosition="left"/>
+		<Ref refId="17331" fmaPosition="right"/>
+		<Ref refId="17330" fmaPosition="left"/>
+		</Sensors>
+	</Fma>
+	<Rail type="SWITCH" id="17455"  angle="180"  mirror="0"  x="19"  y="17" />
+	<Rail type="LINE" id="17456"  angle="270"  mirror="1"  x="20"  y="18" />
+	<Rail type="LINE" id="17457"  angle="270"  mirror="1"  x="21"  y="19" />
+	<Rail type="SWITCH" id="17458"  angle="0"  mirror="0"  x="22"  y="20" />
+	<Rail type="LINE" id="17459"  angle="0"  mirror="0"  x="21"  y="20" />
+	<Rail type="LINE" id="17460"  angle="0"  mirror="0"  x="20"  y="20" />
+	<Sensor id="17461" angle="0" name="DP140" refId="6344" fma0="6802" x="9"  y="17" />
+	<Fma id="6844" angle="0" name="248BT" refId="17331" x="11"  y="17">
+		<Rails>
+			<Ref refId="17440"/>
+			<Ref refId="17441"/>
+			<Ref refId="17332"/>
+			<Ref refId="17333"/>
+			<Ref refId="17335"/>
+			<Ref refId="17334"/>
+			<Ref refId="17336"/>
+			<Ref refId="17329"/>
+		</Rails>
+		<Sensors>
+		<Ref refId="17461" fmaPosition="right"/>
+		<Ref refId="17463" fmaPosition="right"/>
+		<Ref refId="17331" fmaPosition="left"/>
+		</Sensors>
+	</Fma>
+	<Sensor id="17463" angle="225" name="DP139" refId="6340" x="11"  y="19" />
+	<Rail type="SWITCH" id="17464"  angle="180"  mirror="1"  x="8"  y="20" />
+	<Rail type="LINE" id="17465"  angle="270"  mirror="0"  x="7"  y="21" />
+	<Rail type="SWITCH" id="17466"  angle="0"  mirror="1"  x="6"  y="22" />
+	<Rail type="LINE" id="17467"  angle="0"  mirror="0"  x="5"  y="22" />
+	<Rail type="LINE" id="17468"  angle="0"  mirror="0"  x="7"  y="22" />
+	<Rail type="LINE" id="17469"  angle="0"  mirror="0"  x="8"  y="22" />
+	<Rail type="LINE" id="17470"  angle="0"  mirror="0"  x="11"  y="22" />
+	<Rail type="LINE" id="17471"  angle="0"  mirror="0"  x="10"  y="22" />
+	<Sensor id="17472" angle="45" name="DP133" refId="6336" x="7"  y="21" />
+	<Sensor id="17473" angle="180" name="DP134" refId="6348" fma0="6820" fma1="6826" x="8"  y="22" />
+	<Fma id="6826" angle="0" name="243T" refId="17473" x="5"  y="22">
+		<Rails>
+			<Ref refId="17469"/>
+			<Ref refId="17468"/>
+			<Ref refId="17465"/>
+			<Ref refId="17467"/>
+			<Ref refId="18329"/>
+			<Ref refId="18330"/>
+			<Ref refId="17466"/>
+		</Rails>
+		<Sensors>
+		<Ref refId="17473" fmaPosition="left"/>
+		<Ref refId="17472" fmaPosition="left"/>
+		</Sensors>
+	</Fma>
+	<Rail type="SWITCH" id="17475"  angle="180"  mirror="0"  x="9"  y="22" />
+	<Rail type="LINE" id="17476"  angle="270"  mirror="1"  x="10"  y="23" />
+	<Rail type="LINE" id="17477"  angle="45"  mirror="0"  x="11"  y="24" />
+	<Rail type="LINE" id="17478"  angle="0"  mirror="0"  x="12"  y="20" />
+	<Rail type="LINE" id="17479"  angle="0"  mirror="0"  x="12"  y="22" />
+	<Rail type="LINE" id="17480"  angle="0"  mirror="0"  x="13"  y="22" />
+	<Rail type="LINE" id="17481"  angle="0"  mirror="0"  x="14"  y="22" />
+	<Fma id="6820" angle="0" name="245T" refId="17473" x="10"  y="22">
+		<Rails>
+			<Ref refId="17485"/>
+			<Ref refId="17479"/>
+			<Ref refId="17477"/>
+			<Ref refId="17470"/>
+			<Ref refId="17476"/>
+			<Ref refId="17471"/>
+			<Ref refId="17475"/>
+			<Ref refId="17469"/>
+		</Rails>
+		<Sensors>
+		<Ref refId="17484" fmaPosition="left"/>
+		<Ref refId="17483" fmaPosition="left"/>
+		<Ref refId="17473" fmaPosition="right"/>
+		</Sensors>
+	</Fma>
+	<Sensor id="17483" angle="180" name="DP136" refId="6380" x="12"  y="22" />
+	<Sensor id="17484" angle="180" name="DP135" refId="6376" x="12"  y="24" />
+	<Rail type="LINE" id="17485"  angle="0"  mirror="0"  x="12"  y="24" />
+	<Rail type="LINE" id="17486"  angle="0"  mirror="0"  x="5"  y="20" />
+	<Rail type="LINE" id="17487"  angle="0"  mirror="0"  x="6"  y="20" />
+	<Rail type="LINE" id="17488"  angle="0"  mirror="0"  x="7"  y="20" />
+	<Rail type="LINE" id="17489"  angle="0"  mirror="0"  x="5"  y="17" />
+	<Rail type="LINE" id="17490"  angle="0"  mirror="0"  x="6"  y="17" />
+	<Rail type="LINE" id="17491"  angle="0"  mirror="0"  x="7"  y="17" />
+	<Rail type="LINE" id="17492"  angle="0"  mirror="0"  x="5"  y="14" />
+	<Rail type="LINE" id="17493"  angle="0"  mirror="0"  x="6"  y="14" />
+	<Rail type="LINE" id="17494"  angle="0"  mirror="0"  x="7"  y="14" />
+	<Rail type="LINE" id="17495"  angle="0"  mirror="0"  x="5"  y="11" />
+	<Rail type="LINE" id="17496"  angle="0"  mirror="0"  x="6"  y="11" />
+	<Rail type="LINE" id="17497"  angle="0"  mirror="0"  x="7"  y="11" />
+	<Rail type="LINE" id="17498"  angle="0"  mirror="0"  x="5"  y="9" />
+	<Rail type="LINE" id="17499"  angle="0"  mirror="0"  x="6"  y="9" />
+	<Rail type="LINE" id="17500"  angle="0"  mirror="0"  x="7"  y="9" />
+	<Rail type="LINE" id="17501"  angle="0"  mirror="0"  x="5"  y="6" />
+	<Rail type="LINE" id="17502"  angle="0"  mirror="0"  x="6"  y="6" />
+	<Rail type="LINE" id="17503"  angle="0"  mirror="0"  x="7"  y="6" />
+	<Rail type="LINE" id="17504"  angle="0"  mirror="0"  x="5"  y="4" />
+	<Rail type="LINE" id="17505"  angle="0"  mirror="0"  x="6"  y="4" />
+	<Rail type="LINE" id="17506"  angle="0"  mirror="0"  x="7"  y="4" />
+	<Rail type="LINE" id="17507"  angle="0"  mirror="0"  x="13"  y="24" />
+	<Rail type="LINE" id="17508"  angle="0"  mirror="0"  x="14"  y="24" />
+	<Rail type="LINE" id="17509"  angle="0"  mirror="0"  x="15"  y="24" />
+	<Rail type="LINE" id="17510"  angle="0"  mirror="0"  x="16"  y="24" />
+	<Rail type="LINE" id="17511"  angle="0"  mirror="0"  x="15"  y="22" />
+	<Rail type="LINE" id="17512"  angle="0"  mirror="0"  x="16"  y="22" />
+	<Rail type="LINE" id="17513"  angle="0"  mirror="0"  x="17"  y="22" />
+	<Rail type="LINE" id="17514"  angle="0"  mirror="0"  x="18"  y="22" />
+	<Rail type="LINE" id="17515"  angle="0"  mirror="0"  x="19"  y="22" />
+	<Rail type="LINE" id="17516"  angle="0"  mirror="0"  x="17"  y="24" />
+	<Rail type="LINE" id="17517"  angle="0"  mirror="0"  x="18"  y="24" />
+	<Rail type="LINE" id="17518"  angle="0"  mirror="0"  x="19"  y="24" />
+	<Fma id="6880" angle="0" name="04_04AT" refId="17450" x="7"  y="11">
+		<Rails>
+			<Ref refId="17423"/>
+			<Ref refId="17424"/>
+			<Ref refId="17425"/>
+			<Ref refId="17495"/>
+			<Ref refId="17496"/>
+			<Ref refId="17497"/>
+			<Ref refId="18337"/>
+			<Ref refId="18338"/>
+		</Rails>
+		<Sensors>
+		<Ref refId="17450" fmaPosition="left"/>
+		</Sensors>
+	</Fma>
+	<Fma id="6868" angle="0" name="05_05AT" refId="17317" x="7"  y="14">
+		<Rails>
+			<Ref refId="18335"/>
+			<Ref refId="18336"/>
+			<Ref refId="17492"/>
+			<Ref refId="17493"/>
+			<Ref refId="17494"/>
+			<Ref refId="17433"/>
+			<Ref refId="17434"/>
+			<Ref refId="17435"/>
+			<Ref refId="17436"/>
+			<Ref refId="17437"/>
+			<Ref refId="17438"/>
+			<Ref refId="17325"/>
+		</Rails>
+		<Sensors>
+		<Ref refId="17317" fmaPosition="left"/>
+		</Sensors>
+	</Fma>
+	<Rail type="SWITCH" id="17521"  angle="180"  mirror="0"  x="32"  y="9" />
+	<Rail type="LINE" id="17522"  angle="270"  mirror="1"  x="33"  y="10" />
+	<Rail type="SWITCH" id="17523"  angle="0"  mirror="0"  x="34"  y="11" />
+	<Rail type="LINE" id="17524"  angle="0"  mirror="0"  x="29"  y="11" />
+	<Rail type="LINE" id="17525"  angle="0"  mirror="0"  x="30"  y="11" />
+	<Rail type="LINE" id="17526"  angle="0"  mirror="0"  x="31"  y="11" />
+	<Rail type="LINE" id="17527"  angle="0"  mirror="0"  x="32"  y="11" />
+	<Rail type="LINE" id="17528"  angle="0"  mirror="0"  x="33"  y="11" />
+	<Rail type="LINE" id="17529"  angle="0"  mirror="0"  x="35"  y="11" />
+	<Rail type="LINE" id="17530"  angle="0"  mirror="0"  x="36"  y="11" />
+	<Rail type="LINE" id="17531"  angle="0"  mirror="0"  x="36"  y="9" />
+	<Fma id="7192" angle="0" name="262AT" refId="16796" x="34"  y="9">
+		<Rails>
+			<Ref refId="17536"/>
+			<Ref refId="16787"/>
+			<Ref refId="17537"/>
+			<Ref refId="17539"/>
+			<Ref refId="17538"/>
+			<Ref refId="17540"/>
+			<Ref refId="16797"/>
+			<Ref refId="17521"/>
+			<Ref refId="17445"/>
+			<Ref refId="17446"/>
+			<Ref refId="17534"/>
+			<Ref refId="17531"/>
+			<Ref refId="17535"/>
+			<Ref refId="17522"/>
+		</Rails>
+		<Sensors>
+		<Ref refId="17630" fmaPosition="left"/>
+		<Ref refId="17614" fmaPosition="left"/>
+		<Ref refId="16796" fmaPosition="right"/>
+		<Ref refId="17533" fmaPosition="left"/>
+		</Sensors>
+	</Fma>
+	<Sensor id="17533" angle="135" name="DP167" refId="3538" x="33"  y="10" />
+	<Rail type="SWITCH" id="17534"  angle="0"  mirror="1"  x="35"  y="9" />
+	<Rail type="LINE" id="17535"  angle="270"  mirror="0"  x="36"  y="8" />
+	<Rail type="LINE" id="17536"  angle="90"  mirror="1"  x="37"  y="7" />
+	<Rail type="LINE" id="17537"  angle="0"  mirror="0"  x="38"  y="9" />
+	<Rail type="LINE" id="17538"  angle="0"  mirror="0"  x="39"  y="9" />
+	<Rail type="LINE" id="17539"  angle="0"  mirror="0"  x="38"  y="7" />
+	<Rail type="LINE" id="17540"  angle="0"  mirror="0"  x="39"  y="7" />
+	<Fma id="7207" angle="0" name="259AT" refId="17542" x="28"  y="11">
+		<Rails>
+			<Ref refId="17526"/>
+			<Ref refId="17525"/>
+			<Ref refId="17524"/>
+			<Ref refId="16803"/>
+			<Ref refId="16805"/>
+			<Ref refId="16801"/>
+			<Ref refId="16804"/>
+			<Ref refId="16802"/>
+			<Ref refId="17309"/>
+		</Rails>
+		<Sensors>
+		<Ref refId="17542" fmaPosition="left"/>
+		<Ref refId="17310" fmaPosition="right"/>
+		<Ref refId="17308" fmaPosition="left"/>
+		</Sensors>
+	</Fma>
+	<Sensor id="17542" angle="0" name="DP165" refId="3526" fma0="7207" fma1="7213" x="31"  y="11" />
+	<Fma id="7213" angle="0" name="262BT" refId="17542" x="33"  y="11">
+		<Rails>
+			<Ref refId="17529"/>
+			<Ref refId="17523"/>
+			<Ref refId="17528"/>
+			<Ref refId="17527"/>
+			<Ref refId="17522"/>
+			<Ref refId="17526"/>
+		</Rails>
+		<Sensors>
+		<Ref refId="17533" fmaPosition="right"/>
+		<Ref refId="17544" fmaPosition="left"/>
+		<Ref refId="17542" fmaPosition="right"/>
+		</Sensors>
+	</Fma>
+	<Sensor id="17544" angle="0" name="DP171" refId="3510" x="35"  y="11" />
+	<Rail type="LINE" id="17545"  angle="0"  mirror="0"  x="24"  y="14" />
+	<Rail type="LINE" id="17546"  angle="0"  mirror="0"  x="25"  y="14" />
+	<Rail type="LINE" id="17547"  angle="0"  mirror="0"  x="26"  y="14" />
+	<Rail type="LINE" id="17548"  angle="0"  mirror="0"  x="27"  y="14" />
+	<Rail type="SWITCH" id="17549"  angle="180"  mirror="1"  x="37"  y="14" />
+	<Rail type="LINE" id="17550"  angle="0"  mirror="0"  x="33"  y="17" />
+	<Rail type="LINE" id="17551"  angle="0"  mirror="0"  x="26"  y="20" />
+	<Rail type="LINE" id="17552"  angle="0"  mirror="0"  x="35"  y="17" />
+	<Rail type="LINE" id="17553"  angle="0"  mirror="0"  x="36"  y="17" />
+	<Rail type="LINE" id="17554"  angle="0"  mirror="0"  x="37"  y="17" />
+	<Rail type="LINE" id="17555"  angle="270"  mirror="0"  x="36"  y="15" />
+	<Rail type="LINE" id="17556"  angle="270"  mirror="0"  x="35"  y="16" />
+	<Rail type="SWITCH" id="17557"  angle="0"  mirror="1"  x="34"  y="17" />
+	<Rail type="LINE" id="17558"  angle="0"  mirror="0"  x="23"  y="20" />
+	<Rail type="LINE" id="17559"  angle="0"  mirror="0"  x="25"  y="20" />
+	<Rail type="SWITCH" id="17560"  angle="0"  mirror="1"  x="24"  y="20" />
+	<Rail type="LINE" id="17561"  angle="270"  mirror="0"  x="25"  y="19" />
+	<Rail type="LINE" id="17562"  angle="270"  mirror="0"  x="26"  y="18" />
+	<Rail type="SWITCH" id="17563"  angle="180"  mirror="1"  x="27"  y="17" />
+	<Sensor id="17564" angle="0" name="DP166" refId="3514" fma0="7228" x="33"  y="17" />
+	<Sensor id="17565" angle="0" name="DP149" refId="3530" fma0="7222" x="28"  y="17" />
+	<Fma id="7228" angle="0" name="16T" refId="17564" x="31"  y="17">
+		<Rails>
+			<Ref refId="17587"/>
+			<Ref refId="17567"/>
+			<Ref refId="17568"/>
+			<Ref refId="17569"/>
+			<Ref refId="17570"/>
+			<Ref refId="17550"/>
+		</Rails>
+		<Sensors>
+		<Ref refId="17565" fmaPosition="right"/>
+		<Ref refId="17564" fmaPosition="left"/>
+		</Sensors>
+	</Fma>
+	<Rail type="LINE" id="17567"  angle="0"  mirror="0"  x="29"  y="17" />
+	<Rail type="LINE" id="17568"  angle="0"  mirror="0"  x="30"  y="17" />
+	<Rail type="LINE" id="17569"  angle="0"  mirror="0"  x="31"  y="17" />
+	<Rail type="LINE" id="17570"  angle="0"  mirror="0"  x="32"  y="17" />
+	<Rail type="LINE" id="17571"  angle="0"  mirror="0"  x="20"  y="17" />
+	<Rail type="LINE" id="17572"  angle="0"  mirror="0"  x="21"  y="17" />
+	<Rail type="LINE" id="17573"  angle="0"  mirror="0"  x="22"  y="17" />
+	<Rail type="LINE" id="17574"  angle="0"  mirror="0"  x="23"  y="17" />
+	<Rail type="LINE" id="17575"  angle="0"  mirror="0"  x="24"  y="17" />
+	<Rail type="LINE" id="17576"  angle="0"  mirror="0"  x="25"  y="17" />
+	<Rail type="LINE" id="17577"  angle="0"  mirror="0"  x="26"  y="17" />
+	<Fma id="7056" angle="0" name="250AT" refId="17579" x="21"  y="17">
+		<Rails>
+			<Ref refId="17328"/>
+			<Ref refId="17455"/>
+			<Ref refId="17571"/>
+			<Ref refId="17572"/>
+			<Ref refId="17456"/>
+			<Ref refId="17573"/>
+			<Ref refId="17574"/>
+			<Ref refId="17457"/>
+		</Rails>
+		<Sensors>
+		<Ref refId="17453" fmaPosition="right"/>
+		<Ref refId="17581" fmaPosition="left"/>
+		<Ref refId="17579" fmaPosition="left"/>
+		</Sensors>
+	</Fma>
+	<Sensor id="17579" angle="0" name="DP144" refId="3254" fma0="7056" x="23"  y="17" />
+	<Fma id="7222" angle="0" name="251BT" refId="17565" x="25"  y="17">
+		<Rails>
+			<Ref refId="17574"/>
+			<Ref refId="17575"/>
+			<Ref refId="17576"/>
+			<Ref refId="17561"/>
+			<Ref refId="17562"/>
+			<Ref refId="17577"/>
+			<Ref refId="17563"/>
+			<Ref refId="17587"/>
+		</Rails>
+		<Sensors>
+		<Ref refId="17579" fmaPosition="right"/>
+		<Ref refId="17582" fmaPosition="right"/>
+		<Ref refId="17565" fmaPosition="left"/>
+		</Sensors>
+	</Fma>
+	<Sensor id="17581" angle="135" name="DP143" refId="6392" x="21"  y="19" />
+	<Sensor id="17582" angle="225" name="DP146" refId="3518" x="25"  y="19" />
+	<Fma id="6835" angle="0" name="248AT" refId="17584" x="12"  y="20">
+		<Rails>
+			<Ref refId="17338"/>
+			<Ref refId="17337"/>
+			<Ref refId="17336"/>
+			<Ref refId="17339"/>
+			<Ref refId="17478"/>
+			<Ref refId="17340"/>
+			<Ref refId="17341"/>
+		</Rails>
+		<Sensors>
+		<Ref refId="17342" fmaPosition="right"/>
+		<Ref refId="17463" fmaPosition="left"/>
+		<Ref refId="17584" fmaPosition="left"/>
+		</Sensors>
+	</Fma>
+	<Sensor id="17584" angle="180" name="DP138" refId="6352" fma0="6835" x="14"  y="20" />
+	<Fma id="6856" angle="0" name="250BT" refId="17586" x="18"  y="20">
+		<Rails>
+			<Ref refId="17341"/>
+			<Ref refId="17385"/>
+			<Ref refId="17386"/>
+			<Ref refId="17387"/>
+			<Ref refId="17388"/>
+			<Ref refId="17389"/>
+			<Ref refId="17458"/>
+			<Ref refId="17459"/>
+			<Ref refId="17460"/>
+			<Ref refId="17558"/>
+			<Ref refId="17457"/>
+		</Rails>
+		<Sensors>
+		<Ref refId="17584" fmaPosition="right"/>
+		<Ref refId="17581" fmaPosition="right"/>
+		<Ref refId="17586" fmaPosition="left"/>
+		</Sensors>
+	</Fma>
+	<Sensor id="17586" angle="180" name="DP145" refId="6360" fma0="6856" x="23"  y="20" />
+	<Rail type="LINE" id="17587"  angle="0"  mirror="0"  x="28"  y="17" />
+	<Fma id="7237" angle="0" name="251AT" refId="17589" x="25"  y="20">
+		<Rails>
+			<Ref refId="17558"/>
+			<Ref refId="17560"/>
+			<Ref refId="17559"/>
+			<Ref refId="17561"/>
+			<Ref refId="17551"/>
+			<Ref refId="17590"/>
+		</Rails>
+		<Sensors>
+		<Ref refId="17586" fmaPosition="right"/>
+		<Ref refId="17582" fmaPosition="left"/>
+		<Ref refId="17589" fmaPosition="left"/>
+		</Sensors>
+	</Fma>
+	<Sensor id="17589" angle="180" name="DP147" refId="3534" fma0="7237" x="27"  y="20" />
+	<Rail type="LINE" id="17590"  angle="0"  mirror="0"  x="27"  y="20" />
+	<Rail type="LINE" id="17591"  angle="0"  mirror="0"  x="28"  y="20" />
+	<Rail type="LINE" id="17592"  angle="0"  mirror="0"  x="29"  y="20" />
+	<Rail type="LINE" id="17593"  angle="0"  mirror="0"  x="30"  y="20" />
+	<Fma id="7243" angle="0" name="C140T" refId="17595" x="29"  y="20">
+		<Rails>
+			<Ref refId="17590"/>
+			<Ref refId="17591"/>
+			<Ref refId="17592"/>
+			<Ref refId="17593"/>
+			<Ref refId="17596"/>
+		</Rails>
+		<Sensors>
+		<Ref refId="17589" fmaPosition="right"/>
+		<Ref refId="17595" fmaPosition="left"/>
+		</Sensors>
+	</Fma>
+	<Sensor id="17595" angle="180" name="DP148" refId="3522" fma0="7243" x="31"  y="20" />
+	<Rail type="LINE" id="17596"  angle="0"  mirror="0"  x="31"  y="20" />
+	<Rail type="LINE" id="17597"  angle="0"  mirror="0"  x="32"  y="20" />
+	<Rail type="LINE" id="17598"  angle="0"  mirror="0"  x="33"  y="20" />
+	<Rail type="LINE" id="17599"  angle="0"  mirror="0"  x="34"  y="20" />
+	<Rail type="LINE" id="17600"  angle="0"  mirror="0"  x="35"  y="20" />
+	<Rail type="LINE" id="17601"  angle="0"  mirror="0"  x="36"  y="20" />
+	<Rail type="LINE" id="17602"  angle="0"  mirror="0"  x="37"  y="20" />
+	<Sensor id="17603" angle="225" name="DP166A" refId="3542" fma0="7252" fma1="7198" x="35"  y="16" />
+	<Rail type="LINE" id="17604"  angle="0"  mirror="0"  x="28"  y="14" />
+	<Rail type="LINE" id="17605"  angle="0"  mirror="0"  x="29"  y="14" />
+	<Rail type="LINE" id="17606"  angle="0"  mirror="0"  x="30"  y="14" />
+	<Rail type="LINE" id="17607"  angle="0"  mirror="0"  x="31"  y="14" />
+	<Rail type="LINE" id="17608"  angle="0"  mirror="0"  x="32"  y="14" />
+	<Rail type="LINE" id="17609"  angle="0"  mirror="0"  x="33"  y="14" />
+	<Rail type="LINE" id="17610"  angle="0"  mirror="0"  x="34"  y="14" />
+	<Rail type="LINE" id="17611"  angle="0"  mirror="0"  x="35"  y="14" />
+	<Rail type="LINE" id="17612"  angle="0"  mirror="0"  x="36"  y="14" />
+	<Fma id="7252" angle="0" name="255BT" refId="17603" x="29"  y="14">
+		<Rails>
+			<Ref refId="17306"/>
+			<Ref refId="17545"/>
+			<Ref refId="17546"/>
+			<Ref refId="17547"/>
+			<Ref refId="17548"/>
+			<Ref refId="17604"/>
+			<Ref refId="17605"/>
+			<Ref refId="17606"/>
+			<Ref refId="17607"/>
+			<Ref refId="17608"/>
+			<Ref refId="17609"/>
+			<Ref refId="17610"/>
+			<Ref refId="17611"/>
+			<Ref refId="17612"/>
+			<Ref refId="17555"/>
+			<Ref refId="17549"/>
+			<Ref refId="17665"/>
+			<Ref refId="17556"/>
+		</Rails>
+		<Sensors>
+		<Ref refId="17452" fmaPosition="right"/>
+		<Ref refId="17603" fmaPosition="right"/>
+		<Ref refId="17660" fmaPosition="left"/>
+		</Sensors>
+	</Fma>
+	<Sensor id="17614" angle="180" name="DP168" refId="3942" fma0="7359" x="39"  y="7" />
+	<Rail type="LINE" id="17615"  angle="0"  mirror="0"  x="40"  y="7" />
+	<Rail type="LINE" id="17616"  angle="0"  mirror="0"  x="41"  y="7" />
+	<Rail type="LINE" id="17617"  angle="45"  mirror="1"  x="42"  y="7" />
+	<Rail type="LINE" id="17618"  angle="270"  mirror="0"  x="43"  y="6" />
+	<Rail type="SWITCH" id="17619"  angle="180"  mirror="1"  x="44"  y="5" />
+	<Rail type="LINE" id="17620"  angle="0"  mirror="0"  x="43"  y="5" />
+	<Rail type="LINE" id="17621"  angle="0"  mirror="0"  x="42"  y="5" />
+	<Rail type="LINE" id="17622"  angle="0"  mirror="0"  x="41"  y="5" />
+	<Rail type="LINE" id="17623"  angle="0"  mirror="0"  x="40"  y="5" />
+	<Rail type="LINE" id="17624"  angle="0"  mirror="0"  x="39"  y="5" />
+	<Rail type="LINE" id="17625"  angle="0"  mirror="0"  x="45"  y="5" />
+	<Rail type="LINE" id="17626"  angle="0"  mirror="0"  x="46"  y="5" />
+	<Sensor id="17627" angle="180" name="DP169" refId="3938" x="45"  y="5" />
+	<Rail type="STOP" id="17628"  angle="0"  mirror="0"  x="38"  y="5" />
+	<Fma id="7359" angle="0" name="261T" refId="17614" x="41"  y="5">
+		<Rails>
+			<Ref refId="17628"/>
+			<Ref refId="17624"/>
+			<Ref refId="17623"/>
+			<Ref refId="17622"/>
+			<Ref refId="17621"/>
+			<Ref refId="17618"/>
+			<Ref refId="17620"/>
+			<Ref refId="17540"/>
+			<Ref refId="17615"/>
+			<Ref refId="17616"/>
+			<Ref refId="17617"/>
+			<Ref refId="17619"/>
+			<Ref refId="17625"/>
+		</Rails>
+		<Sensors>
+		<Ref refId="17614" fmaPosition="right"/>
+		<Ref refId="17627" fmaPosition="left"/>
+		</Sensors>
+	</Fma>
+	<Sensor id="17630" angle="180" name="DP170" refId="3986" x="39"  y="9" />
+	<Rail type="LINE" id="17631"  angle="0"  mirror="0"  x="40"  y="9" />
+	<Rail type="LINE" id="17632"  angle="0"  mirror="0"  x="41"  y="9" />
+	<Rail type="LINE" id="17633"  angle="0"  mirror="0"  x="42"  y="9" />
+	<Rail type="LINE" id="17634"  angle="0"  mirror="0"  x="43"  y="9" />
+	<Rail type="LINE" id="17635"  angle="0"  mirror="0"  x="44"  y="9" />
+	<Rail type="LINE" id="17636"  angle="0"  mirror="0"  x="45"  y="9" />
+	<Rail type="LINE" id="17637"  angle="0"  mirror="0"  x="46"  y="9" />
+	<Rail type="LINE" id="17638"  angle="0"  mirror="0"  x="47"  y="9" />
+	<Rail type="LINE" id="17639"  angle="0"  mirror="0"  x="48"  y="9" />
+	<Rail type="LINE" id="17640"  angle="0"  mirror="0"  x="49"  y="9" />
+	<Fma id="7437" angle="0" name="13T" refId="17642" x="41"  y="9">
+		<Rails>
+			<Ref refId="17538"/>
+			<Ref refId="17631"/>
+			<Ref refId="17632"/>
+			<Ref refId="17633"/>
+			<Ref refId="17634"/>
+		</Rails>
+		<Sensors>
+		<Ref refId="17630" fmaPosition="right"/>
+		<Ref refId="17642" fmaPosition="left"/>
+		</Sensors>
+	</Fma>
+	<Sensor id="17642" angle="180" name="DP180" refId="3962" fma0="7437" x="43"  y="9" />
+	<Fma id="7661" angle="0" name="26T" refId="17644" x="45"  y="9">
+		<Rails>
+			<Ref refId="17634"/>
+			<Ref refId="17635"/>
+			<Ref refId="17636"/>
+			<Ref refId="17637"/>
+			<Ref refId="17638"/>
+		</Rails>
+		<Sensors>
+		<Ref refId="17642" fmaPosition="right"/>
+		<Ref refId="17644" fmaPosition="left"/>
+		</Sensors>
+	</Fma>
+	<Sensor id="17644" angle="180" name="DP181" refId="4381" fma0="7661" fma1="7667" x="47"  y="9" />
+	<Fma id="7667" angle="0" name="C150T" refId="17644" x="49"  y="9">
+		<Rails>
+			<Ref refId="17638"/>
+			<Ref refId="17639"/>
+			<Ref refId="17640"/>
+			<Ref refId="17647"/>
+			<Ref refId="17648"/>
+		</Rails>
+		<Sensors>
+		<Ref refId="17644" fmaPosition="right"/>
+		<Ref refId="17646" fmaPosition="left"/>
+		</Sensors>
+	</Fma>
+	<Sensor id="17646" angle="180" name="DP182" refId="4385" fma0="7673" x="51"  y="9" />
+	<Rail type="LINE" id="17647"  angle="0"  mirror="0"  x="50"  y="9" />
+	<Rail type="LINE" id="17648"  angle="0"  mirror="0"  x="51"  y="9" />
+	<Rail type="LINE" id="17649"  angle="0"  mirror="0"  x="52"  y="9" />
+	<Rail type="LINE" id="17650"  angle="0"  mirror="0"  x="53"  y="9" />
+	<Rail type="LINE" id="17651"  angle="0"  mirror="0"  x="54"  y="9" />
+	<Rail type="LINE" id="17652"  angle="0"  mirror="0"  x="60"  y="9" />
+	<Fma id="7673" angle="0" name="26AT" refId="17646" x="55"  y="9">
+		<Rails>
+			<Ref refId="17648"/>
+			<Ref refId="17649"/>
+			<Ref refId="17650"/>
+			<Ref refId="17651"/>
+			<Ref refId="17652"/>
+			<Ref refId="17821"/>
+			<Ref refId="17822"/>
+			<Ref refId="17823"/>
+			<Ref refId="17824"/>
+			<Ref refId="17825"/>
+		</Rails>
+		<Sensors>
+		<Ref refId="17646" fmaPosition="right"/>
+		<Ref refId="17654" fmaPosition="left"/>
+		</Sensors>
+	</Fma>
+	<Sensor id="17654" angle="180" name="DP183" refId="4401" x="60"  y="9" />
+	<Rail type="LINE" id="17655"  angle="0"  mirror="0"  x="61"  y="9" />
+	<Rail type="STOP" id="17656"  angle="180"  mirror="0"  x="62"  y="9" />
+	<Rail type="SWITCH" id="17657"  angle="180"  mirror="0"  x="39"  y="11" />
+	<Rail type="LINE" id="17658"  angle="270"  mirror="1"  x="40"  y="12" />
+	<Rail type="LINE" id="17659"  angle="270"  mirror="1"  x="41"  y="13" />
+	<Sensor id="17660" angle="180" name="DP175" refId="3954" x="38"  y="14" />
+	<Fma id="7422" angle="0" name="263BT" refId="17673" x="40"  y="14">
+		<Rails>
+			<Ref refId="17675"/>
+			<Ref refId="17664"/>
+			<Ref refId="17659"/>
+			<Ref refId="17668"/>
+			<Ref refId="17667"/>
+			<Ref refId="17666"/>
+			<Ref refId="17665"/>
+		</Rails>
+		<Sensors>
+		<Ref refId="17672" fmaPosition="right"/>
+		<Ref refId="17673" fmaPosition="left"/>
+		<Ref refId="17660" fmaPosition="right"/>
+		</Sensors>
+	</Fma>
+	<Rail type="LINE" id="17662"  angle="0"  mirror="0"  x="37"  y="11" />
+	<Rail type="LINE" id="17663"  angle="0"  mirror="0"  x="38"  y="11" />
+	<Rail type="SWITCH" id="17664"  angle="0"  mirror="0"  x="42"  y="14" />
+	<Rail type="LINE" id="17665"  angle="0"  mirror="0"  x="38"  y="14" />
+	<Rail type="LINE" id="17666"  angle="0"  mirror="0"  x="39"  y="14" />
+	<Rail type="LINE" id="17667"  angle="0"  mirror="0"  x="40"  y="14" />
+	<Rail type="LINE" id="17668"  angle="0"  mirror="0"  x="41"  y="14" />
+	<Rail type="LINE" id="17669"  angle="0"  mirror="0"  x="40"  y="11" />
+	<Rail type="LINE" id="17670"  angle="0"  mirror="0"  x="41"  y="11" />
+	<Rail type="LINE" id="17671"  angle="0"  mirror="0"  x="42"  y="11" />
+	<Sensor id="17672" angle="135" name="DP172" refId="3950" x="41"  y="13" />
+	<Sensor id="17673" angle="180" name="DP176" refId="3958" fma0="7422" fma1="7428" x="43"  y="14" />
+	<Rail type="SWITCH" id="17674"  angle="180"  mirror="0"  x="44"  y="14" />
+	<Rail type="LINE" id="17675"  angle="0"  mirror="0"  x="43"  y="14" />
+	<Rail type="LINE" id="17676"  angle="0"  mirror="0"  x="43"  y="11" />
+	<Rail type="LINE" id="17677"  angle="0"  mirror="0"  x="45"  y="14" />
+	<Rail type="LINE" id="17678"  angle="270"  mirror="1"  x="45"  y="15" />
+	<Rail type="LINE" id="17679"  angle="270"  mirror="1"  x="46"  y="16" />
+	<Rail type="SWITCH" id="17680"  angle="0"  mirror="0"  x="47"  y="17" />
+	<Sensor id="17681" angle="135" name="DP178" refId="3974" x="46"  y="16" />
+	<Rail type="LINE" id="17682"  angle="0"  mirror="0"  x="46"  y="14" />
+	<Rail type="LINE" id="17683"  angle="0"  mirror="0"  x="47"  y="14" />
+	<Rail type="LINE" id="17684"  angle="0"  mirror="0"  x="48"  y="14" />
+	<Rail type="LINE" id="17685"  angle="0"  mirror="0"  x="49"  y="14" />
+	<Fma id="7428" angle="0" name="264AT" refId="17673" x="45"  y="14">
+		<Rails>
+			<Ref refId="17675"/>
+			<Ref refId="17674"/>
+			<Ref refId="17677"/>
+			<Ref refId="17678"/>
+			<Ref refId="17682"/>
+			<Ref refId="17683"/>
+			<Ref refId="17679"/>
+		</Rails>
+		<Sensors>
+		<Ref refId="17673" fmaPosition="right"/>
+		<Ref refId="17681" fmaPosition="left"/>
+		<Ref refId="17687" fmaPosition="left"/>
+		</Sensors>
+	</Fma>
+	<Sensor id="17687" angle="180" name="DP179" refId="3990" x="47"  y="14" />
+	<Rail type="LINE" id="17688"  angle="0"  mirror="0"  x="38"  y="17" />
+	<Rail type="LINE" id="17689"  angle="0"  mirror="0"  x="39"  y="17" />
+	<Rail type="LINE" id="17690"  angle="0"  mirror="0"  x="40"  y="17" />
+	<Rail type="LINE" id="17691"  angle="0"  mirror="0"  x="41"  y="17" />
+	<Rail type="LINE" id="17692"  angle="0"  mirror="0"  x="42"  y="17" />
+	<Rail type="LINE" id="17693"  angle="0"  mirror="0"  x="43"  y="17" />
+	<Rail type="LINE" id="17694"  angle="0"  mirror="0"  x="44"  y="17" />
+	<Rail type="LINE" id="17695"  angle="0"  mirror="0"  x="45"  y="17" />
+	<Rail type="LINE" id="17696"  angle="0"  mirror="0"  x="46"  y="17" />
+	<Rail type="LINE" id="17697"  angle="0"  mirror="0"  x="48"  y="17" />
+	<Sensor id="17698" angle="0" name="DP189" refId="3978" fma0="7464" x="48"  y="17" />
+	<Fma id="7458" angle="0" name="264BT" refId="17700" x="43"  y="17">
+		<Rails>
+			<Ref refId="17697"/>
+			<Ref refId="17680"/>
+			<Ref refId="17679"/>
+			<Ref refId="17696"/>
+			<Ref refId="17695"/>
+			<Ref refId="17694"/>
+			<Ref refId="17693"/>
+			<Ref refId="17692"/>
+			<Ref refId="17691"/>
+			<Ref refId="17690"/>
+			<Ref refId="17689"/>
+			<Ref refId="17688"/>
+		</Rails>
+		<Sensors>
+		<Ref refId="17681" fmaPosition="right"/>
+		<Ref refId="17698" fmaPosition="left"/>
+		<Ref refId="17700" fmaPosition="right"/>
+		</Sensors>
+	</Fma>
+	<Sensor id="17700" angle="0" name="DP177" refId="3970" fma0="7458" x="38"  y="17" />
+	<Fma id="7198" angle="0" name="255AT" refId="17603" x="36"  y="17">
+		<Rails>
+			<Ref refId="17688"/>
+			<Ref refId="17554"/>
+			<Ref refId="17553"/>
+			<Ref refId="17552"/>
+			<Ref refId="17556"/>
+			<Ref refId="17557"/>
+			<Ref refId="17550"/>
+		</Rails>
+		<Sensors>
+		<Ref refId="17700" fmaPosition="left"/>
+		<Ref refId="17564" fmaPosition="right"/>
+		<Ref refId="17603" fmaPosition="left"/>
+		</Sensors>
+	</Fma>
+	<Rail type="SWITCH" id="17702"  angle="180"  mirror="0"  x="49"  y="17" />
+	<Rail type="LINE" id="17703"  angle="270"  mirror="1"  x="50"  y="18" />
+	<Rail type="SWITCH" id="17704"  angle="0"  mirror="0"  x="52"  y="20" />
+	<Rail type="LINE" id="17705"  angle="270"  mirror="1"  x="51"  y="19" />
+	<Rail type="LINE" id="17706"  angle="0"  mirror="0"  x="38"  y="20" />
+	<Rail type="LINE" id="17707"  angle="0"  mirror="0"  x="39"  y="20" />
+	<Rail type="LINE" id="17708"  angle="0"  mirror="0"  x="40"  y="20" />
+	<Rail type="LINE" id="17709"  angle="0"  mirror="0"  x="41"  y="20" />
+	<Rail type="LINE" id="17710"  angle="0"  mirror="0"  x="42"  y="20" />
+	<Rail type="LINE" id="17711"  angle="0"  mirror="0"  x="43"  y="20" />
+	<Rail type="LINE" id="17712"  angle="0"  mirror="0"  x="44"  y="20" />
+	<Rail type="LINE" id="17713"  angle="0"  mirror="0"  x="45"  y="20" />
+	<Rail type="LINE" id="17714"  angle="0"  mirror="0"  x="46"  y="20" />
+	<Rail type="LINE" id="17715"  angle="0"  mirror="0"  x="47"  y="20" />
+	<Rail type="LINE" id="17716"  angle="0"  mirror="0"  x="48"  y="20" />
+	<Rail type="LINE" id="17717"  angle="0"  mirror="0"  x="49"  y="20" />
+	<Rail type="LINE" id="17718"  angle="0"  mirror="0"  x="50"  y="20" />
+	<Rail type="LINE" id="17719"  angle="0"  mirror="0"  x="51"  y="20" />
+	<Sensor id="17720" angle="135" name="DP191" refId="4397" fma0="7479" x="51"  y="19" />
+	<Fma id="7464" angle="0" name="265AT" refId="17698" x="50"  y="17">
+		<Rails>
+			<Ref refId="17697"/>
+			<Ref refId="17702"/>
+			<Ref refId="17703"/>
+			<Ref refId="17723"/>
+			<Ref refId="17724"/>
+			<Ref refId="17725"/>
+			<Ref refId="17705"/>
+		</Rails>
+		<Sensors>
+		<Ref refId="17698" fmaPosition="right"/>
+		<Ref refId="17720" fmaPosition="left"/>
+		<Ref refId="17722" fmaPosition="left"/>
+		</Sensors>
+	</Fma>
+	<Sensor id="17722" angle="0" name="DP192" refId="4445" fma0="7739" x="52"  y="17" />
+	<Rail type="LINE" id="17723"  angle="0"  mirror="0"  x="50"  y="17" />
+	<Rail type="LINE" id="17724"  angle="0"  mirror="0"  x="51"  y="17" />
+	<Rail type="LINE" id="17725"  angle="0"  mirror="0"  x="52"  y="17" />
+	<Rail type="LINE" id="17726"  angle="0"  mirror="0"  x="58"  y="17" />
+	<Rail type="LINE" id="17727"  angle="0"  mirror="0"  x="55"  y="17" />
+	<Rail type="LINE" id="17728"  angle="0"  mirror="0"  x="56"  y="17" />
+	<Fma id="7739" angle="0" name="266AT" refId="17722" x="55"  y="17">
+		<Rails>
+			<Ref refId="17725"/>
+			<Ref refId="17762"/>
+			<Ref refId="17732"/>
+			<Ref refId="17727"/>
+			<Ref refId="17728"/>
+			<Ref refId="17733"/>
+			<Ref refId="17731"/>
+			<Ref refId="17734"/>
+		</Rails>
+		<Sensors>
+		<Ref refId="17722" fmaPosition="right"/>
+		<Ref refId="17730" fmaPosition="left"/>
+		<Ref refId="17737" fmaPosition="left"/>
+		</Sensors>
+	</Fma>
+	<Sensor id="17730" angle="0" name="DP194" refId="4413" fma0="7706" x="57"  y="17" />
+	<Rail type="LINE" id="17731"  angle="0"  mirror="0"  x="57"  y="17" />
+	<Rail type="SWITCH" id="17732"  angle="180"  mirror="0"  x="54"  y="17" />
+	<Rail type="LINE" id="17733"  angle="270"  mirror="1"  x="55"  y="18" />
+	<Rail type="LINE" id="17734"  angle="270"  mirror="1"  x="56"  y="19" />
+	<Rail type="LINE" id="17735"  angle="270"  mirror="1"  x="57"  y="20" />
+	<Rail type="LINE" id="17736"  angle="270"  mirror="1"  x="58"  y="21" />
+	<Sensor id="17737" angle="135" name="DP193" refId="4409" x="56"  y="19" />
+	<Fma id="7712" angle="135" name="16AT" refId="17739" x="57"  y="20">
+		<Rails>
+			<Ref refId="17734"/>
+			<Ref refId="17735"/>
+			<Ref refId="17736"/>
+		</Rails>
+		<Sensors>
+		<Ref refId="17737" fmaPosition="right"/>
+		<Ref refId="17739" fmaPosition="left"/>
+		</Sensors>
+	</Fma>
+	<Sensor id="17739" angle="135" name="DP199" refId="4421" fma0="7712" fma1="7718" x="58"  y="21" />
+	<Rail type="LINE" id="17740"  angle="270"  mirror="1"  x="59"  y="22" />
+	<Rail type="LINE" id="17741"  angle="270"  mirror="1"  x="60"  y="23" />
+	<Fma id="7718" angle="135" name="30T" refId="17739" x="59"  y="22">
+		<Rails>
+			<Ref refId="17741"/>
+			<Ref refId="17740"/>
+			<Ref refId="17736"/>
+		</Rails>
+		<Sensors>
+		<Ref refId="17739" fmaPosition="right"/>
+		<Ref refId="17744" fmaPosition="left"/>
+		</Sensors>
+	</Fma>
+	<Sensor id="17744" angle="135" name="DP200" refId="4437" x="60"  y="23" />
+	<Rail type="LINE" id="17745"  angle="0"  mirror="0"  x="59"  y="17" />
+	<Rail type="LINE" id="17746"  angle="0"  mirror="0"  x="60"  y="17" />
+	<Fma id="7706" angle="0" name="266BT" refId="17730" x="59"  y="17">
+		<Rails>
+			<Ref refId="17731"/>
+			<Ref refId="17726"/>
+			<Ref refId="17745"/>
+			<Ref refId="17746"/>
+			<Ref refId="17752"/>
+			<Ref refId="17753"/>
+			<Ref refId="17754"/>
+			<Ref refId="17751"/>
+			<Ref refId="17750"/>
+		</Rails>
+		<Sensors>
+		<Ref refId="17730" fmaPosition="right"/>
+		<Ref refId="17749" fmaPosition="left"/>
+		</Sensors>
+	</Fma>
+	<Sensor id="17749" angle="0" name="DP195" refId="4417" x="62"  y="17" />
+	<Rail type="LINE" id="17750"  angle="0"  mirror="0"  x="62"  y="17" />
+	<Rail type="SWITCH" id="17751"  angle="180"  mirror="1"  x="61"  y="17" />
+	<Rail type="LINE" id="17752"  angle="45"  mirror="1"  x="60"  y="18" />
+	<Rail type="LINE" id="17753"  angle="0"  mirror="0"  x="59"  y="18" />
+	<Rail type="STOP" id="17754"  angle="0"  mirror="0"  x="58"  y="18" />
+	<Sensor id="17755" angle="180" name="DP196" refId="4425" fma0="7724" x="53"  y="20" />
+	<Rail type="LINE" id="17757"  angle="0"  mirror="0"  x="53"  y="20" />
+	<Rail type="LINE" id="17758"  angle="270"  mirror="1"  x="55"  y="21" />
+	<Rail type="LINE" id="17759"  angle="270"  mirror="1"  x="56"  y="22" />
+	<Rail type="LINE" id="17760"  angle="270"  mirror="1"  x="57"  y="23" />
+	<Rail type="LINE" id="17761"  angle="270"  mirror="1"  x="58"  y="24" />
+	<Rail type="LINE" id="17762"  angle="0"  mirror="0"  x="53"  y="17" />
+	<Rail type="LINE" id="17763"  angle="90"  mirror="0"  x="54"  y="20" />
+	<Fma id="7724" angle="135" name="146T" refId="17755" x="55"  y="21">
+		<Rails>
+			<Ref refId="17757"/>
+			<Ref refId="17763"/>
+			<Ref refId="17758"/>
+			<Ref refId="17759"/>
+		</Rails>
+		<Sensors>
+		<Ref refId="17755" fmaPosition="right"/>
+		<Ref refId="17765" fmaPosition="left"/>
+		</Sensors>
+	</Fma>
+	<Sensor id="17765" angle="315" name="DP197" refId="4429" x="56"  y="22" />
+	<Fma id="7730" angle="135" name="C146T" refId="17767" x="57"  y="23">
+		<Rails>
+			<Ref refId="17761"/>
+			<Ref refId="17760"/>
+			<Ref refId="17759"/>
+		</Rails>
+		<Sensors>
+		<Ref refId="17765" fmaPosition="right"/>
+		<Ref refId="17767" fmaPosition="left"/>
+		</Sensors>
+	</Fma>
+	<Sensor id="17767" angle="315" name="DP198" refId="4433" fma0="7730" x="58"  y="24" />
+	<Fma id="7479" angle="0" name="265BT" refId="17720" x="51"  y="20">
+		<Rails>
+			<Ref refId="17717"/>
+			<Ref refId="17718"/>
+			<Ref refId="17705"/>
+			<Ref refId="17719"/>
+			<Ref refId="17704"/>
+			<Ref refId="17757"/>
+		</Rails>
+		<Sensors>
+		<Ref refId="17769" fmaPosition="right"/>
+		<Ref refId="17720" fmaPosition="right"/>
+		<Ref refId="17755" fmaPosition="left"/>
+		</Sensors>
+	</Fma>
+	<Sensor id="17769" angle="180" name="DP190" refId="3982" fma0="7473" x="49"  y="20" />
+	<Fma id="7473" angle="0" name="146AT" refId="17769" x="39"  y="20">
+		<Rails>
+			<Ref refId="17596"/>
+			<Ref refId="17597"/>
+			<Ref refId="17598"/>
+			<Ref refId="17599"/>
+			<Ref refId="17600"/>
+			<Ref refId="17601"/>
+			<Ref refId="17602"/>
+			<Ref refId="17706"/>
+			<Ref refId="17707"/>
+			<Ref refId="17708"/>
+			<Ref refId="17709"/>
+			<Ref refId="17710"/>
+			<Ref refId="17711"/>
+			<Ref refId="17712"/>
+			<Ref refId="17713"/>
+			<Ref refId="17714"/>
+			<Ref refId="17715"/>
+			<Ref refId="17716"/>
+			<Ref refId="17717"/>
+		</Rails>
+		<Sensors>
+		<Ref refId="17595" fmaPosition="right"/>
+		<Ref refId="17769" fmaPosition="left"/>
+		</Sensors>
+	</Fma>
+	<Rail type="LINE" id="17771"  angle="0"  mirror="0"  x="21"  y="22" />
+	<Rail type="LINE" id="17772"  angle="0"  mirror="0"  x="20"  y="22" />
+	<Rail type="LINE" id="17773"  angle="0"  mirror="0"  x="22"  y="22" />
+	<Rail type="LINE" id="17774"  angle="0"  mirror="0"  x="23"  y="22" />
+	<Rail type="LINE" id="17775"  angle="0"  mirror="0"  x="24"  y="22" />
+	<Rail type="LINE" id="17776"  angle="0"  mirror="0"  x="25"  y="22" />
+	<Rail type="LINE" id="17777"  angle="0"  mirror="0"  x="26"  y="22" />
+	<Rail type="LINE" id="17778"  angle="0"  mirror="0"  x="20"  y="24" />
+	<Rail type="LINE" id="17779"  angle="0"  mirror="0"  x="21"  y="24" />
+	<Rail type="LINE" id="17780"  angle="0"  mirror="0"  x="22"  y="24" />
+	<Rail type="LINE" id="17781"  angle="0"  mirror="0"  x="23"  y="24" />
+	<Rail type="LINE" id="17782"  angle="0"  mirror="0"  x="24"  y="24" />
+	<Rail type="LINE" id="17783"  angle="0"  mirror="0"  x="25"  y="24" />
+	<Rail type="LINE" id="17784"  angle="0"  mirror="0"  x="26"  y="24" />
+	<Fma id="7416" angle="0" name="263AT" refId="17787" x="38"  y="11">
+		<Rails>
+			<Ref refId="17529"/>
+			<Ref refId="17530"/>
+			<Ref refId="17662"/>
+			<Ref refId="17663"/>
+			<Ref refId="17657"/>
+			<Ref refId="17658"/>
+			<Ref refId="17669"/>
+			<Ref refId="17670"/>
+			<Ref refId="17659"/>
+		</Rails>
+		<Sensors>
+		<Ref refId="17544" fmaPosition="right"/>
+		<Ref refId="17672" fmaPosition="left"/>
+		<Ref refId="17787" fmaPosition="left"/>
+		</Sensors>
+	</Fma>
+	<Sensor id="17787" angle="0" name="DP177A" refId="3946" fma0="7416" x="41"  y="11" />
+	<Rail type="LINE" id="17788"  angle="0"  mirror="0"  x="44"  y="11" />
+	<Rail type="LINE" id="17789"  angle="0"  mirror="0"  x="45"  y="11" />
+	<Rail type="LINE" id="17790"  angle="0"  mirror="0"  x="46"  y="11" />
+	<Rail type="LINE" id="17791"  angle="0"  mirror="0"  x="47"  y="11" />
+	<Rail type="LINE" id="17792"  angle="0"  mirror="0"  x="48"  y="11" />
+	<Rail type="LINE" id="17793"  angle="0"  mirror="0"  x="49"  y="11" />
+	<Rail type="LINE" id="17794"  angle="0"  mirror="0"  x="50"  y="11" />
+	<Rail type="LINE" id="17795"  angle="0"  mirror="0"  x="51"  y="11" />
+	<Rail type="LINE" id="17796"  angle="0"  mirror="0"  x="52"  y="11" />
+	<Rail type="LINE" id="17797"  angle="0"  mirror="0"  x="53"  y="11" />
+	<Rail type="LINE" id="17798"  angle="0"  mirror="0"  x="54"  y="11" />
+	<Rail type="LINE" id="17799"  angle="0"  mirror="0"  x="60"  y="11" />
+	<Rail type="LINE" id="17800"  angle="0"  mirror="0"  x="61"  y="11" />
+	<Fma id="7446" angle="0" name="14AT" refId="17803" x="43"  y="11">
+		<Rails>
+			<Ref refId="17670"/>
+			<Ref refId="17671"/>
+			<Ref refId="17676"/>
+			<Ref refId="17788"/>
+			<Ref refId="17789"/>
+		</Rails>
+		<Sensors>
+		<Ref refId="17787" fmaPosition="right"/>
+		<Ref refId="17803" fmaPosition="left"/>
+		</Sensors>
+	</Fma>
+	<Sensor id="17803" angle="0" name="DP184" refId="3966" fma0="7446" fma1="7452" x="45"  y="11" />
+	<Fma id="7452" angle="0" name="27T" refId="17803" x="47"  y="11">
+		<Rails>
+			<Ref refId="17789"/>
+			<Ref refId="17790"/>
+			<Ref refId="17791"/>
+			<Ref refId="17792"/>
+			<Ref refId="17793"/>
+		</Rails>
+		<Sensors>
+		<Ref refId="17803" fmaPosition="right"/>
+		<Ref refId="17805" fmaPosition="left"/>
+		</Sensors>
+	</Fma>
+	<Sensor id="17805" angle="0" name="DP185" refId="4389" fma0="7679" x="49"  y="11" />
+	<Fma id="7679" angle="0" name="27AT" refId="17805" x="55"  y="11">
+		<Rails>
+			<Ref refId="17793"/>
+			<Ref refId="17794"/>
+			<Ref refId="17795"/>
+			<Ref refId="17796"/>
+			<Ref refId="17797"/>
+			<Ref refId="17798"/>
+			<Ref refId="17826"/>
+			<Ref refId="17827"/>
+			<Ref refId="17828"/>
+			<Ref refId="17829"/>
+			<Ref refId="17830"/>
+			<Ref refId="17799"/>
+		</Rails>
+		<Sensors>
+		<Ref refId="17805" fmaPosition="right"/>
+		<Ref refId="17807" fmaPosition="left"/>
+		</Sensors>
+	</Fma>
+	<Sensor id="17807" angle="0" name="DP186" refId="4441" x="60"  y="11" />
+	<Rail type="STOP" id="17808"  angle="180"  mirror="0"  x="62"  y="11" />
+	<Fma id="7688" angle="0" name="148T" refId="17810" x="50"  y="14">
+		<Rails>
+			<Ref refId="17683"/>
+			<Ref refId="17684"/>
+			<Ref refId="17685"/>
+			<Ref refId="17813"/>
+			<Ref refId="17814"/>
+			<Ref refId="17815"/>
+			<Ref refId="17816"/>
+		</Rails>
+		<Sensors>
+		<Ref refId="17687" fmaPosition="right"/>
+		<Ref refId="17810" fmaPosition="left"/>
+		</Sensors>
+	</Fma>
+	<Sensor id="17810" angle="180" name="DP187" refId="4405" fma0="7688" fma1="7694" x="53"  y="14" />
+	<Fma id="7694" angle="0" name="C148T" refId="17810" x="58"  y="14">
+		<Rails>
+			<Ref refId="17816"/>
+			<Ref refId="17817"/>
+			<Ref refId="17831"/>
+			<Ref refId="17832"/>
+			<Ref refId="17833"/>
+			<Ref refId="17834"/>
+			<Ref refId="17835"/>
+			<Ref refId="17818"/>
+			<Ref refId="17819"/>
+			<Ref refId="17820"/>
+		</Rails>
+		<Sensors>
+		<Ref refId="17810" fmaPosition="right"/>
+		<Ref refId="17812" fmaPosition="left"/>
+		</Sensors>
+	</Fma>
+	<Sensor id="17812" angle="180" name="DP188" refId="4393" x="62"  y="14" />
+	<Rail type="LINE" id="17813"  angle="0"  mirror="0"  x="50"  y="14" />
+	<Rail type="LINE" id="17814"  angle="0"  mirror="0"  x="51"  y="14" />
+	<Rail type="LINE" id="17815"  angle="0"  mirror="0"  x="52"  y="14" />
+	<Rail type="LINE" id="17816"  angle="0"  mirror="0"  x="53"  y="14" />
+	<Rail type="LINE" id="17817"  angle="0"  mirror="0"  x="54"  y="14" />
+	<Rail type="LINE" id="17818"  angle="0"  mirror="0"  x="60"  y="14" />
+	<Rail type="LINE" id="17819"  angle="0"  mirror="0"  x="61"  y="14" />
+	<Rail type="LINE" id="17820"  angle="0"  mirror="0"  x="62"  y="14" />
+	<Rail type="LINE" id="17821"  angle="0"  mirror="0"  x="55"  y="9" />
+	<Rail type="LINE" id="17822"  angle="0"  mirror="0"  x="56"  y="9" />
+	<Rail type="LINE" id="17823"  angle="0"  mirror="0"  x="57"  y="9" />
+	<Rail type="LINE" id="17824"  angle="0"  mirror="0"  x="58"  y="9" />
+	<Rail type="LINE" id="17825"  angle="0"  mirror="0"  x="59"  y="9" />
+	<Rail type="LINE" id="17826"  angle="0"  mirror="0"  x="55"  y="11" />
+	<Rail type="LINE" id="17827"  angle="0"  mirror="0"  x="56"  y="11" />
+	<Rail type="LINE" id="17828"  angle="0"  mirror="0"  x="57"  y="11" />
+	<Rail type="LINE" id="17829"  angle="0"  mirror="0"  x="58"  y="11" />
+	<Rail type="LINE" id="17830"  angle="0"  mirror="0"  x="59"  y="11" />
+	<Rail type="LINE" id="17831"  angle="0"  mirror="0"  x="55"  y="14" />
+	<Rail type="LINE" id="17832"  angle="0"  mirror="0"  x="56"  y="14" />
+	<Rail type="LINE" id="17833"  angle="0"  mirror="0"  x="57"  y="14" />
+	<Rail type="LINE" id="17834"  angle="0"  mirror="0"  x="58"  y="14" />
+	<Rail type="LINE" id="17835"  angle="0"  mirror="0"  x="59"  y="14" />
+	<Fma id="6609" angle="0" name="247T" refId="18325" x="7"  y="20">
+		<Rails>
+			<Ref refId="17486"/>
+			<Ref refId="17487"/>
+			<Ref refId="17488"/>
+			<Ref refId="17464"/>
+			<Ref refId="17465"/>
+			<Ref refId="17338"/>
+		</Rails>
+		<Sensors>
+		<Ref refId="18325" fmaPosition="right"/>
+		<Ref refId="17472" fmaPosition="right"/>
+		<Ref refId="17342" fmaPosition="left"/>
+		</Sensors>
+	</Fma>
+	<Sensor id="18325" angle="180" name="DP132" refId="6332" fma0="6609" fma1="6615" x="5"  y="20" />
+	<Fma id="6615" angle="0" name="242T" refId="18325" x="3"  y="20">
+		<Rails>
+			<Ref refId="18327"/>
+			<Ref refId="18328"/>
+			<Ref refId="17486"/>
+		</Rails>
+		<Sensors>
+		<Ref refId="18325" fmaPosition="left"/>
+		</Sensors>
+	</Fma>
+	<Rail type="LINE" id="18327"  angle="0"  mirror="0"  x="3"  y="20" />
+	<Rail type="LINE" id="18328"  angle="0"  mirror="0"  x="4"  y="20" />
+	<Rail type="LINE" id="18329"  angle="0"  mirror="0"  x="3"  y="22" />
+	<Rail type="LINE" id="18330"  angle="0"  mirror="0"  x="4"  y="22" />
+	<Rail type="LINE" id="18331"  angle="0"  mirror="0"  x="3"  y="29" />
+	<Rail type="LINE" id="18332"  angle="0"  mirror="0"  x="4"  y="29" />
+	<Rail type="LINE" id="18333"  angle="0"  mirror="0"  x="3"  y="17" />
+	<Rail type="LINE" id="18334"  angle="0"  mirror="0"  x="4"  y="17" />
+	<Rail type="LINE" id="18335"  angle="0"  mirror="0"  x="3"  y="14" />
+	<Rail type="LINE" id="18336"  angle="0"  mirror="0"  x="4"  y="14" />
+	<Rail type="LINE" id="18337"  angle="0"  mirror="0"  x="3"  y="11" />
+	<Rail type="LINE" id="18338"  angle="0"  mirror="0"  x="4"  y="11" />
+	<Rail type="LINE" id="18339"  angle="0"  mirror="0"  x="3"  y="9" />
+	<Rail type="LINE" id="18340"  angle="0"  mirror="0"  x="4"  y="9" />
+	<Rail type="LINE" id="18341"  angle="0"  mirror="0"  x="3"  y="6" />
+	<Rail type="LINE" id="18342"  angle="0"  mirror="0"  x="4"  y="6" />
+	<Rail type="LINE" id="18343"  angle="0"  mirror="0"  x="3"  y="4" />
+	<Rail type="LINE" id="18344"  angle="0"  mirror="0"  x="4"  y="4" />
+</Track>
+<Supervisors>
+</Supervisors>
+<Cubicles></Cubicles>
+</Trackplan>

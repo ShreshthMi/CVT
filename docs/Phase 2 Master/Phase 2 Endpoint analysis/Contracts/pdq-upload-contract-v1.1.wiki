@@ -1,0 +1,128 @@
+h1. PDQ Upload Endpoint — Frontend Contract
+
+{info}
+*Status:* Locked
+*Audience:* Frontend integration
+*Source:* {{fcvt-phase2-design.md}} §6; sample response {{UploadPDQResponse.json}}
+*Owner:* Backend
+{info}
+
+h2. 1. Purpose
+
+Phase 2 introduces {{POST /api/upload/pdq}}, a new endpoint that accepts a PDQ workbook ({{.xlsx}}), parses the in-scope sheets, and returns a normalised JSON shape carrying project metadata, the CQ-IR parameter set, the project control table, and (conditionally) the Data Transmission inputs.
+
+The parsed PDQ JSON is consumed by the validate-time preprocessor when the user subsequently calls {{/api/config/v2/validate}}. The frontend's job is to:
+
+* upload the workbook when the user selects it
+* hold the response shape in memory for the duration of the session
+* transition into the post-PDQ form-freeze state once both this upload and the FCT upload have succeeded
+* surface upload-time failures using the error code defined below
+
+This document is the contract the frontend wires against. It does not describe parser internals or the validate-time consumption logic.
+
+h2. 2. Request
+
+*Method and path:* {{POST /api/upload/pdq}}
+
+*Body:* {{multipart/form-data}} with a single file part — the {{.xlsx}} workbook.
+
+*Resource limits:*
+
+* Typical size: 200 KB – 2 MB
+* Hard cap: 10 MB
+
+*Workbook visibility rule:* the parser respects sheet, row, and column visibility flags set inside the workbook. Hidden sheets, hidden rows, and hidden columns are out of scope and are not parsed. AE controls scope by hiding rather than deleting — this is intentional.
+
+h2. 3. In-scope sheets
+
+Four sheets, with the following mandatory / conditional status:
+
+|| Sheet || Status || Drives ||
+| PDQ | Mandatory | {{projectCode}} and {{blockExistsForProjectCode}} |
+| CQ-IR | Mandatory | {{cqIrParameters}} |
+| Control table | Mandatory | {{controlTable.trackSections[]}} and {{controlTable.dpTable[]}} |
+| Data Transmission Inputs | Conditional | {{dataTransmission}} block (see below) |
+
+*Data Transmission Inputs sheet — three states:*
+
+* *Absent* — valid. Response carries {{dataTransmission: null}}. The project has no DT.
+* *Present but empty* — invalid. Upload is rejected as malformed (see §5).
+* *Present and populated* — parsed into {{dataSafetyLevels[]}} and {{outputDataTransmission[]}} under the {{dataTransmission}} block.
+
+Any sheet other than these four is ignored, whether present or not.
+
+h2. 4. Response — success (HTTP 200)
+
+The response body is a parsed PDQ JSON object. Full sample in {{UploadPDQResponse.json}}. The shape carries header metadata at the top level plus three top-level data sections ({{cqIrParameters}}, {{controlTable}}, {{dataTransmission}}).
+
+h3. 4.1 CQ-IR row identification
+
+Rows are extracted by the bracketed all-caps token in the question text — e.g. {{(OCC_EXT)}}. The token in parentheses is the ADC config key under which the response value is exposed in {{cqIrParameters}}. Rows without a bracketed token are skipped as meta questions. The question wording outside the bracket is descriptive context for AE readability; the parser only cares about the bracket.
+
+h3. 4.2 Keys dropped from cqIrParameters
+
+Two keys that could otherwise be extracted from CQ-IR rows are *intentionally dropped during parsing* and do not appear in {{cqIrParameters}}:
+
+|| Key || Reason ||
+| {{RSR_TYPE}} | Sourced from the Phase 1 {{/api/upload/translate}} (tpf) response on v2. Dropping it here eliminates ambiguity between two possible sources. |
+| {{TYPE_PRTCT_CODE}} | Same reason — sourced from tpf, not PDQ. |
+
+If AE's CQ-IR sheet contains bracketed rows for these keys, the parser silently skips them. No error, no warning — they are simply excluded from the response.
+
+h3. 4.3 Normalisations applied at parse time
+
+* {{CFG_TIMEOUT}} values converted from seconds to milliseconds ({{Sec}} → {{ms}}).
+* {{SAFE_OUT_FDBCK_QUAD}} serialised as numeric {{0}} / {{1}}.
+* {{fadcAutoReset}} parsed and serialised as a structured logic tree (not raw string).
+
+h3. 4.4 Special-case rows handled inside the PDQ JSON output
+
+* The {{CFG_TIMEOUT}} row (with its unit conversion).
+* The Single/Dual architecture row (PDQ row 1.08), which drives {{blockExistsForProjectCode}}.
+
+For any field present in {{UploadPDQResponse.json}} that this document does not explicitly call out, the sample is authoritative.
+
+h2. 5. Response — error contract
+
+A single external error code. The frontend renders the user-facing message; the code itself is the contract.
+
+|| Code || Meaning ||
+| {{PDQ_INVALID}} | All parse and validation failures collapse here — missing mandatory sheet, missing bracketed token on a CQ-IR row that requires one, invalid range, lookup failed, value not divisible by step, present-but-empty Data Transmission sheet, and so on. |
+
+Internally, an enum carries diagnostic detail (sheet missing, bracket missing, range invalid, lookup failed, value-not-divisible-by-step, etc.) for logging and debugging. This detail is *not* surfaced externally — the frontend only ever sees {{PDQ_INVALID}}.
+
+*Pre-business-logic rejections* are returned as standard HTTP status codes and are _not_ folded into {{PDQ_INVALID}}:
+
+* {{HTTP 400}} — malformed multipart (wrong content type, no file part, corrupted upload).
+* {{HTTP 413}} — file exceeds the 10 MB cap.
+
+The frontend should distinguish HTTP-layer failures (400, 413) from business-logic failures ({{PDQ_INVALID}}) in its error UI, since the user remediation is different — fix-and-retry for the former, fix-the-source-PDQ for the latter.
+
+h2. 6. Sample response
+
+The sample success response is attached as {{UploadPDQResponse.json}}. It is the source of truth for field names, nesting, and value formats.
+
+{warning}
+The sample currently in project knowledge includes {{RSR_TYPE}} and {{TYPE_PRTCT_CODE}} inside {{cqIrParameters}}. These entries must be removed from the sample to bring it in line with this contract. Until the sample is updated, treat this document as authoritative for the two dropped keys.
+{warning}
+
+h2. 7. Out of scope for this contract
+
+* Parser internals (how each sheet is walked, how the lookups against MappingProperties are performed).
+* PDQ workbook format corrections currently in flight (CQ-IR bracket additions, populated DT Inputs sample, the Single/Dual architecture row 1.08, the {{CFG_TIMEOUT}} unit fix). These do not block the contract — they affect the source workbook, not the response shape.
+* The MappingProperties values supplied for new keys ({{IP_SWITCH_TIME}}, {{RESET_DELAY}}, {{SWITCH_GE}}, {{SWITCH_GSF}}, {{PRERESET_ACT_TIME}}, {{NMBR_OUT}}) and the hex format pattern for the protection code. These affect parser behaviour, not the response shape the frontend wires against.
+* The {{/api/upload/fct}} endpoint (separate contract).
+* The {{/api/upload/translate}} endpoint (Phase 1, unchanged).
+* The {{/api/config/v2/validate}} endpoint and the Phase 2 response template (separate contracts).
+* The Agreed Output Phase 2 visual contract (separate workstream).
+
+h2. 8. Acknowledgement
+
+Frontend lead to confirm contract review in writing (Jira comment or Confluence page comment) before integration work begins.
+
+----
+
+h2. Revision history
+
+* *v1.1* — Dropped {{RSR_TYPE}} and {{TYPE_PRTCT_CODE}} from {{cqIrParameters}}. These keys are now sourced exclusively from the Phase 1 {{/api/upload/translate}} (tpf) response on v2 validate. Added §4.2 explicitly documenting the drop. The sample {{UploadPDQResponse.json}} requires a corresponding update.
+* *v1.0* — Initial locked contract.

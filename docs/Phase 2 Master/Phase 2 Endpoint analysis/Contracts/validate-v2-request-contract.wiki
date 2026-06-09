@@ -1,0 +1,135 @@
+h1. Validate Endpoint v2 — Request Contract
+
+{info}
+*Status:* Locked (request side, pending version-aware group decision)
+*Audience:* Frontend integration
+*Source:* Phase 1 request payload (canonical example); {{fcvt-phase2-design.md}} §§ 2, 3.3, 4; {{fcvt-codebase.md}} (Phase 1 endpoints including {{/api/upload/translate}}); sample responses {{UploadFCTResponse.json}} and {{UploadPDQResponse.json}}
+*Owner:* Backend
+{info}
+
+h2. 1. Purpose
+
+Phase 2 introduces a new validate endpoint {{POST /api/config/v2/validate}} that performs project-specific cross-correlation of {{.ADC}} files against the design baseline (FCT2 archive + PDQ workbook). The Phase 1 endpoint {{POST /api/config/validate}} remains untouched.
+
+The v2 endpoint replaces Phase 1's user-form-driven {{userInput}} shape with an upload-driven one. Once both FCT and PDQ are uploaded, the UI form is frozen and the values that previously came from form fields now come from the parsed PDQ response. The user no longer types those values in.
+
+This document is the request-side contract the frontend wires against. The response shape is covered separately.
+
+h2. 2. Endpoint
+
+*Method and path:* {{POST /api/config/v2/validate}}
+
+*Content type:* {{application/json}}
+
+*Phase 1 endpoint untouched.* {{POST /api/config/validate}} continues to exist with its Phase 1 payload shape. The frontend chooses which endpoint to call based on whether FCT and PDQ have both been uploaded (see §4).
+
+h2. 3. Request shape
+
+The payload is a JSON object with two top-level keys, identical in structure to the Phase 1 request:
+
+{code:language=json}
+{
+  "parsedConfigFiles": [ ... ],
+  "userInput": { ... }
+}
+{code}
+
+h3. 3.1 parsedConfigFiles
+
+Unchanged from Phase 1. An array of parsed {{.ADC}} file objects, each with {{fileName}}, {{blocks[]}}, the four classification booleans ({{trackSectionDetails}}, {{acoIoexbDetails}}, {{dtIoexbDetails}}, {{comDetails}}), and {{id}}. The frontend sends the same {{parsedConfigFiles}} array it would have sent to {{/api/config/validate}}.
+
+h3. 3.2 userInput on v2
+
+The v2 {{userInput}} contains only what the upload endpoints produced. Phase 1's per-block userInput keys are _not_ sent on v2 — when both FCT and PDQ are uploaded, the UI form is frozen and the engine sources those values from {{pdqData}} instead.
+
+*Mandatory keys (always present on v2):*
+
+|| Key || Source || Notes ||
+| {{fctData}} | {{POST /api/upload/fct}} response body | Full {{ComAebMap}} JSON, sent verbatim |
+| {{pdqData}} | {{POST /api/upload/pdq}} response body | Parsed PDQ JSON with {{cqIrParameters}}, {{controlTable}}, {{dataTransmission}}, sent verbatim |
+
+*Optional keys (present only if the user uploaded a tpf file):*
+
+|| Key || Source || Notes ||
+| {{CFG_TROLLEY_SUPP}} | {{POST /api/upload/translate}} response body | Sent verbatim |
+| {{CFG_PARAM_TROLLEY_SUPP}} | {{POST /api/upload/translate}} response body | Sent verbatim |
+| {{CFG_RSR_TYPE}} | {{POST /api/upload/translate}} response body | Sent verbatim — sole source on v2 |
+| {{CFG_TYPE_PRTCT}} | {{POST /api/upload/translate}} response body | Sent verbatim — sole source on v2 |
+
+If tpf is not uploaded, these 4 keys are absent from {{userInput}}. The engine handles their absence the same way Phase 1 handles missing userInput keys today.
+
+{warning}
+*Open item — version-aware group.* The six sub-keys {{CFG_AXCNT.TYPE_IN1/TYPE_IN2/TYPE_IN3}}, {{CFG_SECTION_OUT.TYPE_AUX1/TYPE_AUX2}}, and {{CFG_ZP.SUPERVIS_COUNT_LMT}} are not produced by any of FCT, PDQ, or tpf. These were Phase 1's component-version-aware {{UIInputRequired=No}} group (VTF-290). Their source for v2 is pending AE confirmation. The contract may need a minor revision once that conversation closes; the change will only affect handling for these six sub-keys, not the overall v2 payload shape.
+{warning}
+
+h2. 4. Endpoint selection rule
+
+The frontend chooses between v1 and v2 based on whether both FCT and PDQ have been uploaded.
+
+* *Both FCT and PDQ uploaded* → call {{POST /api/config/v2/validate}}. Form is frozen. {{userInput}} contains {{fctData}}, {{pdqData}}, and optionally the 4 tpf-sourced keys.
+* *Neither FCT nor PDQ uploaded* → call {{POST /api/config/validate}} (Phase 1). Phase 1 contract unchanged.
+* *Only one of FCT or PDQ uploaded* → not a valid state. The UI prevents validate-button activation in this case (coupled-artifacts gate, design doc §2). Neither v1 nor v2 is called.
+
+The v2 endpoint enforces the coupled-artifacts rule server-side as well: if {{fctData}} or {{pdqData}} is missing or null in the request, the endpoint rejects with {{HTTP 400 PHASE2_INPUTS_INCOMPLETE}}.
+
+tpf upload state does not affect the gate or the endpoint choice. tpf is independent.
+
+h2. 5. Overlap rule between PDQ and tpf
+
+The Phase 1 tpf response and the Phase 2 PDQ response previously had two overlapping keys ({{CFG_RSR_TYPE}}, {{CFG_TYPE_PRTCT}}). To eliminate ambiguity, the PDQ parser drops these two keys from {{cqIrParameters}} during parsing — they no longer appear in the PDQ upload response. On v2, tpf is the sole source for these keys when tpf is uploaded; when tpf is not uploaded, the keys are absent from {{userInput}}.
+
+This change to the PDQ contract is small but affects the locked PDQ upload contract document, which will be revised separately.
+
+h2. 6. Worked example — v2 request with tpf uploaded
+
+{code:language=json}
+POST /api/config/v2/validate
+Content-Type: application/json
+
+{
+  "parsedConfigFiles": [
+    {
+      "fileName": "C0351_00.ADC",
+      "blocks": [ ... ],
+      "trackSectionDetails": true,
+      "acoIoexbDetails": false,
+      "dtIoexbDetails": false,
+      "comDetails": false,
+      "id": 351
+    }
+    // ... other ADC files ...
+  ],
+  "userInput": {
+    "fctData": { ...full body of POST /api/upload/fct response, verbatim... },
+    "pdqData": { ...full body of POST /api/upload/pdq response, verbatim... },
+
+    "CFG_TROLLEY_SUPP":       { "TROLLEY_SUPP": "1" },
+    "CFG_PARAM_TROLLEY_SUPP": { "SUPP_TIME": "60", "DIAMETER": "109", "AXLE_DISTANCE": "5", "SPEED_TOLERANCE": "12" },
+    "CFG_RSR_TYPE":           { "RSR_TYPE": "1" },
+    "CFG_TYPE_PRTCT":         { "TYPE_PRTCT_CODE": "0xb192f6cd" }
+  }
+}
+{code}
+
+*Without tpf*, the 4 tpf-sourced keys are simply absent — {{userInput}} contains only {{fctData}} and {{pdqData}}.
+
+h2. 7. Request-side error contract
+
+|| Code / Status || When || Notes ||
+| {{HTTP 400 PHASE2_INPUTS_INCOMPLETE}} | Either {{fctData}} or {{pdqData}} is missing, null, or empty inside {{userInput}} | The frontend should not call v2 in this state — the UI's coupled-artifacts gate prevents it; the server-side check is the defence-in-depth layer |
+| {{HTTP 400}} (malformed) | Payload is not valid JSON, or {{parsedConfigFiles}} / {{userInput}} top-level keys are missing | Pre-business-logic |
+| {{HTTP 413}} | Payload exceeds the configured size cap (50 MB; matches the Phase 1 cap, {{fcvt-codebase.md}} §2) | Pre-business-logic |
+
+Validation-result errors (Phase 1 rule failures and Phase 2 cluster mismatches) are not HTTP errors — they are returned as part of the success response. The response-side error contract is covered separately.
+
+h2. 8. Out of scope for the request contract
+
+* Response shape (Phase 2 result-row template, cluster-mismatch fields, expectation source). Separate document.
+* Backend preprocessor internals (how {{fctData}} + {{pdqData}} are turned into the Expectations JSON).
+* The {{/api/upload/fct}} and {{/api/upload/pdq}} endpoint contracts (separate documents).
+* The {{/api/upload/translate}} endpoint — Phase 1 contract is in place and unchanged; v2 simply consumes its existing response shape.
+* Phase 1 endpoint {{/api/config/validate}} — unchanged.
+
+h2. 9. Acknowledgement
+
+Frontend lead to confirm contract review in writing (Jira comment or Confluence page comment) before integration work begins on v2.

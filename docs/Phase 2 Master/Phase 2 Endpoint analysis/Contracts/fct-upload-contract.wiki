@@ -1,0 +1,91 @@
+h1. FCT Upload Endpoint — Frontend Contract
+
+{info}
+*Status:* Locked
+*Audience:* Frontend integration
+*Source:* {{fcvt-phase2-design.md}} §5; sample response {{UploadFCTResponse.json}}
+*Owner:* Backend
+{info}
+
+h2. 1. Purpose
+
+Phase 2 introduces {{POST /api/upload/fct}}, a new endpoint that accepts an {{.fct2}} archive (the FCT design tool's project export), parses {{Project.xml}} from inside the archive, and returns a {{ComAebMap}} JSON describing the project's AEB / IoExb / COM topology.
+
+The {{ComAebMap}} is consumed by the validate-time preprocessor when the user subsequently calls {{/api/config/validate}}. The frontend's job is to:
+
+* upload the archive when the user selects it
+* hold the response shape in memory for the duration of the session
+* surface upload-time failures to the user using the error codes defined below
+
+This document is the contract the frontend wires against. It does not describe parser internals or the rules engine.
+
+h2. 2. Request
+
+*Method and path:* {{POST /api/upload/fct}}
+
+*Body:* {{multipart/form-data}} with a single file part — the {{.fct2}} archive.
+
+*Resource limits:*
+
+* 10 MB file
+* 15 MB request
+* 20 MB threshold
+* In-memory only — no disk spool
+* Decompression ratio cap: 50:1
+* Total uncompressed size cap: 50 MB
+
+*File identification (server-side):*
+
+* {{.fct2}} extension check
+* ZIP magic-byte stream check on the first 8 KB – 40 KB of the upload
+
+*Expected archive root layout:*
+
+* 8 files at the root
+* 0 to 2 trackplan folders (folders are optional; valid archives can have 0, 1, or 2)
+
+Only {{Project.xml}} from within the archive is parsed. Trackplan XMLs are not opened.
+
+h2. 3. Response — success (HTTP 200)
+
+The response body is a {{ComAebMap}} JSON object. Full sample in {{UploadFCTResponse.json}}. The shape carries:
+
+* *Project metadata* at the top level (project identifiers extracted from {{Project.xml}}).
+* *AEB list* — each AEB with its {{Id}}, segment membership, and references to other AEBs.
+* *acoIoExbs* — list of ACO-mode IoExbs. Each entry carries its host AEB and its resolved FMA. An ACO IoExb's resolved FMA may reference an AEB different from its host AEB — this is supported and not an error.
+* *dtIoExbCount* — count of DT-mode IoExbs. Note: the inner DT data itself comes from the PDQ workbook, not from the FCT.
+* *COM list* — COM entries with their forwarding and connection topology.
+
+*ID serialisation:* all IDs are serialised as JSON *strings*, including numeric IDs. The frontend must treat them as opaque string identifiers.
+
+h2. 4. Response — error contract
+
+Only two external error codes. Both surface as the response body for a non-2xx HTTP status. The frontend renders the user-facing message; the code itself is the contract.
+
+|| Code || Meaning ||
+| {{FCT_TAMPERED}} | Cross-reference or invariant failure during {{ComAebMap}} build. XML parse failures also fold into this category. Catches the case where the FCT archive was manually edited after export. |
+| {{FCT_INCOMPLETE_BASELINE}} | Pre-export incomplete-baseline FCT. Conditions that trigger this code: dangling {{CanConnections}}; chain with no COM; multi-COM chain without redundancy pairing; unsupported IoExb mode (including counting-head-output mode IoExbs, which are not in scope for Phase 2); duplicate or missing entity {{Id}} where {{Id}} is {{0}} or {{4096}}. |
+
+*Pre-business-logic rejections* are returned as standard HTTP status codes and are _not_ folded into the two codes above:
+
+* {{HTTP 400}} — malformed multipart (e.g. wrong content type, no file part, corrupted upload)
+* {{HTTP 413}} — size exceedance (file, request, or threshold limit hit; uncompressed size cap exceeded; decompression ratio cap exceeded)
+
+The frontend should distinguish HTTP-layer failures (400, 413) from business-logic failures (the two named codes) in its error UI, since the user remediation is different — fix-and-retry for the former, fix-the-source-FCT for the latter.
+
+h2. 5. Sample response
+
+The sample success response is attached as {{UploadFCTResponse.json}}. It is the source of truth for field names, nesting, and ID-as-string serialisation.
+
+For any field present in the sample that this document does not explicitly call out, the sample is authoritative.
+
+h2. 6. Out of scope for this contract
+
+* Parser internals (how {{Project.xml}} is walked, how {{ComAebMap}} is constructed).
+* The {{/api/upload/pdq}} endpoint (separate contract).
+* The {{/api/config/validate}} endpoint and the Phase 2 response template (separate contract).
+* The Agreed Output Phase 2 visual contract (separate workstream).
+
+h2. 7. Acknowledgement
+
+Frontend lead to confirm contract review in writing (Jira comment or Confluence page comment) before integration work begins.

@@ -1,0 +1,152 @@
+{
+  "validation_results": [
+    {
+      "fileName": "C0001_00.ADC",
+      "ruleType": "DuplicateCheck",
+      "blockName": "ID",
+      "entryKey": "ID",
+      "expectedValue": "UNIQUE",
+      "actualValue": "1",
+      "status": "PASS"
+    },
+	    {
+      "fileName": "C0001_00.ADC",
+      "ruleType": "CompositeInputMatch",
+      "blockName": "CFG_BEHAV_TGGL",
+      "entryKey": "BEHAV_RESET",
+      "expectedValue": "0",
+      "actualValue": "7",
+      "status": "FAIL"
+    }
+  ],
+  "dp_details": [
+    {
+      "dp_can_id": "1",
+      "dp_name": "DP02",
+      "time_out": ["340", "610"],
+      "comm_fail": "0 - normal",
+      "behav_ge": "1 - No reset restriction",
+      "clr_track": "0 - Clearing of track with at least 2 counting heads",
+      "reset_in": "5 - (pre-reset + reset)",
+      "reset_out": "2 - (reset + clearing of track)",
+      "behav_reset": "7 - Disabled",
+	  "behav_reset_expected": "0 - dir reset",
+      "behav_simul": "1 - Disabled"
+	  
+    }
+  ],
+  "track_section_details": [
+    {
+      "ts_name": "C1T",
+      "e_dp_id": "1",
+      "e_dp_name": "DP02",
+      "fma_1_2": "1",
+      "ch_dp_id": ["8"],
+      "ch_dp_name": ["DP01"],
+      "ch_slct_timeout": ["340"],
+      "i_ch_dp_id": ["1"],
+      "i_ch_dp_name": ["DP02"],
+      "i_ch_slct_timeout": ["340"]
+    }
+  ],
+  "chc_details": [
+    {
+      "dp_id": "1",
+      "dp_name": "DP02",
+      "ts_name_1": "C1T",
+      "timeout_1": "340",
+      "dp_id_1": "1",
+      "dp_name_1": "DP02",
+      "fma_dtl_1": "1",
+      "ts_name_2": "1T",
+      "timeout_2": "340",
+      "dp_id_2": "1",
+      "dp_name_2": "DP02",
+      "fma_dtl_2": "2",
+      "interval": "2 (80 ms)",
+      "supervis_count": "2",
+      "system_count": "2",
+      "partial_count": "1"
+    }
+  ],
+  "supervisor_details": [
+    {
+      "sup_name": "C1T",
+      "dp_id": "1",
+      "dp_name": "DP02",
+      "sup_by_ts": ["202BT", "203AT"],
+      "sup_by_ts_dp_id": ["3", "59"],
+      "sup_by_ts_dp_name": ["DP07", "DP21"],
+      "sup_by_ts_fma": ["2", "1"],
+      "time_out": ["340", "610"],
+      "logic_type": ["(OR)", "(OR)"],
+      "reset_type": "0 - direct",
+      "reset_delay": "3",
+      "auto_reset_type": "",
+      "reset_timer": ""
+    }
+  ],
+  "ioexb_behaviour_details": [
+    {
+      "dp_id": "8",
+      "dp_name": "DP01",
+      "behav_input1": "6 - Reset",
+      "type_in1": "0 - standard",
+      "behav_input2": "6 - Reset",
+      "type_in2": "0 - standard",
+      "behav_input3": "6 - Reset",
+      "type_in3": "0 - standard",
+      "behav_ioexb": "7 - Disabled",
+      "type_ioexb": "0 - standard",
+      "is_coop_reset": false,
+      "coop_reset_type": "",
+      "coop_control_type": "",
+      "reset_timeout": ""
+    }
+  ],
+  "ioexb_aco_details": [
+    {
+      "dp_id": "8",
+      "dp_name": "DP01",
+      "aco_fma1": "C1T",
+      "clr_occ": "0 - failsafe clear indication",
+      "type_aux1": "0 - Standard auxiliary output1",
+      "type_aux2": "0 - Standard auxiliary output2",
+      "aux1_out": "3 - clr of track/partial trav. error",
+      "aux1_no_nc": "0 - open",
+      "aux2_out": "3 - clr of track/partial trav. error",
+      "aux2_no_nc": "0 - open",
+      "fma_1_2": "1",
+      "time_out": "340"
+    }
+  ],
+  "data_transmission_details": [
+    {
+      "dp_id": "20",
+      "dp_name": "DP09",
+      "safety_level_in": "1 - SINGLE",
+      "safety_level_out": "3 - QUAD",
+      "safe_out_fdbck_quad": "0 - disabled",
+      "source_dp_id": "170",
+      "source_dp_name": "DP69",
+      "timeout": "610",
+      "nmbr_out": "3",
+      "position": "0"
+    }
+  ],
+  "ethernet_details": [
+    {
+      "com": "COM-AdC(HUT1)",
+      "id": "41",
+      "ip_nw_1": "10.1.106.11",
+      "subnet_mask_1": "255.255.255.0",
+      "ip_nw_2": "10.2.106.11",
+      "subnet_mask_2": "255.255.255.0",
+      "dest_ip_nw_1": "10.1.106.17",
+      "dest_ip_nw_2": "10.2.106.17",
+      "fwrd_acd_to_dp_ids": ["7", "13", "15", "16", "20", "21"],
+      "fwrd_acd_to_dp_dtls": ["DP08 ()", "DP12 (202AT)", "DP15 (2T)", "DP18 (125T)", "DP09 ()", "DP16 (F98T)"],
+      "interval": "2 (80 ms)"
+    }
+  ]
+}

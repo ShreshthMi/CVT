@@ -1,0 +1,77 @@
+"Summary","Issue Type","Epic Link","Priority","Labels","Description"
+"[BE-01] PDQ Parser: CQ-IR Subsheet (Config Key model, block-grouped)","Story","VTF-304","High","phase2-backend pdq-parser","Parse the CQ-IR subsheet into block-grouped cqIrParameters, mirroring the Phase 1 userInput structure.
+Config Key column is the sole parse-trigger: non-empty = parametric row; empty = meta row, skipped.
+Value rules: split Response on first ':' (keep left, trim both sides); arrays on ' & '; IDENTIFICATION 'to' -> {min,max}; per-field step-division; INTERVAL enum mapping; TIMEOUT_VALUE nested under CFG_TIMEOUT and padded to 8.
+Honour sheet/row/column visibility flags. Single external error code PDQ_INVALID.
+Contract: VTF-329.
+Tests: extend Cucumber suite (happy / malformed / missing); Phase 1 features must still pass."
+"[BE-02] PDQ Parser: ConfigControlTable Subsheet (DP-name literal match) + DT Inputs","Story","VTF-304","High","phase2-backend pdq-parser","Parse ConfigControlTable into controlTable.trackSections[] (cols A-H) and controlTable.dpTable[] (cols J-M; col I is the empty boundary).
+Match CCT rows to parsedConfigFile by exact case- and whitespace-sensitive DP-name comparison; return unmatched rows from either side as distinct categories.
+fadcAutoReset parsed as a structured logic tree.
+Parse the conditional Data Transmission Inputs subsheet: absent -> dataTransmission:null (valid); present-but-empty -> reject as malformed; present-and-populated -> dataSafetyLevels[] + outputDataTransmission[].
+Contract: VTF-329.
+Tests: extend Cucumber suite (happy / malformed / missing); Phase 1 features must still pass."
+"[BE-03] Baseline FCT Parser (FCT2 Archive, Project.xml -> ComAebMap)","Story","VTF-304","High","phase2-backend fct-parser","Parse the FCT2 archive (Project.xml only) into the ComAebMap.
+Identification: .fct2 extension + ZIP magic-byte check. Build CAN-segment membership from the Bp CanConnections chain; collapse MASTER/SLAVE redundancy and set redundantComPresent.
+Expose chains[] with com, and aebs[] (dpId, dpName, evaluatedFmas[], acoIoExbs[] outputFma triplets, dtIoExbCount).
+Trackplan XMLs ignored. Reject counting-head-output mode IoExbs. Security/resource limits per contract.
+Two external error codes: FCT_TAMPERED, FCT_INCOMPLETE_BASELINE.
+Contract: VTF-328.
+Blocked on: exact 8 root filenames + 2 folder names (B3); SB 4.0.2 multipart override behaviour (B4); counting-head-output rejection error-code mapping (B11).
+Tests: extend Cucumber suite (happy / malformed / missing)."
+"[BE-04] v2 Validate Endpoint and Coupled-Artifacts Gate","Story","VTF-304","High","phase2-backend validate-infra","Add POST /api/config/v2/validate. Phase 1 POST /api/config/validate remains untouched.
+Coupled-artifacts gate: both FCT and PDQ -> v2; neither -> Phase 1 path; only one -> HTTP 400 PHASE2_INPUTS_INCOMPLETE. tpf upload is independent of the gate.
+userInput is upload-sourced: fctData + pdqData mandatory; four tpf keys (CFG_TROLLEY_SUPP, CFG_PARAM_TROLLEY_SUPP, CFG_RSR_TYPE, CFG_TYPE_PRTCT) optional.
+Invoke the preprocessor and assemble the v2 response: validation_results[] (seven-field) + eight detail tables; detail-cell _expected sibling on mismatch.
+Contract: VTF-330.
+Tests: endpoint scenarios for all three gate states; v2 response shape."
+"[BE-05] Validate-Time Preprocessor and Expectations JSON","Story","VTF-304","High","phase2-backend validate-infra","Build the validate-time preprocessor: in-memory, stateless, constructed fresh per request.
+Produce the Expectations JSON keyed (ADC file, block, instance, entry) -> expected value, derived from the FCT ComAebMap + parsed PDQ only. ADC files are validation targets and are never read as a source of truth.
+Implement the three cross-correlation rules: project-block consistency (CFG_PROJECT_AEB / CFG_PROJECT_COM); dual-FMA consistency (RESET_TYPE / RESET_DELAY across CFG_SUPERVIS_FMA1 / FMA2); CFG_IP_SWITCH derivation from redundantComPresent.
+Depends on: BE-03, BE-01, BE-02.
+Tests: expectations-build scenarios; source-of-truth assertion (no ADC reads)."
+"[BE-06] Rule Engine Composite-Key Lookup Extension","Story","VTF-304","High","phase2-backend validate-infra","Extend the rule engine with a composite-key lookup mode for (file, block, instance, entry), widening the validation key from (block, entry).
+Reuse the existing 9 rule types; no new rule types are introduced structurally.
+Open decision: JSONPath in rule config vs named Java lookups (B2) - resolve before cluster work starts.
+Gates all cluster stories (BE-08 .. BE-14). Depends on: BE-05.
+Tests: lookup-mode scenarios; all Phase 1 rules continue to pass."
+"[BE-07] Rule Registry and Phase 2 ruleType Finalisation","Story","VTF-304","Medium","phase2-backend validate-infra","Finalise the Phase 2 ruleType vocabulary (Rule Registry) as cluster rules land.
+Wire validation_results[] verdict rows and the detail-cell _expected annotation; keep validation_results[] in the seven-field Phase 1 shape.
+Companion Confluence page: Rule Registry."
+"[BE-08] Cluster 1: CAN Segment Validation","Story","VTF-304","High","phase2-backend cluster","Check A: per-AEB identity lookup in ComAebMap; expected SLCT_TIMEOUT from segment membership (0 physical / 1 virtual; 2-7 -> INVALID SCOPE; miss -> ORPHANED / FILE NOT FOUND).
+Check B: expected virtual forwarding set per channel, evaluated against actual CFG_FWRD_ACD entries.
+Owns ID and SLCT_TIMEOUT across all in-scope blocks (CFG_ZP_FMA1/2, CFG_SECTION_OUT, CFG_CONTROL, CFG_SUPERVIS_FMA1/2, CFG_DATA_OUT).
+Source: FCT ComAebMap + PDQ CCT. Report sheet: Ethernet Details.
+Depends on: BE-06.
+Tests: Cucumber coverage for Check A and Check B."
+"[BE-09] Cluster 2: IOEXB ACO Validation","Story","VTF-304","High","phase2-backend cluster","Validate IoExb position within the board rack and the number of ACO IoExbs per AEB against CFG_SECTION_OUT (block count <= 16 per file).
+Owns ID and SECTION on CFG_SECTION_OUT (position-within-rack + count semantics; distinct from Cluster 1, both run with no failure-mode overlap).
+Source: FCT ComAebMap (acoIoExbs). Report sheet: IOEXB ACO Details.
+Depends on: BE-06.
+Tests: Cucumber coverage."
+"[BE-10] Cluster 3: Track Section Validation","Story","VTF-304","Medium","phase2-backend cluster","Four sub-checks: (1) CHC counting-head assignment per sensor/ADC, (2) correct sensors per track section, (3) supervisory track config, (4) ACO/DT IO assignment.
+Sub-checks 1 and 4 can be ADC-only; 2 and 3 require station layout as external input.
+Source: PDQ CCT. Report sheet: Track Section Details.
+Blocked on: blocks/keys + station-layout input strategy (B7). Depends on: BE-06.
+Tests: Cucumber coverage."
+"[BE-11] Cluster 4a: CHC Validation","Story","VTF-304","Medium","phase2-backend cluster","Count-driven check: cross-check BEHAV_IN3 against CFG_CONTROL block count (BEHAV_IN3 = 7 -> 1 block; = 6 -> 2 blocks); flag mismatches.
+Adjacency derived from the CCT Track table.
+Source: PDQ CCT. Report sheet: IOEXB Behaviour Details.
+Blocked on: full blocks/keys (B8). Depends on: BE-06.
+Tests: Cucumber coverage."
+"[BE-12] Cluster 4b: External CHC Validation","Story","VTF-304","Medium","phase2-backend cluster","Counting-head control check on CFG_CONTROL (<= 2 instances per ADC), table-based per sensor point.
+Touches CFG_ZP for adjacency.
+Source: PDQ CCT. Report sheet: CHC Details.
+Blocked on: sub-cluster split + keys (B8). Depends on: BE-06.
+Tests: Cucumber coverage."
+"[BE-13] Cluster 5: Supervisor Validation","Story","VTF-304","Medium","phase2-backend cluster","Validate the CFG_SUPERVIS_FMA1 / CFG_SUPERVIS_FMA2 supervisor table.
+Source: PDQ CCT. Report sheet: Supervisor Details.
+Blocked on: blocks/keys + 3B FMA Supervisor re-confirmation against the Confluence requirements doc (B9). Depends on: BE-06.
+Tests: Cucumber coverage."
+"[BE-14] Cluster 6: Data Transmission Validation","Story","VTF-304","Medium","phase2-backend cluster","Blocks: CFG_DATA_OUT, CFG_DATA_SAFETY_LEVELS. (CFG_DATA_IO SAFETY_LEVEL_IN/OUT is discarded.)
+SAFE_OUT_FDBCK_QUAD kept numeric 0/1; DT-sheet POSITION integer in [0,31].
+Source: PDQ Data Transmission Output subsheet. Report sheet: Data Transmission Details.
+Blocked on: full keys list + rule semantics (B10). Depends on: BE-06.
+Tests: Cucumber coverage."
+"[BE-15] PDF Report Output [Stretch]","Story","VTF-304","Low","phase2-backend output stretch","Generate a PDF report consolidating Validation Input and Validation Results.
+Stretch goal; not on the critical path."

@@ -1,0 +1,205 @@
+h1. Validate Endpoint v2 — Response Contract
+
+{info}
+*Status:* Locked (response side)
+*Audience:* Frontend integration
+*Source:* {{validateResultPhase1.json}} (Phase 1 response shape); {{fcvt-phase2-design.md}} §4 (Expectations JSON, preprocessor); the eight Phase 1 detail-list tables
+*Owner:* Backend
+{info}
+
+h2. 1. Purpose
+
+This document defines the response shape returned by {{POST /api/config/v2/validate}}. It is the contract the frontend's validation output console and Excel report wire against.
+
+The v2 response preserves the entire Phase 1 response shape — {{validation_results[]}} plus the eight detail-list tables — and augments it so that Phase 2 cross-correlation mismatches surface in two coordinated ways: as rows in {{validation_results[]}}, and as inline {{_expected}} annotations on the detail-table cells that mismatched.
+
+The request-side contract (payload, coupled-artifacts gate, endpoint selection) is covered separately.
+
+h2. 2. Conceptual model
+
+h3. 2.1 The validation atom
+
+Every cell in the eight detail tables is a *validation atom* — the smallest unit that is independently compared. The Phase 2 preprocessor builds an *Expectations JSON* that mirrors the eight detail tables exactly (same table names, same field names, same cell layout) but holds the *expected* value for each atom, derived from the FCT2 archive + PDQ workbook. The engine compares each actual atom (from the parsed ADC files) against its expected counterpart.
+
+The Expectations JSON is an internal preprocessor artefact. It is *not* returned in the response. The response carries actual values plus mismatch annotations, described below.
+
+h3. 2.2 Two coordinated surfaces
+
+A Phase 2 mismatch surfaces in both of the following, consistently:
+
+* *Detail tables (data view).* The cell keeps its actual value unchanged. When the atom mismatched, a sibling key {{<fieldname>_expected}} is added immediately alongside, carrying the expected value. When the atom matched, no sibling is present.
+* *{{validation_results[]}} (verdict view).* One row per check performed, carrying {{expectedValue}}, {{actualValue}}, and {{status}} in the existing Phase 1 row shape.
+
+The presence of a {{_expected}} sibling on a cell is the mismatch signal. There is *no* per-cell status flag — the console keys off whether the companion {{_expected}} field exists.
+
+h2. 3. Top-level shape
+
+Unchanged from Phase 1 — nine top-level keys:
+
+{code:language=json}
+{
+  "validation_results": [ ... ],
+  "dp_details": [ ... ],
+  "track_section_details": [ ... ],
+  "chc_details": [ ... ],
+  "supervisor_details": [ ... ],
+  "ioexb_behaviour_details": [ ... ],
+  "ioexb_aco_details": [ ... ],
+  "data_transmission_details": [ ... ],
+  "ethernet_details": [ ... ]
+}
+{code}
+
+h2. 4. validation_results[]
+
+Unchanged row shape from Phase 1. Seven fields per row: {{fileName}}, {{ruleType}}, {{blockName}}, {{entryKey}}, {{expectedValue}}, {{actualValue}}, {{status}}.
+
+Phase 2 checks appear as additional rows in this same array, using the *same seven fields and no others*. Phase 2 rows do *not* carry {{cluster}}, {{instance}}, or {{expectationSource}} fields — they are shape-identical to Phase 1 rows. The {{ruleType}} value distinguishes the kind of check.
+
+{code:language=json}
+"validation_results": [
+  {
+    "fileName": "C0001_00.ADC",
+    "ruleType": "DuplicateCheck",
+    "blockName": "ID",
+    "entryKey": "ID",
+    "expectedValue": "UNIQUE",
+    "actualValue": "1",
+    "status": "PASS"
+  },
+  {
+    "fileName": "C0001_00.ADC",
+    "ruleType": "CompositeInputMatch",
+    "blockName": "CFG_BEHAV_TGGL",
+    "entryKey": "BEHAV_RESET",
+    "expectedValue": "0",
+    "actualValue": "7",
+    "status": "FAIL"
+  }
+]
+{code}
+
+{note}
+{{CompositeInputMatch}} above is a placeholder ruleType for illustration. The final set of Phase 2 ruleType values is defined as the cluster rules are built (BE-05 onward) and recorded in the Rule Registry.
+{note}
+
+h2. 5. Detail-table _expected annotation
+
+Each detail table keeps its full Phase 1 field set and actual values. The only structural change is the *conditional addition* of {{<fieldname>_expected}} sibling keys on mismatch.
+
+h3. 5.1 Suffix rule
+
+The annotation key is the literal field name with {{_expected}} appended. Examples:
+
+|| Actual field || Annotation key on mismatch ||
+| {{behav_reset}} | {{behav_reset_expected}} |
+| {{reset_in}} | {{reset_in_expected}} |
+| {{aux1_out}} | {{aux1_out_expected}} |
+| {{time_out}} | {{time_out_expected}} |
+
+The {{_expected}} key sits in the same object as its actual counterpart. Placement within the object is not significant (JSON objects are unordered); the console matches by key name, not position.
+
+h3. 5.2 Scalar cells
+
+When a scalar atom mismatches, {{<field>_expected}} carries the expected scalar. The actual field is unchanged.
+
+{code:language=json}
+{
+  "dp_can_id": "1",
+  "dp_name": "DP02",
+  "behav_reset": "7 - Disabled",
+  "behav_reset_expected": "0 - dir reset",
+  "behav_simul": "1 - Disabled"
+}
+{code}
+
+Here {{behav_reset}} mismatched (annotation present); every other field in the row matched (no annotation).
+
+h3. 5.3 Array-valued cells
+
+Array cells (e.g. {{time_out}}, {{ch_slct_timeout}}, {{sup_by_ts}}) are matched *element by element, with order preserved*. The array cell is a single atom: if any element differs, or the arrays differ in length or order, the whole cell is a mismatch. On mismatch, {{<field>_expected}} carries the *full expected array*, not a positional diff.
+
+{code:language=json}
+{
+  "dp_can_id": "1",
+  "dp_name": "DP02",
+  "time_out": ["340", "610"],
+  "time_out_expected": ["340", "550"]
+}
+{code}
+
+The console renders the actual array against the full expected array and may highlight differing positions itself; the contract delivers the complete expected array, not a sparse one.
+
+h3. 5.4 Matching cells
+
+When an atom matches, no {{_expected}} sibling is emitted. A detail-table object with no {{_expected}} keys anywhere means every atom in that row passed.
+
+h2. 6. Worked example
+
+A response with one Phase 1 pass, one Phase 2 fail in {{validation_results}}, and the corresponding {{_expected}} annotation in {{dp_details}}:
+
+{code:language=json}
+{
+  "validation_results": [
+    {
+      "fileName": "C0001_00.ADC",
+      "ruleType": "DuplicateCheck",
+      "blockName": "ID",
+      "entryKey": "ID",
+      "expectedValue": "UNIQUE",
+      "actualValue": "1",
+      "status": "PASS"
+    },
+    {
+      "fileName": "C0001_00.ADC",
+      "ruleType": "CompositeInputMatch",
+      "blockName": "CFG_BEHAV_TGGL",
+      "entryKey": "BEHAV_RESET",
+      "expectedValue": "0",
+      "actualValue": "7",
+      "status": "FAIL"
+    }
+  ],
+  "dp_details": [
+    {
+      "dp_can_id": "1",
+      "dp_name": "DP02",
+      "time_out": ["340", "610"],
+      "comm_fail": "0 - normal",
+      "behav_ge": "1 - No reset restriction",
+      "clr_track": "0 - Clearing of track with at least 2 counting heads",
+      "reset_in": "5 - (pre-reset + reset)",
+      "reset_out": "2 - (reset + clearing of track)",
+      "behav_reset": "7 - Disabled",
+      "behav_reset_expected": "0 - dir reset",
+      "behav_simul": "1 - Disabled"
+    }
+  ],
+  "track_section_details": [ ... ],
+  "chc_details": [ ... ],
+  "supervisor_details": [ ... ],
+  "ioexb_behaviour_details": [ ... ],
+  "ioexb_aco_details": [ ... ],
+  "data_transmission_details": [ ... ],
+  "ethernet_details": [ ... ]
+}
+{code}
+
+The same mismatch appears twice, consistently: as the {{FAIL}} row in {{validation_results}} (verdict view) and as the {{behav_reset_expected}} annotation in {{dp_details}} (data view).
+
+h2. 7. Backward compatibility
+
+* The Phase 1 response shape is a strict subset of the v2 response. A v2 response with zero mismatches is byte-shape-identical to a Phase 1 response (no {{_expected}} keys anywhere; {{validation_results}} rows all {{PASS}} or the usual Phase 1 mix).
+* Every Phase 1 Cucumber scenario continues to pass through the v2 changes — the additions are purely additive ({{_expected}} siblings, extra {{validation_results}} rows).
+* A console built for Phase 1 that ignores unknown keys will render a v2 response without breaking; it simply will not surface the {{_expected}} annotations until updated.
+
+h2. 8. Out of scope for this contract
+
+* The Expectations JSON internal shape (it is a preprocessor artefact, not returned). Documented separately under the Expectation JSON details page.
+* The exact final set of Phase 2 {{ruleType}} values (defined as cluster rules are built; recorded in the Rule Registry).
+* The Excel report layout (Agreed Output Phase 2 workstream; consumes this response shape).
+* The request-side contract (payload, gate, endpoint selection) — separate document.
+
+h2. 9. Acknowledgement
+
+Frontend lead to confirm contract review in writing (Jira comment or Confluence page comment) before integration work begins on the v2 response rendering.

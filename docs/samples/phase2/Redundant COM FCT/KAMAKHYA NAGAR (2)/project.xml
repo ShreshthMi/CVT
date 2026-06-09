@@ -1,0 +1,1978 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<FAdcWizard>
+  <Configuration>
+    <Version>3.36.0</Version>
+    <Revision>e1eb46b</Revision>
+  </Configuration>
+  <Project>
+    <Version>317</Version>
+    <Revision>P0317</Revision>
+    <AxleCounterType>FAdC</AxleCounterType>
+    <ProjectName>ECoR</ProjectName>
+    <CreationDate>2021-12-21T08:37:15</CreationDate>
+    <LastChange>2022-01-12T12:07:12</LastChange>
+    <CreationAuthor>sureshar</CreationAuthor>
+    <LastAuthor>vidyadin</LastAuthor>
+    <FileList>
+      <File name="project.gpf" date="2021-12-21T12:39:06" type="GENPLATFORM" hashSum="f6acafa408d01d615279125dcb8fba1b"/>
+      <File name="type_protected.xml" date="2022-01-12T11:33:13" type="TYPE_PROTECTED" hashSum="83aa18e5a06328de0e748c3d15de3d12"/>
+    </FileList>
+  </Project>
+  <ProjectElements>
+    <Station name="KAMAKHYA NAGAR" description="" internId="1">
+      <Parameter>
+        <MaxElements>0</MaxElements>
+      </Parameter>
+      <Children>
+        <Cubicle name="ACC1" description="" internId="2" height="30">
+          <Parameter>
+            <MaxElements>10</MaxElements>
+            <RackType>BGT_07</RackType>
+          </Parameter>
+          <Children>
+            <EmptyRack name="" description="" internId="168" height="1" rackSlot="4"/>
+            <EmptyRack name="" description="" internId="169" height="1" rackSlot="5"/>
+            <EmptyRack name="" description="" internId="170" height="1" rackSlot="6"/>
+            <EmptyRack name="" description="" internId="171" height="1" rackSlot="7"/>
+            <EmptyRack name="" description="" internId="172" height="1" rackSlot="8"/>
+            <EmptyRack name="" description="" internId="173" height="1" rackSlot="9"/>
+            <EmptyRack name="" description="" internId="174" height="1" rackSlot="10"/>
+            <EmptyRack name="" description="" internId="175" height="1" rackSlot="11"/>
+            <EmptyRack name="" description="" internId="176" height="1" rackSlot="12"/>
+            <EmptyRack name="" description="" internId="177" height="1" rackSlot="13"/>
+            <EmptyRack name="" description="" internId="178" height="1" rackSlot="14"/>
+            <EmptyRack name="" description="" internId="179" height="1" rackSlot="15"/>
+            <EmptyRack name="" description="" internId="180" height="1" rackSlot="16"/>
+            <EmptyRack name="" description="" internId="181" height="1" rackSlot="17"/>
+            <EmptyRack name="" description="" internId="182" height="1" rackSlot="18"/>
+            <EmptyRack name="" description="" internId="183" height="1" rackSlot="19"/>
+            <EmptyRack name="" description="" internId="184" height="1" rackSlot="20"/>
+            <EmptyRack name="" description="" internId="185" height="1" rackSlot="21"/>
+            <Rack name="BGT-1" description="" internId="186" height="3" rackSlot="0">
+              <Parameter>
+                <RackType>BGT_07</RackType>
+              </Parameter>
+              <Children>
+                <Bp name="A1" description="" internId="193" positionOnRack="1">
+                  <Parameter>
+                    <StartSlotId>1</StartSlotId>
+                    <BpType>BP_PWR0</BpType>
+                    <CanConnections/>
+                  </Parameter>
+                  <Children>
+                    <Psc name="PSC-M" description="ACC1-A1" internId="277" slotId="1" redundantPsc="278">
+                      <PwrConnections>
+                        <ConnectedBp>193</ConnectedBp>
+                        <ConnectedBp>195</ConnectedBp>
+                        <ConnectedBp>205</ConnectedBp>
+                        <ConnectedBp>208</ConnectedBp>
+                        <ConnectedBp>211</ConnectedBp>
+                      </PwrConnections>
+                    </Psc>
+                  </Children>
+                </Bp>
+                <Bp name="A2" description="" internId="195" positionOnRack="2">
+                  <Parameter>
+                    <StartSlotId>2</StartSlotId>
+                    <BpType>BP_PWR8</BpType>
+                    <CanConnections next="205"/>
+                  </Parameter>
+                  <Children>
+                    <Psc name="PSC-R" description="ACC1-A2" internId="278" slotId="2" redundantPsc="277">
+                      <PwrConnections>
+                        <ConnectedBp>195</ConnectedBp>
+                        <ConnectedBp>193</ConnectedBp>
+                        <ConnectedBp>205</ConnectedBp>
+                        <ConnectedBp>208</ConnectedBp>
+                        <ConnectedBp>211</ConnectedBp>
+                      </PwrConnections>
+                    </Psc>
+                    <Com name="COM-AdC(M)" description="" internId="283" slotId="3">
+                      <Id>291</Id>
+                      <ComType>COM_ADC</ComType>
+                      <ComMode>MASTER</ComMode>
+                      <ConfigurationServer>true</ConfigurationServer>
+                      <ComVersion>GS02</ComVersion>
+                      <MasterIp>
+                        <Ip ip="192.165.1.2" subnet="255.255.255.0" network="1"/>
+                        <Ip ip="192.165.2.2" subnet="255.255.255.0" network="2"/>
+                      </MasterIp>
+                      <DipSwitch12>false</DipSwitch12>
+                      <IpSwitching ipSwitchoverTime="10">false</IpSwitching>
+                      <Interval>2</Interval>
+                      <NtpIpAddressNetwork1 ip=""/>
+                      <NtpIpAddressNetwork2 ip=""/>
+                      <NtpSyncInterval>0</NtpSyncInterval>
+                      <NtpDscp>0</NtpDscp>
+                      <Destinations>
+                        <Destination type="FDS_FADCR2">1040</Destination>
+                      </Destinations>
+                    </Com>
+                    <Aeb name="AEB_DP2" description="" internId="291" slotId="4" cpName="DP2" dontUseTypeProtectedValues="0">
+                      <Id>211</Id>
+                      <Information device="GS04" rsrType="RSR180"/>
+                      <DipSwitch14>false</DipSwitch14>
+                      <AnalogDoubleUsageDisabled>true</AnalogDoubleUsageDisabled>
+                      <Timeouts>
+                        <Timeout id="0">340</Timeout>
+                        <Timeout id="1">610</Timeout>
+                      </Timeouts>
+                      <ConfigCountingPoints>
+                        <Interval>2</Interval>
+                        <SupervisorCount>2</SupervisorCount>
+                        <SupervisorCountLimit>0</SupervisorCountLimit>
+                        <SystemCount>2</SystemCount>
+                        <PartialCount>1</PartialCount>
+                      </ConfigCountingPoints>
+                      <ToggleSwitches resetBehaviour="7" simulationBehaviour="1"/>
+                      <Tracksection clearTrack="0" communicationFailure="0" resetRestriction="1">
+                        <Reset in="5" out="1"/>
+                        <Occupancy delay="0" extension="0"/>
+                      </Tracksection>
+                      <Wheelsensor dbv="0" digitalFilterTime="15" resetLeadTime="1" type="RSR180" typeProtectionCrc="0xb192f6cd" roadrailSuppression="0">
+                        <TrolleySuppression active="1" maxSuppressionTime="60" diameterRatio="109" axleDistance="5" speedTolerance="12"/>
+                      </Wheelsensor>
+                      <CountingHeadControls>
+                        <Control fmaInternId="544" timeoutId="0"/>
+                        <Control fmaInternId="539" timeoutId="0"/>
+                      </CountingHeadControls>
+                      <IoExbBehaviour in1="6" in2="6" in3="6" resetOpterationTimeInMs="500" toggleSwitches="7"/>
+                    </Aeb>
+                    <Aeb name="AEB_DP4" description="" internId="295" slotId="5" cpName="DP4" dontUseTypeProtectedValues="0">
+                      <Id>212</Id>
+                      <Information device="GS04" rsrType="RSR180"/>
+                      <DipSwitch14>false</DipSwitch14>
+                      <AnalogDoubleUsageDisabled>true</AnalogDoubleUsageDisabled>
+                      <Timeouts>
+                        <Timeout id="0">340</Timeout>
+                        <Timeout id="1">610</Timeout>
+                      </Timeouts>
+                      <ConfigCountingPoints>
+                        <Interval>2</Interval>
+                        <SupervisorCount>2</SupervisorCount>
+                        <SupervisorCountLimit>0</SupervisorCountLimit>
+                        <SystemCount>2</SystemCount>
+                        <PartialCount>1</PartialCount>
+                      </ConfigCountingPoints>
+                      <ToggleSwitches resetBehaviour="7" simulationBehaviour="1"/>
+                      <Tracksection clearTrack="0" communicationFailure="0" resetRestriction="1">
+                        <Reset in="5" out="1"/>
+                        <Occupancy delay="0" extension="0"/>
+                      </Tracksection>
+                      <Wheelsensor dbv="0" digitalFilterTime="15" resetLeadTime="1" type="RSR180" typeProtectionCrc="0xb192f6cd" roadrailSuppression="0">
+                        <TrolleySuppression active="1" maxSuppressionTime="60" diameterRatio="109" axleDistance="5" speedTolerance="12"/>
+                      </Wheelsensor>
+                      <CountingHeadControls>
+                        <Control fmaInternId="555" timeoutId="0"/>
+                        <Control fmaInternId="549" timeoutId="0"/>
+                      </CountingHeadControls>
+                      <IoExbBehaviour in1="6" in2="6" in3="6" resetOpterationTimeInMs="500" toggleSwitches="7"/>
+                      <IoExbControl inputSv="0" positionInputSv="0" inputChc="0" positionInputChc="0" timeoutId="0"/>
+                    </Aeb>
+                    <Aeb name="AEB_DP6" description="" internId="299" slotId="6" cpName="DP6" dontUseTypeProtectedValues="0">
+                      <Id>213</Id>
+                      <Information device="GS04" rsrType="RSR180"/>
+                      <DipSwitch14>false</DipSwitch14>
+                      <AnalogDoubleUsageDisabled>true</AnalogDoubleUsageDisabled>
+                      <Timeouts>
+                        <Timeout id="0">340</Timeout>
+                        <Timeout id="1">610</Timeout>
+                      </Timeouts>
+                      <ConfigCountingPoints>
+                        <Interval>2</Interval>
+                        <SupervisorCount>2</SupervisorCount>
+                        <SupervisorCountLimit>0</SupervisorCountLimit>
+                        <SystemCount>2</SystemCount>
+                        <PartialCount>1</PartialCount>
+                      </ConfigCountingPoints>
+                      <ToggleSwitches resetBehaviour="7" simulationBehaviour="1"/>
+                      <Tracksection clearTrack="0" communicationFailure="0" resetRestriction="1">
+                        <Reset in="5" out="1"/>
+                        <Occupancy delay="0" extension="0"/>
+                      </Tracksection>
+                      <Wheelsensor dbv="0" digitalFilterTime="15" resetLeadTime="1" type="RSR180" typeProtectionCrc="0xb192f6cd" roadrailSuppression="0">
+                        <TrolleySuppression active="1" maxSuppressionTime="60" diameterRatio="109" axleDistance="5" speedTolerance="12"/>
+                      </Wheelsensor>
+                      <CountingHeadControls>
+                        <Control fmaInternId="581" timeoutId="0"/>
+                        <Control fmaInternId="560" timeoutId="0"/>
+                      </CountingHeadControls>
+                      <IoExbBehaviour in1="6" in2="6" in3="6" resetOpterationTimeInMs="500" toggleSwitches="7"/>
+                      <IoExbControl inputSv="0" positionInputSv="0" inputChc="0" positionInputChc="0" timeoutId="0"/>
+                    </Aeb>
+                    <Aeb name="AEB_DP7" description="" internId="303" slotId="7" cpName="DP7" dontUseTypeProtectedValues="0">
+                      <Id>214</Id>
+                      <Information device="GS04" rsrType="RSR180"/>
+                      <DipSwitch14>false</DipSwitch14>
+                      <AnalogDoubleUsageDisabled>true</AnalogDoubleUsageDisabled>
+                      <Timeouts>
+                        <Timeout id="0">340</Timeout>
+                        <Timeout id="1">610</Timeout>
+                      </Timeouts>
+                      <ConfigCountingPoints>
+                        <Interval>2</Interval>
+                        <SupervisorCount>2</SupervisorCount>
+                        <SupervisorCountLimit>0</SupervisorCountLimit>
+                        <SystemCount>2</SystemCount>
+                        <PartialCount>1</PartialCount>
+                      </ConfigCountingPoints>
+                      <ToggleSwitches resetBehaviour="7" simulationBehaviour="1"/>
+                      <Tracksection clearTrack="0" communicationFailure="0" resetRestriction="1">
+                        <Reset in="5" out="1"/>
+                        <Occupancy delay="0" extension="0"/>
+                      </Tracksection>
+                      <Wheelsensor dbv="0" digitalFilterTime="15" resetLeadTime="1" type="RSR180" typeProtectionCrc="0xb192f6cd" roadrailSuppression="0">
+                        <TrolleySuppression active="1" maxSuppressionTime="60" diameterRatio="109" axleDistance="5" speedTolerance="12"/>
+                      </Wheelsensor>
+                      <CountingHeadControls>
+                        <Control fmaInternId="565" timeoutId="0"/>
+                        <Control fmaInternId="555" timeoutId="0"/>
+                      </CountingHeadControls>
+                      <IoExbBehaviour in1="6" in2="6" in3="6" resetOpterationTimeInMs="500" toggleSwitches="7"/>
+                      <IoExbControl inputSv="0" positionInputSv="0" inputChc="0" positionInputChc="0" timeoutId="0"/>
+                    </Aeb>
+                    <Aeb name="AEB_DP9" description="" internId="307" slotId="8" cpName="DP9" dontUseTypeProtectedValues="0">
+                      <Id>215</Id>
+                      <Information device="GS04" rsrType="RSR180"/>
+                      <DipSwitch14>false</DipSwitch14>
+                      <AnalogDoubleUsageDisabled>true</AnalogDoubleUsageDisabled>
+                      <Timeouts>
+                        <Timeout id="0">340</Timeout>
+                        <Timeout id="1">610</Timeout>
+                      </Timeouts>
+                      <ConfigCountingPoints>
+                        <Interval>2</Interval>
+                        <SupervisorCount>2</SupervisorCount>
+                        <SupervisorCountLimit>0</SupervisorCountLimit>
+                        <SystemCount>2</SystemCount>
+                        <PartialCount>1</PartialCount>
+                      </ConfigCountingPoints>
+                      <ToggleSwitches resetBehaviour="7" simulationBehaviour="1"/>
+                      <Tracksection clearTrack="0" communicationFailure="0" resetRestriction="1">
+                        <Reset in="5" out="1"/>
+                        <Occupancy delay="0" extension="0"/>
+                      </Tracksection>
+                      <Wheelsensor dbv="0" digitalFilterTime="15" resetLeadTime="1" type="RSR180" typeProtectionCrc="0xb192f6cd" roadrailSuppression="0">
+                        <TrolleySuppression active="1" maxSuppressionTime="60" diameterRatio="109" axleDistance="5" speedTolerance="12"/>
+                      </Wheelsensor>
+                      <CountingHeadControls>
+                        <Control fmaInternId="592" timeoutId="0"/>
+                        <Control fmaInternId="565" timeoutId="0"/>
+                      </CountingHeadControls>
+                      <IoExbBehaviour in1="6" in2="6" in3="6" resetOpterationTimeInMs="500" toggleSwitches="7"/>
+                      <IoExbControl inputSv="0" positionInputSv="0" inputChc="0" positionInputChc="0" timeoutId="0"/>
+                    </Aeb>
+                    <Aeb name="AEB_DP10" description="" internId="311" slotId="9" cpName="DP10" dontUseTypeProtectedValues="0">
+                      <Id>216</Id>
+                      <Information device="GS04" rsrType="RSR180"/>
+                      <DipSwitch14>false</DipSwitch14>
+                      <AnalogDoubleUsageDisabled>true</AnalogDoubleUsageDisabled>
+                      <Timeouts>
+                        <Timeout id="0">340</Timeout>
+                        <Timeout id="1">610</Timeout>
+                      </Timeouts>
+                      <ConfigCountingPoints>
+                        <Interval>2</Interval>
+                        <SupervisorCount>2</SupervisorCount>
+                        <SupervisorCountLimit>0</SupervisorCountLimit>
+                        <SystemCount>2</SystemCount>
+                        <PartialCount>1</PartialCount>
+                      </ConfigCountingPoints>
+                      <ToggleSwitches resetBehaviour="7" simulationBehaviour="1"/>
+                      <Tracksection clearTrack="0" communicationFailure="0" resetRestriction="1">
+                        <Reset in="5" out="1"/>
+                        <Occupancy delay="0" extension="0"/>
+                      </Tracksection>
+                      <Wheelsensor dbv="0" digitalFilterTime="15" resetLeadTime="1" type="RSR180" typeProtectionCrc="0xb192f6cd" roadrailSuppression="0">
+                        <TrolleySuppression active="1" maxSuppressionTime="60" diameterRatio="109" axleDistance="5" speedTolerance="12"/>
+                      </Wheelsensor>
+                      <CountingHeadControls>
+                        <Control fmaInternId="781" timeoutId="0"/>
+                        <Control fmaInternId="570" timeoutId="0"/>
+                      </CountingHeadControls>
+                      <IoExbBehaviour in1="6" in2="6" in3="6" resetOpterationTimeInMs="500" toggleSwitches="7"/>
+                      <IoExbControl inputSv="0" positionInputSv="0" inputChc="0" positionInputChc="0" timeoutId="0"/>
+                    </Aeb>
+                    <BlankingPlate name="" description="" internId="315" slotId="10" pitchUnits="4"/>
+                  </Children>
+                </Bp>
+                <Bp name="A3" description="" internId="205" positionOnRack="3">
+                  <Parameter>
+                    <StartSlotId>11</StartSlotId>
+                    <BpType>BP_EXB1</BpType>
+                    <CanConnections next="208" previous="195"/>
+                  </Parameter>
+                  <Children>
+                    <Aeb name="AEB_DP1" description="" internId="316" slotId="11" cpName="DP1" dontUseTypeProtectedValues="0">
+                      <Id>218</Id>
+                      <Information device="GS04" rsrType="RSR180"/>
+                      <DipSwitch14>false</DipSwitch14>
+                      <AnalogDoubleUsageDisabled>true</AnalogDoubleUsageDisabled>
+                      <Timeouts>
+                        <Timeout id="0">340</Timeout>
+                        <Timeout id="1">610</Timeout>
+                      </Timeouts>
+                      <Fmas>
+                        <Fma name="1AXT" description="" internId="539" fmaId="0" aebInternId="316">
+                          <FailsafeOccupancy>0</FailsafeOccupancy>
+                          <Supervision logicType="0" resetDelay="10" resetType="3"/>
+                          <CountingHeads>
+                            <CountingHead name="DP2" description="" internId="839">
+                              <RefAeb>291</RefAeb>
+                              <DirectionInverse>0</DirectionInverse>
+                              <RailPosition>0</RailPosition>
+                              <Remote>0</Remote>
+                              <TimeoutId>0</TimeoutId>
+                              <DirectionDependentOccupancy>0</DirectionDependentOccupancy>
+                            </CountingHead>
+                            <CountingHead name="DP1" description="" internId="840">
+                              <RefAeb>316</RefAeb>
+                              <DirectionInverse>1</DirectionInverse>
+                              <RailPosition>0</RailPosition>
+                              <Remote>0</Remote>
+                              <TimeoutId>0</TimeoutId>
+                              <DirectionDependentOccupancy>0</DirectionDependentOccupancy>
+                            </CountingHead>
+                          </CountingHeads>
+                          <Synchronisations syncType="SAFETY"/>
+                        </Fma>
+                        <Fma name="1XT" description="" internId="544" fmaId="1" aebInternId="316">
+                          <FailsafeOccupancy>0</FailsafeOccupancy>
+                          <Supervision logicType="0" resetDelay="10" resetType="3">
+                            <Supervisor timeoutId="0">831</Supervisor>
+                          </Supervision>
+                          <CountingHeads>
+                            <CountingHead name="DP3" description="" internId="844">
+                              <RefAeb>321</RefAeb>
+                              <DirectionInverse>0</DirectionInverse>
+                              <RailPosition>0</RailPosition>
+                              <Remote>0</Remote>
+                              <TimeoutId>0</TimeoutId>
+                              <DirectionDependentOccupancy>0</DirectionDependentOccupancy>
+                            </CountingHead>
+                            <CountingHead name="DP2" description="" internId="845">
+                              <RefAeb>291</RefAeb>
+                              <DirectionInverse>1</DirectionInverse>
+                              <RailPosition>0</RailPosition>
+                              <Remote>0</Remote>
+                              <TimeoutId>0</TimeoutId>
+                              <DirectionDependentOccupancy>0</DirectionDependentOccupancy>
+                            </CountingHead>
+                          </CountingHeads>
+                          <Synchronisations syncType="SAFETY"/>
+                        </Fma>
+                      </Fmas>
+                      <ConfigCountingPoints>
+                        <Interval>2</Interval>
+                        <SupervisorCount>2</SupervisorCount>
+                        <SupervisorCountLimit>0</SupervisorCountLimit>
+                        <SystemCount>2</SystemCount>
+                        <PartialCount>1</PartialCount>
+                      </ConfigCountingPoints>
+                      <ToggleSwitches resetBehaviour="7" simulationBehaviour="1"/>
+                      <Tracksection clearTrack="0" communicationFailure="0" resetRestriction="1">
+                        <Reset in="5" out="2"/>
+                        <Occupancy delay="0" extension="0"/>
+                      </Tracksection>
+                      <Wheelsensor dbv="0" digitalFilterTime="15" resetLeadTime="1" type="RSR180" typeProtectionCrc="0xb192f6cd" roadrailSuppression="0">
+                        <TrolleySuppression active="1" maxSuppressionTime="60" diameterRatio="109" axleDistance="5" speedTolerance="12"/>
+                      </Wheelsensor>
+                      <IoExbBehaviour in1="6" in2="6" in3="6" resetOpterationTimeInMs="500" toggleSwitches="7"/>
+                      <IoExbControl inputSv="0" positionInputSv="0" inputChc="0" positionInputChc="0" timeoutId="0"/>
+                    </Aeb>
+                    <IoExb name="ACO" description="" internId="320" slotId="12">
+                      <RefAeb>316</RefAeb>
+                      <AxleCountingOutput>
+                        <OutputFma1 timeout="0" typeAux1="0" aux1="3" aux1NoNc="0" typeAux2="0" aux2="3" aux2NoNc="0" clearOccupied="0">539</OutputFma1>
+                        <OutputFma2 timeout="0" typeAux1="0" aux1="3" aux1NoNc="0" typeAux2="0" aux2="3" aux2NoNc="0" clearOccupied="0">544</OutputFma2>
+                      </AxleCountingOutput>
+                    </IoExb>
+                  </Children>
+                </Bp>
+                <Bp name="A4" description="" internId="208" positionOnRack="4">
+                  <Parameter>
+                    <StartSlotId>13</StartSlotId>
+                    <BpType>BP_EXB1</BpType>
+                    <CanConnections next="211" previous="205"/>
+                  </Parameter>
+                  <Children>
+                    <Aeb name="AEB_DP3" description="" internId="321" slotId="13" cpName="DP3" dontUseTypeProtectedValues="0">
+                      <Id>219</Id>
+                      <Information device="GS04" rsrType="RSR180"/>
+                      <DipSwitch14>false</DipSwitch14>
+                      <AnalogDoubleUsageDisabled>true</AnalogDoubleUsageDisabled>
+                      <Timeouts>
+                        <Timeout id="0">340</Timeout>
+                        <Timeout id="1">610</Timeout>
+                      </Timeouts>
+                      <Fmas>
+                        <Fma name="28AXT" description="" internId="549" fmaId="0" aebInternId="321">
+                          <FailsafeOccupancy>0</FailsafeOccupancy>
+                          <Supervision logicType="0" resetDelay="10" resetType="3"/>
+                          <CountingHeads>
+                            <CountingHead name="DP4" description="" internId="854">
+                              <RefAeb>295</RefAeb>
+                              <DirectionInverse>0</DirectionInverse>
+                              <RailPosition>0</RailPosition>
+                              <Remote>0</Remote>
+                              <TimeoutId>0</TimeoutId>
+                              <DirectionDependentOccupancy>0</DirectionDependentOccupancy>
+                            </CountingHead>
+                            <CountingHead name="DP3" description="" internId="855">
+                              <RefAeb>321</RefAeb>
+                              <DirectionInverse>1</DirectionInverse>
+                              <RailPosition>0</RailPosition>
+                              <Remote>0</Remote>
+                              <TimeoutId>0</TimeoutId>
+                              <DirectionDependentOccupancy>0</DirectionDependentOccupancy>
+                            </CountingHead>
+                          </CountingHeads>
+                          <Synchronisations syncType="SAFETY"/>
+                        </Fma>
+                      </Fmas>
+                      <ConfigCountingPoints>
+                        <Interval>2</Interval>
+                        <SupervisorCount>2</SupervisorCount>
+                        <SupervisorCountLimit>0</SupervisorCountLimit>
+                        <SystemCount>2</SystemCount>
+                        <PartialCount>1</PartialCount>
+                      </ConfigCountingPoints>
+                      <ToggleSwitches resetBehaviour="7" simulationBehaviour="1"/>
+                      <Tracksection clearTrack="0" communicationFailure="0" resetRestriction="1">
+                        <Reset in="5" out="2"/>
+                        <Occupancy delay="0" extension="0"/>
+                      </Tracksection>
+                      <Wheelsensor dbv="0" digitalFilterTime="15" resetLeadTime="1" type="RSR180" typeProtectionCrc="0xb192f6cd" roadrailSuppression="0">
+                        <TrolleySuppression active="1" maxSuppressionTime="60" diameterRatio="109" axleDistance="5" speedTolerance="12"/>
+                      </Wheelsensor>
+                      <CountingHeadControls>
+                        <Control fmaInternId="549" timeoutId="0"/>
+                        <Control fmaInternId="544" timeoutId="0"/>
+                      </CountingHeadControls>
+                      <IoExbBehaviour in1="6" in2="6" in3="6" resetOpterationTimeInMs="500" toggleSwitches="7"/>
+                      <IoExbControl inputSv="0" positionInputSv="0" inputChc="0" positionInputChc="0" timeoutId="0"/>
+                    </Aeb>
+                    <IoExb name="ACO" description="" internId="325" slotId="14">
+                      <RefAeb>321</RefAeb>
+                      <AxleCountingOutput>
+                        <OutputFma1 timeout="0" typeAux1="0" aux1="3" aux1NoNc="0" typeAux2="0" aux2="3" aux2NoNc="0" clearOccupied="0">549</OutputFma1>
+                        <OutputFma2 timeout="0" typeAux1="0" aux1="3" aux1NoNc="0" typeAux2="0" aux2="3" aux2NoNc="0" clearOccupied="0">549</OutputFma2>
+                      </AxleCountingOutput>
+                    </IoExb>
+                  </Children>
+                </Bp>
+                <Bp name="A5" description="" internId="211" positionOnRack="5">
+                  <Parameter>
+                    <StartSlotId>15</StartSlotId>
+                    <BpType>BP_EXB1</BpType>
+                    <CanConnections next="216" previous="208"/>
+                  </Parameter>
+                  <Children>
+                    <Aeb name="AEB_DP5" description="" internId="326" slotId="15" cpName="DP5" dontUseTypeProtectedValues="0">
+                      <Id>220</Id>
+                      <Information device="GS04" rsrType="RSR180"/>
+                      <DipSwitch14>false</DipSwitch14>
+                      <AnalogDoubleUsageDisabled>true</AnalogDoubleUsageDisabled>
+                      <Timeouts>
+                        <Timeout id="0">340</Timeout>
+                        <Timeout id="1">610</Timeout>
+                      </Timeouts>
+                      <Fmas>
+                        <Fma name="31AXT" description="" internId="555" fmaId="0" aebInternId="326">
+                          <FailsafeOccupancy>0</FailsafeOccupancy>
+                          <Supervision logicType="0" resetDelay="10" resetType="3"/>
+                          <CountingHeads>
+                            <CountingHead name="DP7" description="" internId="869">
+                              <RefAeb>303</RefAeb>
+                              <DirectionInverse>0</DirectionInverse>
+                              <RailPosition>0</RailPosition>
+                              <Remote>0</Remote>
+                              <TimeoutId>0</TimeoutId>
+                              <DirectionDependentOccupancy>0</DirectionDependentOccupancy>
+                            </CountingHead>
+                            <CountingHead name="DP5" description="" internId="870">
+                              <RefAeb>326</RefAeb>
+                              <DirectionInverse>0</DirectionInverse>
+                              <RailPosition>0</RailPosition>
+                              <Remote>0</Remote>
+                              <TimeoutId>0</TimeoutId>
+                              <DirectionDependentOccupancy>0</DirectionDependentOccupancy>
+                            </CountingHead>
+                            <CountingHead name="DP4" description="" internId="871">
+                              <RefAeb>295</RefAeb>
+                              <DirectionInverse>1</DirectionInverse>
+                              <RailPosition>0</RailPosition>
+                              <Remote>0</Remote>
+                              <TimeoutId>0</TimeoutId>
+                              <DirectionDependentOccupancy>0</DirectionDependentOccupancy>
+                            </CountingHead>
+                          </CountingHeads>
+                          <Synchronisations syncType="SAFETY"/>
+                        </Fma>
+                        <Fma name="31BXT" description="" internId="560" fmaId="1" aebInternId="326">
+                          <FailsafeOccupancy>0</FailsafeOccupancy>
+                          <Supervision logicType="0" resetDelay="10" resetType="3"/>
+                          <CountingHeads>
+                            <CountingHead name="DP6" description="" internId="875">
+                              <RefAeb>299</RefAeb>
+                              <DirectionInverse>0</DirectionInverse>
+                              <RailPosition>0</RailPosition>
+                              <Remote>0</Remote>
+                              <TimeoutId>0</TimeoutId>
+                              <DirectionDependentOccupancy>0</DirectionDependentOccupancy>
+                            </CountingHead>
+                            <CountingHead name="DP5" description="" internId="876">
+                              <RefAeb>326</RefAeb>
+                              <DirectionInverse>1</DirectionInverse>
+                              <RailPosition>0</RailPosition>
+                              <Remote>0</Remote>
+                              <TimeoutId>0</TimeoutId>
+                              <DirectionDependentOccupancy>0</DirectionDependentOccupancy>
+                            </CountingHead>
+                          </CountingHeads>
+                          <Synchronisations syncType="SAFETY"/>
+                        </Fma>
+                      </Fmas>
+                      <ConfigCountingPoints>
+                        <Interval>2</Interval>
+                        <SupervisorCount>2</SupervisorCount>
+                        <SupervisorCountLimit>0</SupervisorCountLimit>
+                        <SystemCount>2</SystemCount>
+                        <PartialCount>1</PartialCount>
+                      </ConfigCountingPoints>
+                      <ToggleSwitches resetBehaviour="7" simulationBehaviour="1"/>
+                      <Tracksection clearTrack="0" communicationFailure="0" resetRestriction="1">
+                        <Reset in="5" out="1"/>
+                        <Occupancy delay="0" extension="0"/>
+                      </Tracksection>
+                      <Wheelsensor dbv="0" digitalFilterTime="15" resetLeadTime="1" type="RSR180" typeProtectionCrc="0xb192f6cd" roadrailSuppression="0">
+                        <TrolleySuppression active="1" maxSuppressionTime="60" diameterRatio="109" axleDistance="5" speedTolerance="12"/>
+                      </Wheelsensor>
+                      <CountingHeadControls>
+                        <Control fmaInternId="555" timeoutId="0"/>
+                        <Control fmaInternId="560" timeoutId="0"/>
+                      </CountingHeadControls>
+                      <IoExbBehaviour in1="6" in2="6" in3="6" resetOpterationTimeInMs="500" toggleSwitches="7"/>
+                      <IoExbControl inputSv="0" positionInputSv="0" inputChc="0" positionInputChc="0" timeoutId="0"/>
+                    </Aeb>
+                    <IoExb name="ACO" description="" internId="330" slotId="16">
+                      <RefAeb>326</RefAeb>
+                      <AxleCountingOutput>
+                        <OutputFma1 timeout="0" typeAux1="0" aux1="3" aux1NoNc="0" typeAux2="0" aux2="3" aux2NoNc="0" clearOccupied="0">555</OutputFma1>
+                        <OutputFma2 timeout="0" typeAux1="0" aux1="3" aux1NoNc="0" typeAux2="0" aux2="3" aux2NoNc="0" clearOccupied="0">560</OutputFma2>
+                      </AxleCountingOutput>
+                    </IoExb>
+                  </Children>
+                </Bp>
+              </Children>
+            </Rack>
+            <Rack name="BGT-2" description="" internId="188" height="3" rackSlot="1">
+              <Parameter>
+                <RackType>BGT_07</RackType>
+              </Parameter>
+              <Children>
+                <Bp name="B1" description="" internId="214" positionOnRack="1">
+                  <Parameter>
+                    <StartSlotId>17</StartSlotId>
+                    <BpType>BP_PWR0</BpType>
+                    <CanConnections/>
+                  </Parameter>
+                  <Children>
+                    <Psc name="PSC-M" description="ACC1-B1" internId="279" slotId="17" redundantPsc="280">
+                      <PwrConnections>
+                        <ConnectedBp>214</ConnectedBp>
+                        <ConnectedBp>216</ConnectedBp>
+                        <ConnectedBp>226</ConnectedBp>
+                        <ConnectedBp>229</ConnectedBp>
+                        <ConnectedBp>232</ConnectedBp>
+                      </PwrConnections>
+                    </Psc>
+                  </Children>
+                </Bp>
+                <Bp name="B2" description="" internId="216" positionOnRack="2">
+                  <Parameter>
+                    <StartSlotId>18</StartSlotId>
+                    <BpType>BP_PWR8</BpType>
+                    <CanConnections next="226" previous="211"/>
+                  </Parameter>
+                  <Children>
+                    <Psc name="PSC-R" description="ACC1-B2" internId="280" slotId="18" redundantPsc="279">
+                      <PwrConnections>
+                        <ConnectedBp>216</ConnectedBp>
+                        <ConnectedBp>214</ConnectedBp>
+                        <ConnectedBp>226</ConnectedBp>
+                        <ConnectedBp>229</ConnectedBp>
+                        <ConnectedBp>232</ConnectedBp>
+                      </PwrConnections>
+                    </Psc>
+                    <Com name="COM-AdC(R)" description="" internId="290" slotId="19">
+                      <Id>291</Id>
+                      <ComType>COM_ADC</ComType>
+                      <ComMode>SLAVE</ComMode>
+                      <ConfigurationServer>true</ConfigurationServer>
+                      <ComVersion>GS02</ComVersion>
+                      <DipSwitch12>false</DipSwitch12>
+                      <IpSwitching ipSwitchoverTime="10">false</IpSwitching>
+                      <Interval>2</Interval>
+                      <NtpIpAddressNetwork1 ip=""/>
+                      <NtpIpAddressNetwork2 ip=""/>
+                      <NtpSyncInterval>0</NtpSyncInterval>
+                      <NtpDscp>0</NtpDscp>
+                    </Com>
+                    <Aeb name="AEB_DP14" description="" internId="331" slotId="20" cpName="DP14" dontUseTypeProtectedValues="0">
+                      <Id>221</Id>
+                      <Information device="GS04" rsrType="RSR180"/>
+                      <DipSwitch14>false</DipSwitch14>
+                      <AnalogDoubleUsageDisabled>true</AnalogDoubleUsageDisabled>
+                      <Timeouts>
+                        <Timeout id="0">340</Timeout>
+                        <Timeout id="1">610</Timeout>
+                      </Timeouts>
+                      <ConfigCountingPoints>
+                        <Interval>2</Interval>
+                        <SupervisorCount>2</SupervisorCount>
+                        <SupervisorCountLimit>0</SupervisorCountLimit>
+                        <SystemCount>2</SystemCount>
+                        <PartialCount>1</PartialCount>
+                      </ConfigCountingPoints>
+                      <ToggleSwitches resetBehaviour="7" simulationBehaviour="1"/>
+                      <Tracksection clearTrack="0" communicationFailure="0" resetRestriction="1">
+                        <Reset in="5" out="1"/>
+                        <Occupancy delay="0" extension="0"/>
+                      </Tracksection>
+                      <Wheelsensor dbv="0" digitalFilterTime="15" resetLeadTime="1" type="RSR180" typeProtectionCrc="0xb192f6cd" roadrailSuppression="0">
+                        <TrolleySuppression active="1" maxSuppressionTime="60" diameterRatio="109" axleDistance="5" speedTolerance="12"/>
+                      </Wheelsensor>
+                      <CountingHeadControls>
+                        <Control fmaInternId="792" timeoutId="0"/>
+                        <Control fmaInternId="576" timeoutId="0"/>
+                      </CountingHeadControls>
+                      <IoExbBehaviour in1="6" in2="6" in3="6" resetOpterationTimeInMs="500" toggleSwitches="7"/>
+                      <IoExbControl inputSv="0" positionInputSv="0" inputChc="0" positionInputChc="0" timeoutId="0"/>
+                    </Aeb>
+                    <Aeb name="AEB_DP15" description="" internId="335" slotId="21" cpName="DP15" dontUseTypeProtectedValues="0">
+                      <Id>222</Id>
+                      <Information device="GS04" rsrType="RSR180"/>
+                      <DipSwitch14>false</DipSwitch14>
+                      <AnalogDoubleUsageDisabled>true</AnalogDoubleUsageDisabled>
+                      <Timeouts>
+                        <Timeout id="0">340</Timeout>
+                        <Timeout id="1">610</Timeout>
+                      </Timeouts>
+                      <ConfigCountingPoints>
+                        <Interval>2</Interval>
+                        <SupervisorCount>2</SupervisorCount>
+                        <SupervisorCountLimit>0</SupervisorCountLimit>
+                        <SystemCount>2</SystemCount>
+                        <PartialCount>1</PartialCount>
+                      </ConfigCountingPoints>
+                      <ToggleSwitches resetBehaviour="7" simulationBehaviour="1"/>
+                      <Tracksection clearTrack="0" communicationFailure="0" resetRestriction="1">
+                        <Reset in="5" out="1"/>
+                        <Occupancy delay="0" extension="0"/>
+                      </Tracksection>
+                      <Wheelsensor dbv="0" digitalFilterTime="15" resetLeadTime="1" type="RSR180" typeProtectionCrc="0xb192f6cd" roadrailSuppression="0">
+                        <TrolleySuppression active="1" maxSuppressionTime="60" diameterRatio="109" axleDistance="5" speedTolerance="12"/>
+                      </Wheelsensor>
+                      <CountingHeadControls>
+                        <Control fmaInternId="787" timeoutId="0"/>
+                        <Control fmaInternId="587" timeoutId="0"/>
+                      </CountingHeadControls>
+                      <IoExbBehaviour in1="6" in2="6" in3="6" resetOpterationTimeInMs="500" toggleSwitches="7"/>
+                      <IoExbControl inputSv="0" positionInputSv="0" inputChc="0" positionInputChc="0" timeoutId="0"/>
+                    </Aeb>
+                    <Aeb name="AEB_DP17" description="" internId="339" slotId="22" cpName="DP17" dontUseTypeProtectedValues="0">
+                      <Id>223</Id>
+                      <Information device="GS04" rsrType="RSR180"/>
+                      <DipSwitch14>false</DipSwitch14>
+                      <AnalogDoubleUsageDisabled>true</AnalogDoubleUsageDisabled>
+                      <Timeouts>
+                        <Timeout id="0">340</Timeout>
+                        <Timeout id="1">610</Timeout>
+                      </Timeouts>
+                      <ConfigCountingPoints>
+                        <Interval>2</Interval>
+                        <SupervisorCount>2</SupervisorCount>
+                        <SupervisorCountLimit>0</SupervisorCountLimit>
+                        <SystemCount>2</SystemCount>
+                        <PartialCount>1</PartialCount>
+                      </ConfigCountingPoints>
+                      <ToggleSwitches resetBehaviour="7" simulationBehaviour="1"/>
+                      <Tracksection clearTrack="0" communicationFailure="0" resetRestriction="1">
+                        <Reset in="5" out="1"/>
+                        <Occupancy delay="0" extension="0"/>
+                      </Tracksection>
+                      <Wheelsensor dbv="0" digitalFilterTime="15" resetLeadTime="1" type="RSR180" typeProtectionCrc="0xb192f6cd" roadrailSuppression="0">
+                        <TrolleySuppression active="1" maxSuppressionTime="60" diameterRatio="109" axleDistance="5" speedTolerance="12"/>
+                      </Wheelsensor>
+                      <CountingHeadControls>
+                        <Control fmaInternId="797" timeoutId="0"/>
+                        <Control fmaInternId="787" timeoutId="0"/>
+                      </CountingHeadControls>
+                      <IoExbBehaviour in1="6" in2="6" in3="6" resetOpterationTimeInMs="500" toggleSwitches="7"/>
+                      <IoExbControl inputSv="0" positionInputSv="0" inputChc="0" positionInputChc="0" timeoutId="0"/>
+                    </Aeb>
+                    <Aeb name="AEB_DP18" description="" internId="343" slotId="23" cpName="DP18" dontUseTypeProtectedValues="0">
+                      <Id>224</Id>
+                      <Information device="GS04" rsrType="RSR180"/>
+                      <DipSwitch14>false</DipSwitch14>
+                      <AnalogDoubleUsageDisabled>true</AnalogDoubleUsageDisabled>
+                      <Timeouts>
+                        <Timeout id="0">340</Timeout>
+                        <Timeout id="1">610</Timeout>
+                      </Timeouts>
+                      <ConfigCountingPoints>
+                        <Interval>2</Interval>
+                        <SupervisorCount>2</SupervisorCount>
+                        <SupervisorCountLimit>0</SupervisorCountLimit>
+                        <SystemCount>2</SystemCount>
+                        <PartialCount>1</PartialCount>
+                      </ConfigCountingPoints>
+                      <ToggleSwitches resetBehaviour="7" simulationBehaviour="1"/>
+                      <Tracksection clearTrack="0" communicationFailure="0" resetRestriction="1">
+                        <Reset in="5" out="1"/>
+                        <Occupancy delay="0" extension="0"/>
+                      </Tracksection>
+                      <Wheelsensor dbv="0" digitalFilterTime="15" resetLeadTime="1" type="RSR180" typeProtectionCrc="0xb192f6cd" roadrailSuppression="0">
+                        <TrolleySuppression active="1" maxSuppressionTime="60" diameterRatio="109" axleDistance="5" speedTolerance="12"/>
+                      </Wheelsensor>
+                      <IoExbBehaviour in1="6" in2="6" in3="6" resetOpterationTimeInMs="500" toggleSwitches="7"/>
+                      <IoExbControl inputSv="0" positionInputSv="0" inputChc="0" positionInputChc="0" timeoutId="0"/>
+                    </Aeb>
+                    <Aeb name="AEB_DP19" description="" internId="347" slotId="24" cpName="DP19" dontUseTypeProtectedValues="0">
+                      <Id>225</Id>
+                      <Information device="GS04" rsrType="RSR180"/>
+                      <DipSwitch14>false</DipSwitch14>
+                      <AnalogDoubleUsageDisabled>true</AnalogDoubleUsageDisabled>
+                      <Timeouts>
+                        <Timeout id="0">340</Timeout>
+                        <Timeout id="1">610</Timeout>
+                      </Timeouts>
+                      <ConfigCountingPoints>
+                        <Interval>2</Interval>
+                        <SupervisorCount>2</SupervisorCount>
+                        <SupervisorCountLimit>0</SupervisorCountLimit>
+                        <SystemCount>2</SystemCount>
+                        <PartialCount>1</PartialCount>
+                      </ConfigCountingPoints>
+                      <ToggleSwitches resetBehaviour="7" simulationBehaviour="1"/>
+                      <Tracksection clearTrack="0" communicationFailure="0" resetRestriction="1">
+                        <Reset in="5" out="1"/>
+                        <Occupancy delay="0" extension="0"/>
+                      </Tracksection>
+                      <Wheelsensor dbv="0" digitalFilterTime="15" resetLeadTime="1" type="RSR180" typeProtectionCrc="0xb192f6cd" roadrailSuppression="0">
+                        <TrolleySuppression active="1" maxSuppressionTime="60" diameterRatio="109" axleDistance="5" speedTolerance="12"/>
+                      </Wheelsensor>
+                      <CountingHeadControls>
+                        <Control fmaInternId="802" timeoutId="0"/>
+                        <Control fmaInternId="776" timeoutId="0"/>
+                      </CountingHeadControls>
+                      <IoExbBehaviour in1="6" in2="6" in3="6" resetOpterationTimeInMs="500" toggleSwitches="7"/>
+                      <IoExbControl inputSv="0" positionInputSv="0" inputChc="0" positionInputChc="0" timeoutId="0"/>
+                    </Aeb>
+                    <Aeb name="AEB_DP21" description="" internId="351" slotId="25" cpName="DP21" dontUseTypeProtectedValues="0">
+                      <Id>226</Id>
+                      <Information device="GS04" rsrType="RSR180"/>
+                      <DipSwitch14>false</DipSwitch14>
+                      <AnalogDoubleUsageDisabled>true</AnalogDoubleUsageDisabled>
+                      <Timeouts>
+                        <Timeout id="0">340</Timeout>
+                        <Timeout id="1">610</Timeout>
+                      </Timeouts>
+                      <ConfigCountingPoints>
+                        <Interval>2</Interval>
+                        <SupervisorCount>2</SupervisorCount>
+                        <SupervisorCountLimit>0</SupervisorCountLimit>
+                        <SystemCount>2</SystemCount>
+                        <PartialCount>1</PartialCount>
+                      </ConfigCountingPoints>
+                      <ToggleSwitches resetBehaviour="7" simulationBehaviour="1"/>
+                      <Tracksection clearTrack="0" communicationFailure="0" resetRestriction="1">
+                        <Reset in="5" out="1"/>
+                        <Occupancy delay="0" extension="0"/>
+                      </Tracksection>
+                      <Wheelsensor dbv="0" digitalFilterTime="15" resetLeadTime="1" type="RSR180" typeProtectionCrc="0xb192f6cd" roadrailSuppression="0">
+                        <TrolleySuppression active="1" maxSuppressionTime="60" diameterRatio="109" axleDistance="5" speedTolerance="12"/>
+                      </Wheelsensor>
+                      <CountingHeadControls>
+                        <Control fmaInternId="813" timeoutId="0"/>
+                        <Control fmaInternId="797" timeoutId="0"/>
+                      </CountingHeadControls>
+                      <IoExbBehaviour in1="6" in2="6" in3="6" resetOpterationTimeInMs="500" toggleSwitches="7"/>
+                      <IoExbControl inputSv="0" positionInputSv="0" inputChc="0" positionInputChc="0" timeoutId="0"/>
+                    </Aeb>
+                    <BlankingPlate name="" description="" internId="355" slotId="26" pitchUnits="4"/>
+                  </Children>
+                </Bp>
+                <Bp name="B3" description="" internId="226" positionOnRack="3">
+                  <Parameter>
+                    <StartSlotId>27</StartSlotId>
+                    <BpType>BP_EXB1</BpType>
+                    <CanConnections next="229" previous="216"/>
+                  </Parameter>
+                  <Children>
+                    <Aeb name="AEB_DP8" description="" internId="356" slotId="27" cpName="DP8" dontUseTypeProtectedValues="0">
+                      <Id>228</Id>
+                      <Information device="GS04" rsrType="RSR180"/>
+                      <DipSwitch14>false</DipSwitch14>
+                      <AnalogDoubleUsageDisabled>true</AnalogDoubleUsageDisabled>
+                      <Timeouts>
+                        <Timeout id="0">340</Timeout>
+                        <Timeout id="1">610</Timeout>
+                      </Timeouts>
+                      <Fmas>
+                        <Fma name="33AXT" description="" internId="565" fmaId="0" aebInternId="356">
+                          <FailsafeOccupancy>0</FailsafeOccupancy>
+                          <Supervision logicType="0" resetDelay="10" resetType="3"/>
+                          <CountingHeads>
+                            <CountingHead name="DP9" description="" internId="880">
+                              <RefAeb>307</RefAeb>
+                              <DirectionInverse>0</DirectionInverse>
+                              <RailPosition>0</RailPosition>
+                              <Remote>0</Remote>
+                              <TimeoutId>0</TimeoutId>
+                              <DirectionDependentOccupancy>0</DirectionDependentOccupancy>
+                            </CountingHead>
+                            <CountingHead name="DP8" description="" internId="881">
+                              <RefAeb>356</RefAeb>
+                              <DirectionInverse>0</DirectionInverse>
+                              <RailPosition>0</RailPosition>
+                              <Remote>0</Remote>
+                              <TimeoutId>0</TimeoutId>
+                              <DirectionDependentOccupancy>0</DirectionDependentOccupancy>
+                            </CountingHead>
+                            <CountingHead name="DP7" description="" internId="882">
+                              <RefAeb>303</RefAeb>
+                              <DirectionInverse>1</DirectionInverse>
+                              <RailPosition>0</RailPosition>
+                              <Remote>0</Remote>
+                              <TimeoutId>0</TimeoutId>
+                              <DirectionDependentOccupancy>0</DirectionDependentOccupancy>
+                            </CountingHead>
+                          </CountingHeads>
+                          <Synchronisations syncType="SAFETY"/>
+                        </Fma>
+                        <Fma name="33BXT" description="" internId="570" fmaId="1" aebInternId="356">
+                          <FailsafeOccupancy>0</FailsafeOccupancy>
+                          <Supervision logicType="0" resetDelay="10" resetType="3"/>
+                          <CountingHeads>
+                            <CountingHead name="DP10" description="" internId="886">
+                              <RefAeb>311</RefAeb>
+                              <DirectionInverse>0</DirectionInverse>
+                              <RailPosition>0</RailPosition>
+                              <Remote>0</Remote>
+                              <TimeoutId>0</TimeoutId>
+                              <DirectionDependentOccupancy>0</DirectionDependentOccupancy>
+                            </CountingHead>
+                            <CountingHead name="DP8" description="" internId="887">
+                              <RefAeb>356</RefAeb>
+                              <DirectionInverse>1</DirectionInverse>
+                              <RailPosition>0</RailPosition>
+                              <Remote>0</Remote>
+                              <TimeoutId>0</TimeoutId>
+                              <DirectionDependentOccupancy>0</DirectionDependentOccupancy>
+                            </CountingHead>
+                          </CountingHeads>
+                          <Synchronisations syncType="SAFETY"/>
+                        </Fma>
+                      </Fmas>
+                      <ConfigCountingPoints>
+                        <Interval>2</Interval>
+                        <SupervisorCount>2</SupervisorCount>
+                        <SupervisorCountLimit>0</SupervisorCountLimit>
+                        <SystemCount>2</SystemCount>
+                        <PartialCount>1</PartialCount>
+                      </ConfigCountingPoints>
+                      <ToggleSwitches resetBehaviour="7" simulationBehaviour="1"/>
+                      <Tracksection clearTrack="0" communicationFailure="0" resetRestriction="1">
+                        <Reset in="5" out="1"/>
+                        <Occupancy delay="0" extension="0"/>
+                      </Tracksection>
+                      <Wheelsensor dbv="0" digitalFilterTime="15" resetLeadTime="1" type="RSR180" typeProtectionCrc="b192f6cd" roadrailSuppression="0">
+                        <TrolleySuppression active="1" maxSuppressionTime="60" diameterRatio="109" axleDistance="5" speedTolerance="12"/>
+                      </Wheelsensor>
+                      <CountingHeadControls>
+                        <Control fmaInternId="565" timeoutId="0"/>
+                        <Control fmaInternId="570" timeoutId="0"/>
+                      </CountingHeadControls>
+                      <IoExbBehaviour in1="6" in2="6" in3="6" resetOpterationTimeInMs="500" toggleSwitches="7"/>
+                      <IoExbControl inputSv="0" positionInputSv="0" inputChc="0" positionInputChc="0" timeoutId="0"/>
+                    </Aeb>
+                    <IoExb name="ACO" description="" internId="360" slotId="28">
+                      <RefAeb>356</RefAeb>
+                      <AxleCountingOutput>
+                        <OutputFma1 timeout="0" typeAux1="0" aux1="3" aux1NoNc="0" typeAux2="0" aux2="3" aux2NoNc="0" clearOccupied="0">565</OutputFma1>
+                        <OutputFma2 timeout="0" typeAux1="0" aux1="3" aux1NoNc="0" typeAux2="0" aux2="3" aux2NoNc="0" clearOccupied="0">570</OutputFma2>
+                      </AxleCountingOutput>
+                    </IoExb>
+                  </Children>
+                </Bp>
+                <Bp name="B4" description="" internId="229" positionOnRack="4">
+                  <Parameter>
+                    <StartSlotId>29</StartSlotId>
+                    <BpType>BP_EXB1</BpType>
+                    <CanConnections next="232" previous="226"/>
+                  </Parameter>
+                  <Children>
+                    <Aeb name="AEB_DP11" description="" internId="361" slotId="29" cpName="DP11" dontUseTypeProtectedValues="0">
+                      <Id>229</Id>
+                      <Information device="GS04" rsrType="RSR180"/>
+                      <DipSwitch14>false</DipSwitch14>
+                      <AnalogDoubleUsageDisabled>true</AnalogDoubleUsageDisabled>
+                      <Timeouts>
+                        <Timeout id="0">340</Timeout>
+                        <Timeout id="1">610</Timeout>
+                      </Timeouts>
+                      <Fmas>
+                        <Fma name="L1XT1" description="" internId="576" fmaId="0" aebInternId="361">
+                          <FailsafeOccupancy>0</FailsafeOccupancy>
+                          <Supervision logicType="0" resetDelay="10" resetType="3"/>
+                          <CountingHeads>
+                            <CountingHead name="DP14" description="" internId="891">
+                              <RefAeb>331</RefAeb>
+                              <DirectionInverse>0</DirectionInverse>
+                              <RailPosition>0</RailPosition>
+                              <Remote>0</Remote>
+                              <TimeoutId>0</TimeoutId>
+                              <DirectionDependentOccupancy>0</DirectionDependentOccupancy>
+                            </CountingHead>
+                            <CountingHead name="DP11" description="" internId="892">
+                              <RefAeb>361</RefAeb>
+                              <DirectionInverse>1</DirectionInverse>
+                              <RailPosition>0</RailPosition>
+                              <Remote>0</Remote>
+                              <TimeoutId>0</TimeoutId>
+                              <DirectionDependentOccupancy>0</DirectionDependentOccupancy>
+                            </CountingHead>
+                          </CountingHeads>
+                          <Synchronisations syncType="SAFETY"/>
+                        </Fma>
+                        <Fma name="L1XT2" description="" internId="581" fmaId="1" aebInternId="361">
+                          <FailsafeOccupancy>0</FailsafeOccupancy>
+                          <Supervision logicType="0" resetDelay="10" resetType="3"/>
+                          <CountingHeads>
+                            <CountingHead name="DP11" description="" internId="898">
+                              <RefAeb>361</RefAeb>
+                              <DirectionInverse>0</DirectionInverse>
+                              <RailPosition>0</RailPosition>
+                              <Remote>0</Remote>
+                              <TimeoutId>0</TimeoutId>
+                              <DirectionDependentOccupancy>0</DirectionDependentOccupancy>
+                            </CountingHead>
+                            <CountingHead name="DP6" description="" internId="899">
+                              <RefAeb>299</RefAeb>
+                              <DirectionInverse>1</DirectionInverse>
+                              <RailPosition>0</RailPosition>
+                              <Remote>0</Remote>
+                              <TimeoutId>0</TimeoutId>
+                              <DirectionDependentOccupancy>0</DirectionDependentOccupancy>
+                            </CountingHead>
+                          </CountingHeads>
+                          <Synchronisations syncType="SAFETY"/>
+                        </Fma>
+                      </Fmas>
+                      <ConfigCountingPoints>
+                        <Interval>2</Interval>
+                        <SupervisorCount>2</SupervisorCount>
+                        <SupervisorCountLimit>0</SupervisorCountLimit>
+                        <SystemCount>2</SystemCount>
+                        <PartialCount>1</PartialCount>
+                      </ConfigCountingPoints>
+                      <ToggleSwitches resetBehaviour="7" simulationBehaviour="1"/>
+                      <Tracksection clearTrack="0" communicationFailure="0" resetRestriction="1">
+                        <Reset in="5" out="1"/>
+                        <Occupancy delay="0" extension="0"/>
+                      </Tracksection>
+                      <Wheelsensor dbv="0" digitalFilterTime="15" resetLeadTime="1" type="RSR180" typeProtectionCrc="b192f6cd" roadrailSuppression="0">
+                        <TrolleySuppression active="1" maxSuppressionTime="60" diameterRatio="109" axleDistance="5" speedTolerance="12"/>
+                      </Wheelsensor>
+                      <CountingHeadControls>
+                        <Control fmaInternId="576" timeoutId="0"/>
+                        <Control fmaInternId="581" timeoutId="0"/>
+                      </CountingHeadControls>
+                      <IoExbBehaviour in1="6" in2="6" in3="6" resetOpterationTimeInMs="500" toggleSwitches="7"/>
+                      <IoExbControl inputSv="0" positionInputSv="0" inputChc="0" positionInputChc="0" timeoutId="0"/>
+                    </Aeb>
+                    <IoExb name="ACO" description="" internId="365" slotId="30">
+                      <RefAeb>361</RefAeb>
+                      <AxleCountingOutput>
+                        <OutputFma1 timeout="0" typeAux1="0" aux1="3" aux1NoNc="0" typeAux2="0" aux2="3" aux2NoNc="0" clearOccupied="0">576</OutputFma1>
+                        <OutputFma2 timeout="0" typeAux1="0" aux1="3" aux1NoNc="0" typeAux2="0" aux2="3" aux2NoNc="0" clearOccupied="0">581</OutputFma2>
+                      </AxleCountingOutput>
+                    </IoExb>
+                  </Children>
+                </Bp>
+                <Bp name="B5" description="" internId="232" positionOnRack="5">
+                  <Parameter>
+                    <StartSlotId>31</StartSlotId>
+                    <BpType>BP_EXB1</BpType>
+                    <CanConnections next="673" previous="229"/>
+                  </Parameter>
+                  <Children>
+                    <Aeb name="AEB_DP12" description="" internId="366" slotId="31" cpName="DP12" dontUseTypeProtectedValues="0">
+                      <Id>230</Id>
+                      <Information device="GS04" rsrType="RSR180"/>
+                      <DipSwitch14>false</DipSwitch14>
+                      <AnalogDoubleUsageDisabled>true</AnalogDoubleUsageDisabled>
+                      <Timeouts>
+                        <Timeout id="0">340</Timeout>
+                        <Timeout id="1">610</Timeout>
+                      </Timeouts>
+                      <Fmas>
+                        <Fma name="L2XT1" description="" internId="587" fmaId="0" aebInternId="366">
+                          <FailsafeOccupancy>0</FailsafeOccupancy>
+                          <Supervision logicType="0" resetDelay="10" resetType="3"/>
+                          <CountingHeads>
+                            <CountingHead name="DP15" description="" internId="904">
+                              <RefAeb>335</RefAeb>
+                              <DirectionInverse>0</DirectionInverse>
+                              <RailPosition>0</RailPosition>
+                              <Remote>0</Remote>
+                              <TimeoutId>0</TimeoutId>
+                              <DirectionDependentOccupancy>0</DirectionDependentOccupancy>
+                            </CountingHead>
+                            <CountingHead name="DP12" description="" internId="905">
+                              <RefAeb>366</RefAeb>
+                              <DirectionInverse>1</DirectionInverse>
+                              <RailPosition>0</RailPosition>
+                              <Remote>0</Remote>
+                              <TimeoutId>0</TimeoutId>
+                              <DirectionDependentOccupancy>0</DirectionDependentOccupancy>
+                            </CountingHead>
+                          </CountingHeads>
+                          <Synchronisations syncType="SAFETY"/>
+                        </Fma>
+                        <Fma name="L2XT2" description="" internId="592" fmaId="1" aebInternId="366">
+                          <FailsafeOccupancy>0</FailsafeOccupancy>
+                          <Supervision logicType="0" resetDelay="10" resetType="3"/>
+                          <CountingHeads>
+                            <CountingHead name="DP12" description="" internId="909">
+                              <RefAeb>366</RefAeb>
+                              <DirectionInverse>0</DirectionInverse>
+                              <RailPosition>0</RailPosition>
+                              <Remote>0</Remote>
+                              <TimeoutId>0</TimeoutId>
+                              <DirectionDependentOccupancy>0</DirectionDependentOccupancy>
+                            </CountingHead>
+                            <CountingHead name="DP9" description="" internId="910">
+                              <RefAeb>307</RefAeb>
+                              <DirectionInverse>1</DirectionInverse>
+                              <RailPosition>0</RailPosition>
+                              <Remote>0</Remote>
+                              <TimeoutId>0</TimeoutId>
+                              <DirectionDependentOccupancy>0</DirectionDependentOccupancy>
+                            </CountingHead>
+                          </CountingHeads>
+                          <Synchronisations syncType="SAFETY"/>
+                        </Fma>
+                      </Fmas>
+                      <ConfigCountingPoints>
+                        <Interval>2</Interval>
+                        <SupervisorCount>2</SupervisorCount>
+                        <SupervisorCountLimit>0</SupervisorCountLimit>
+                        <SystemCount>2</SystemCount>
+                        <PartialCount>1</PartialCount>
+                      </ConfigCountingPoints>
+                      <ToggleSwitches resetBehaviour="7" simulationBehaviour="1"/>
+                      <Tracksection clearTrack="0" communicationFailure="0" resetRestriction="1">
+                        <Reset in="5" out="2"/>
+                        <Occupancy delay="0" extension="0"/>
+                      </Tracksection>
+                      <Wheelsensor dbv="0" digitalFilterTime="15" resetLeadTime="1" type="RSR180" typeProtectionCrc="0xb192f6cd" roadrailSuppression="0">
+                        <TrolleySuppression active="1" maxSuppressionTime="60" diameterRatio="109" axleDistance="5" speedTolerance="12"/>
+                      </Wheelsensor>
+                      <CountingHeadControls>
+                        <Control fmaInternId="587" timeoutId="0"/>
+                        <Control fmaInternId="592" timeoutId="0"/>
+                      </CountingHeadControls>
+                      <IoExbBehaviour in1="6" in2="6" in3="6" resetOpterationTimeInMs="500" toggleSwitches="7"/>
+                      <IoExbControl inputSv="0" positionInputSv="0" inputChc="0" positionInputChc="0" timeoutId="0"/>
+                    </Aeb>
+                    <IoExb name="ACO" description="" internId="370" slotId="32">
+                      <RefAeb>366</RefAeb>
+                      <AxleCountingOutput>
+                        <OutputFma1 timeout="0" typeAux1="0" aux1="3" aux1NoNc="0" typeAux2="0" aux2="3" aux2NoNc="0" clearOccupied="0">587</OutputFma1>
+                        <OutputFma2 timeout="0" typeAux1="0" aux1="3" aux1NoNc="0" typeAux2="0" aux2="3" aux2NoNc="0" clearOccupied="0">592</OutputFma2>
+                      </AxleCountingOutput>
+                    </IoExb>
+                  </Children>
+                </Bp>
+              </Children>
+            </Rack>
+            <Rack name="BGT-3" description="" internId="190" height="3" rackSlot="2">
+              <Parameter>
+                <RackType>BGT_07</RackType>
+              </Parameter>
+              <Children>
+                <Bp name="C1" description="" internId="235" positionOnRack="1">
+                  <Parameter>
+                    <StartSlotId>33</StartSlotId>
+                    <BpType>BP_PWR0</BpType>
+                    <CanConnections/>
+                  </Parameter>
+                  <Children>
+                    <Psc name="PSC-M" description="ACC1-C1" internId="281" slotId="33" redundantPsc="704">
+                      <PwrConnections>
+                        <ConnectedBp>235</ConnectedBp>
+                        <ConnectedBp>673</ConnectedBp>
+                        <ConnectedBp>683</ConnectedBp>
+                        <ConnectedBp>686</ConnectedBp>
+                        <ConnectedBp>689</ConnectedBp>
+                        <ConnectedBp>692</ConnectedBp>
+                        <ConnectedBp>695</ConnectedBp>
+                        <ConnectedBp>698</ConnectedBp>
+                        <ConnectedBp>701</ConnectedBp>
+                      </PwrConnections>
+                    </Psc>
+                  </Children>
+                </Bp>
+                <Bp name="C2" description="" internId="673" positionOnRack="2">
+                  <Parameter>
+                    <StartSlotId>34</StartSlotId>
+                    <BpType>BP_PWR8</BpType>
+                    <CanConnections next="683" previous="232"/>
+                  </Parameter>
+                  <Children>
+                    <Psc name="PSC-R" description="ACC1-C2" internId="704" slotId="34" redundantPsc="281">
+                      <PwrConnections>
+                        <ConnectedBp>673</ConnectedBp>
+                        <ConnectedBp>235</ConnectedBp>
+                        <ConnectedBp>683</ConnectedBp>
+                        <ConnectedBp>686</ConnectedBp>
+                        <ConnectedBp>689</ConnectedBp>
+                        <ConnectedBp>692</ConnectedBp>
+                        <ConnectedBp>695</ConnectedBp>
+                        <ConnectedBp>698</ConnectedBp>
+                        <ConnectedBp>701</ConnectedBp>
+                      </PwrConnections>
+                    </Psc>
+                    <Aeb name="AEB_DP22" description="" internId="705" slotId="35" cpName="DP22" dontUseTypeProtectedValues="0">
+                      <Id>231</Id>
+                      <Information device="GS04" rsrType="RSR180"/>
+                      <DipSwitch14>false</DipSwitch14>
+                      <AnalogDoubleUsageDisabled>true</AnalogDoubleUsageDisabled>
+                      <Timeouts>
+                        <Timeout id="0">340</Timeout>
+                        <Timeout id="1">610</Timeout>
+                      </Timeouts>
+                      <ConfigCountingPoints>
+                        <Interval>2</Interval>
+                        <SupervisorCount>2</SupervisorCount>
+                        <SupervisorCountLimit>0</SupervisorCountLimit>
+                        <SystemCount>2</SystemCount>
+                        <PartialCount>1</PartialCount>
+                      </ConfigCountingPoints>
+                      <ToggleSwitches resetBehaviour="7" simulationBehaviour="1"/>
+                      <Tracksection clearTrack="0" communicationFailure="0" resetRestriction="1">
+                        <Reset in="5" out="1"/>
+                        <Occupancy delay="0" extension="0"/>
+                      </Tracksection>
+                      <Wheelsensor dbv="0" digitalFilterTime="15" resetLeadTime="1" type="RSR180" typeProtectionCrc="0xb192f6cd" roadrailSuppression="0">
+                        <TrolleySuppression active="1" maxSuppressionTime="60" diameterRatio="109" axleDistance="5" speedTolerance="12"/>
+                      </Wheelsensor>
+                      <IoExbBehaviour in1="6" in2="6" in3="6" resetOpterationTimeInMs="500" toggleSwitches="7"/>
+                      <IoExbControl inputSv="0" positionInputSv="0" inputChc="0" positionInputChc="0" timeoutId="0"/>
+                    </Aeb>
+                    <Aeb name="AEB_DP24" description="" internId="709" slotId="36" cpName="DP24" dontUseTypeProtectedValues="0">
+                      <Id>232</Id>
+                      <Information device="GS04" rsrType="RSR180"/>
+                      <DipSwitch14>false</DipSwitch14>
+                      <AnalogDoubleUsageDisabled>true</AnalogDoubleUsageDisabled>
+                      <Timeouts>
+                        <Timeout id="0">340</Timeout>
+                        <Timeout id="1">610</Timeout>
+                      </Timeouts>
+                      <ConfigCountingPoints>
+                        <Interval>2</Interval>
+                        <SupervisorCount>2</SupervisorCount>
+                        <SupervisorCountLimit>0</SupervisorCountLimit>
+                        <SystemCount>2</SystemCount>
+                        <PartialCount>1</PartialCount>
+                      </ConfigCountingPoints>
+                      <ToggleSwitches resetBehaviour="7" simulationBehaviour="1"/>
+                      <Tracksection clearTrack="0" communicationFailure="0" resetRestriction="1">
+                        <Reset in="5" out="1"/>
+                        <Occupancy delay="0" extension="0"/>
+                      </Tracksection>
+                      <Wheelsensor dbv="0" digitalFilterTime="15" resetLeadTime="1" type="RSR180" typeProtectionCrc="0xb192f6cd" roadrailSuppression="0">
+                        <TrolleySuppression active="1" maxSuppressionTime="60" diameterRatio="109" axleDistance="5" speedTolerance="12"/>
+                      </Wheelsensor>
+                      <CountingHeadControls>
+                        <Control fmaInternId="824" timeoutId="0"/>
+                        <Control fmaInternId="808" timeoutId="0"/>
+                      </CountingHeadControls>
+                      <IoExbBehaviour in1="6" in2="6" in3="6" resetOpterationTimeInMs="500" toggleSwitches="7"/>
+                      <IoExbControl inputSv="0" positionInputSv="0" inputChc="0" positionInputChc="0" timeoutId="0"/>
+                    </Aeb>
+                    <Aeb name="AEB_DP24-A" description="" internId="713" slotId="37" cpName="DP24-A" dontUseTypeProtectedValues="0">
+                      <Id>233</Id>
+                      <Information device="GS04" rsrType="RSR180"/>
+                      <DipSwitch14>false</DipSwitch14>
+                      <AnalogDoubleUsageDisabled>true</AnalogDoubleUsageDisabled>
+                      <Timeouts>
+                        <Timeout id="0">340</Timeout>
+                        <Timeout id="1">610</Timeout>
+                      </Timeouts>
+                      <ConfigCountingPoints>
+                        <Interval>2</Interval>
+                        <SupervisorCount>2</SupervisorCount>
+                        <SupervisorCountLimit>0</SupervisorCountLimit>
+                        <SystemCount>2</SystemCount>
+                        <PartialCount>1</PartialCount>
+                      </ConfigCountingPoints>
+                      <ToggleSwitches resetBehaviour="7" simulationBehaviour="1"/>
+                      <Tracksection clearTrack="0" communicationFailure="0" resetRestriction="1">
+                        <Reset in="5" out="1"/>
+                        <Occupancy delay="0" extension="0"/>
+                      </Tracksection>
+                      <Wheelsensor dbv="0" digitalFilterTime="15" resetLeadTime="1" type="RSR180" typeProtectionCrc="0xb192f6cd" roadrailSuppression="0">
+                        <TrolleySuppression active="1" maxSuppressionTime="60" diameterRatio="109" axleDistance="5" speedTolerance="12"/>
+                      </Wheelsensor>
+                      <CountingHeadControls>
+                        <Control fmaInternId="824" timeoutId="0"/>
+                        <Control fmaInternId="818" timeoutId="0"/>
+                      </CountingHeadControls>
+                      <IoExbBehaviour in1="6" in2="6" in3="6" resetOpterationTimeInMs="500" toggleSwitches="7"/>
+                      <IoExbControl inputSv="0" positionInputSv="0" inputChc="0" positionInputChc="0" timeoutId="0"/>
+                    </Aeb>
+                    <Aeb name="AEB_DP2-A" description="" internId="717" slotId="38" cpName="DP2-A" dontUseTypeProtectedValues="0">
+                      <Id>234</Id>
+                      <Information device="GS04" rsrType="RSR180"/>
+                      <DipSwitch14>false</DipSwitch14>
+                      <AnalogDoubleUsageDisabled>true</AnalogDoubleUsageDisabled>
+                      <Timeouts>
+                        <Timeout id="0">340</Timeout>
+                        <Timeout id="1">610</Timeout>
+                      </Timeouts>
+                      <ConfigCountingPoints>
+                        <Interval>2</Interval>
+                        <SupervisorCount>2</SupervisorCount>
+                        <SupervisorCountLimit>0</SupervisorCountLimit>
+                        <SystemCount>2</SystemCount>
+                        <PartialCount>1</PartialCount>
+                      </ConfigCountingPoints>
+                      <ToggleSwitches resetBehaviour="7" simulationBehaviour="1"/>
+                      <Tracksection clearTrack="0" communicationFailure="0" resetRestriction="1">
+                        <Reset in="5" out="1"/>
+                        <Occupancy delay="0" extension="0"/>
+                      </Tracksection>
+                      <Wheelsensor dbv="0" digitalFilterTime="15" resetLeadTime="1" type="RSR180" typeProtectionCrc="0xb192f6cd" roadrailSuppression="0">
+                        <TrolleySuppression active="1" maxSuppressionTime="60" diameterRatio="109" axleDistance="5" speedTolerance="12"/>
+                      </Wheelsensor>
+                      <CountingHeadControls>
+                        <Control fmaInternId="831" timeoutId="0"/>
+                        <Control fmaInternId="539" timeoutId="0"/>
+                      </CountingHeadControls>
+                      <IoExbBehaviour in1="6" in2="6" in3="6" resetOpterationTimeInMs="500" toggleSwitches="7"/>
+                      <IoExbControl inputSv="0" positionInputSv="0" inputChc="0" positionInputChc="0" timeoutId="0"/>
+                    </Aeb>
+                    <BlankingPlate name="" description="" internId="721" slotId="39" pitchUnits="4"/>
+                    <BlankingPlate name="" description="" internId="722" slotId="40" pitchUnits="4"/>
+                    <BlankingPlate name="" description="" internId="723" slotId="41" pitchUnits="4"/>
+                    <BlankingPlate name="" description="" internId="724" slotId="42" pitchUnits="4"/>
+                  </Children>
+                </Bp>
+                <Bp name="C3" description="" internId="683" positionOnRack="3">
+                  <Parameter>
+                    <StartSlotId>43</StartSlotId>
+                    <BpType>BP_EXB1</BpType>
+                    <CanConnections next="686" previous="673"/>
+                  </Parameter>
+                  <Children>
+                    <Aeb name="AEB_DP13" description="" internId="725" slotId="43" cpName="DP13" dontUseTypeProtectedValues="0">
+                      <Id>239</Id>
+                      <Information device="GS04" rsrType="RSR180"/>
+                      <DipSwitch14>false</DipSwitch14>
+                      <AnalogDoubleUsageDisabled>true</AnalogDoubleUsageDisabled>
+                      <Timeouts>
+                        <Timeout id="0">340</Timeout>
+                        <Timeout id="1">610</Timeout>
+                      </Timeouts>
+                      <Fmas>
+                        <Fma name="L3XT1" description="" internId="776" fmaId="0" aebInternId="725">
+                          <FailsafeOccupancy>0</FailsafeOccupancy>
+                          <Supervision logicType="0" resetDelay="10" resetType="3"/>
+                          <CountingHeads>
+                            <CountingHead name="DP19" description="" internId="915">
+                              <RefAeb>347</RefAeb>
+                              <DirectionInverse>0</DirectionInverse>
+                              <RailPosition>0</RailPosition>
+                              <Remote>0</Remote>
+                              <TimeoutId>0</TimeoutId>
+                              <DirectionDependentOccupancy>0</DirectionDependentOccupancy>
+                            </CountingHead>
+                            <CountingHead name="DP13" description="" internId="916">
+                              <RefAeb>725</RefAeb>
+                              <DirectionInverse>1</DirectionInverse>
+                              <RailPosition>0</RailPosition>
+                              <Remote>0</Remote>
+                              <TimeoutId>0</TimeoutId>
+                              <DirectionDependentOccupancy>0</DirectionDependentOccupancy>
+                            </CountingHead>
+                          </CountingHeads>
+                          <Synchronisations syncType="SAFETY"/>
+                        </Fma>
+                        <Fma name="L3XT2" description="" internId="781" fmaId="1" aebInternId="725">
+                          <FailsafeOccupancy>0</FailsafeOccupancy>
+                          <Supervision logicType="0" resetDelay="10" resetType="3"/>
+                          <CountingHeads>
+                            <CountingHead name="DP13" description="" internId="920">
+                              <RefAeb>725</RefAeb>
+                              <DirectionInverse>0</DirectionInverse>
+                              <RailPosition>0</RailPosition>
+                              <Remote>0</Remote>
+                              <TimeoutId>0</TimeoutId>
+                              <DirectionDependentOccupancy>0</DirectionDependentOccupancy>
+                            </CountingHead>
+                            <CountingHead name="DP10" description="" internId="921">
+                              <RefAeb>311</RefAeb>
+                              <DirectionInverse>1</DirectionInverse>
+                              <RailPosition>0</RailPosition>
+                              <Remote>0</Remote>
+                              <TimeoutId>0</TimeoutId>
+                              <DirectionDependentOccupancy>0</DirectionDependentOccupancy>
+                            </CountingHead>
+                          </CountingHeads>
+                          <Synchronisations syncType="SAFETY"/>
+                        </Fma>
+                      </Fmas>
+                      <ConfigCountingPoints>
+                        <Interval>2</Interval>
+                        <SupervisorCount>2</SupervisorCount>
+                        <SupervisorCountLimit>0</SupervisorCountLimit>
+                        <SystemCount>2</SystemCount>
+                        <PartialCount>1</PartialCount>
+                      </ConfigCountingPoints>
+                      <ToggleSwitches resetBehaviour="7" simulationBehaviour="1"/>
+                      <Tracksection clearTrack="0" communicationFailure="0" resetRestriction="1">
+                        <Reset in="5" out="1"/>
+                        <Occupancy delay="0" extension="0"/>
+                      </Tracksection>
+                      <Wheelsensor dbv="0" digitalFilterTime="15" resetLeadTime="1" type="RSR180" typeProtectionCrc="b192f6cd" roadrailSuppression="0">
+                        <TrolleySuppression active="1" maxSuppressionTime="60" diameterRatio="109" axleDistance="5" speedTolerance="12"/>
+                      </Wheelsensor>
+                      <CountingHeadControls>
+                        <Control fmaInternId="776" timeoutId="0"/>
+                        <Control fmaInternId="781" timeoutId="0"/>
+                      </CountingHeadControls>
+                      <IoExbBehaviour in1="6" in2="6" in3="6" resetOpterationTimeInMs="500" toggleSwitches="7"/>
+                      <IoExbControl inputSv="0" positionInputSv="0" inputChc="0" positionInputChc="0" timeoutId="0"/>
+                    </Aeb>
+                    <IoExb name="ACO" description="" internId="729" slotId="44">
+                      <RefAeb>725</RefAeb>
+                      <AxleCountingOutput>
+                        <OutputFma1 timeout="0" typeAux1="0" aux1="3" aux1NoNc="0" typeAux2="0" aux2="3" aux2NoNc="0" clearOccupied="0">776</OutputFma1>
+                        <OutputFma2 timeout="0" typeAux1="0" aux1="3" aux1NoNc="0" typeAux2="0" aux2="3" aux2NoNc="0" clearOccupied="0">781</OutputFma2>
+                      </AxleCountingOutput>
+                    </IoExb>
+                  </Children>
+                </Bp>
+                <Bp name="C4" description="" internId="686" positionOnRack="4">
+                  <Parameter>
+                    <StartSlotId>45</StartSlotId>
+                    <BpType>BP_EXB1</BpType>
+                    <CanConnections next="689" previous="683"/>
+                  </Parameter>
+                  <Children>
+                    <Aeb name="AEB_DP16" description="" internId="730" slotId="45" cpName="DP16" dontUseTypeProtectedValues="0">
+                      <Id>240</Id>
+                      <Information device="GS04" rsrType="RSR180"/>
+                      <DipSwitch14>false</DipSwitch14>
+                      <AnalogDoubleUsageDisabled>true</AnalogDoubleUsageDisabled>
+                      <Timeouts>
+                        <Timeout id="0">340</Timeout>
+                        <Timeout id="1">610</Timeout>
+                      </Timeouts>
+                      <Fmas>
+                        <Fma name="34AXT" description="" internId="787" fmaId="0" aebInternId="730">
+                          <FailsafeOccupancy>0</FailsafeOccupancy>
+                          <Supervision logicType="0" resetDelay="10" resetType="3"/>
+                          <CountingHeads>
+                            <CountingHead name="DP17" description="" internId="927">
+                              <RefAeb>339</RefAeb>
+                              <DirectionInverse>0</DirectionInverse>
+                              <RailPosition>0</RailPosition>
+                              <Remote>0</Remote>
+                              <TimeoutId>0</TimeoutId>
+                              <DirectionDependentOccupancy>0</DirectionDependentOccupancy>
+                            </CountingHead>
+                            <CountingHead name="DP16" description="" internId="928">
+                              <RefAeb>730</RefAeb>
+                              <DirectionInverse>0</DirectionInverse>
+                              <RailPosition>1</RailPosition>
+                              <Remote>0</Remote>
+                              <TimeoutId>0</TimeoutId>
+                              <DirectionDependentOccupancy>0</DirectionDependentOccupancy>
+                            </CountingHead>
+                            <CountingHead name="DP15" description="" internId="929">
+                              <RefAeb>335</RefAeb>
+                              <DirectionInverse>1</DirectionInverse>
+                              <RailPosition>0</RailPosition>
+                              <Remote>0</Remote>
+                              <TimeoutId>0</TimeoutId>
+                              <DirectionDependentOccupancy>0</DirectionDependentOccupancy>
+                            </CountingHead>
+                          </CountingHeads>
+                          <Synchronisations syncType="SAFETY"/>
+                        </Fma>
+                        <Fma name="34BXT" description="" internId="792" fmaId="1" aebInternId="730">
+                          <FailsafeOccupancy>0</FailsafeOccupancy>
+                          <Supervision logicType="0" resetDelay="10" resetType="3"/>
+                          <CountingHeads>
+                            <CountingHead name="DP18" description="" internId="933">
+                              <RefAeb>343</RefAeb>
+                              <DirectionInverse>0</DirectionInverse>
+                              <RailPosition>0</RailPosition>
+                              <Remote>0</Remote>
+                              <TimeoutId>0</TimeoutId>
+                              <DirectionDependentOccupancy>0</DirectionDependentOccupancy>
+                            </CountingHead>
+                            <CountingHead name="DP16" description="" internId="934">
+                              <RefAeb>730</RefAeb>
+                              <DirectionInverse>1</DirectionInverse>
+                              <RailPosition>1</RailPosition>
+                              <Remote>0</Remote>
+                              <TimeoutId>0</TimeoutId>
+                              <DirectionDependentOccupancy>0</DirectionDependentOccupancy>
+                            </CountingHead>
+                            <CountingHead name="DP14" description="" internId="935">
+                              <RefAeb>331</RefAeb>
+                              <DirectionInverse>1</DirectionInverse>
+                              <RailPosition>0</RailPosition>
+                              <Remote>0</Remote>
+                              <TimeoutId>0</TimeoutId>
+                              <DirectionDependentOccupancy>0</DirectionDependentOccupancy>
+                            </CountingHead>
+                          </CountingHeads>
+                          <Synchronisations syncType="SAFETY"/>
+                        </Fma>
+                      </Fmas>
+                      <ConfigCountingPoints>
+                        <Interval>2</Interval>
+                        <SupervisorCount>2</SupervisorCount>
+                        <SupervisorCountLimit>0</SupervisorCountLimit>
+                        <SystemCount>2</SystemCount>
+                        <PartialCount>1</PartialCount>
+                      </ConfigCountingPoints>
+                      <ToggleSwitches resetBehaviour="7" simulationBehaviour="1"/>
+                      <Tracksection clearTrack="0" communicationFailure="0" resetRestriction="1">
+                        <Reset in="5" out="1"/>
+                        <Occupancy delay="0" extension="0"/>
+                      </Tracksection>
+                      <Wheelsensor dbv="0" digitalFilterTime="15" resetLeadTime="1" type="RSR180" typeProtectionCrc="0xb192f6cd" roadrailSuppression="0">
+                        <TrolleySuppression active="1" maxSuppressionTime="60" diameterRatio="109" axleDistance="5" speedTolerance="12"/>
+                      </Wheelsensor>
+                      <CountingHeadControls>
+                        <Control fmaInternId="787" timeoutId="0"/>
+                        <Control fmaInternId="792" timeoutId="0"/>
+                      </CountingHeadControls>
+                      <IoExbBehaviour in1="6" in2="6" in3="6" resetOpterationTimeInMs="500" toggleSwitches="7"/>
+                      <IoExbControl inputSv="0" positionInputSv="0" inputChc="0" positionInputChc="0" timeoutId="0"/>
+                    </Aeb>
+                    <IoExb name="ACO" description="" internId="734" slotId="46">
+                      <RefAeb>730</RefAeb>
+                      <AxleCountingOutput>
+                        <OutputFma1 timeout="0" typeAux1="0" aux1="3" aux1NoNc="0" typeAux2="0" aux2="3" aux2NoNc="0" clearOccupied="0">787</OutputFma1>
+                        <OutputFma2 timeout="0" typeAux1="0" aux1="3" aux1NoNc="0" typeAux2="0" aux2="3" aux2NoNc="0" clearOccupied="0">792</OutputFma2>
+                      </AxleCountingOutput>
+                    </IoExb>
+                  </Children>
+                </Bp>
+              </Children>
+            </Rack>
+            <Rack name="BGT-4" description="" internId="192" height="3" rackSlot="3">
+              <Parameter>
+                <RackType>BGT_07</RackType>
+              </Parameter>
+              <Children>
+                <Bp name="D1" description="" internId="689" positionOnRack="1">
+                  <Parameter>
+                    <StartSlotId>47</StartSlotId>
+                    <BpType>BP_EXB1</BpType>
+                    <CanConnections next="692" previous="686"/>
+                  </Parameter>
+                  <Children>
+                    <Aeb name="AEB_DP20" description="" internId="735" slotId="47" cpName="DP20" dontUseTypeProtectedValues="0">
+                      <Id>241</Id>
+                      <Information device="GS04" rsrType="RSR180"/>
+                      <DipSwitch14>false</DipSwitch14>
+                      <AnalogDoubleUsageDisabled>true</AnalogDoubleUsageDisabled>
+                      <Timeouts>
+                        <Timeout id="0">340</Timeout>
+                        <Timeout id="1">610</Timeout>
+                      </Timeouts>
+                      <Fmas>
+                        <Fma name="32AXT" description="" internId="797" fmaId="0" aebInternId="735">
+                          <FailsafeOccupancy>0</FailsafeOccupancy>
+                          <Supervision logicType="0" resetDelay="10" resetType="3"/>
+                          <CountingHeads>
+                            <CountingHead name="DP21" description="" internId="939">
+                              <RefAeb>351</RefAeb>
+                              <DirectionInverse>0</DirectionInverse>
+                              <RailPosition>0</RailPosition>
+                              <Remote>0</Remote>
+                              <TimeoutId>0</TimeoutId>
+                              <DirectionDependentOccupancy>0</DirectionDependentOccupancy>
+                            </CountingHead>
+                            <CountingHead name="DP17" description="" internId="940">
+                              <RefAeb>339</RefAeb>
+                              <DirectionInverse>1</DirectionInverse>
+                              <RailPosition>0</RailPosition>
+                              <Remote>0</Remote>
+                              <TimeoutId>0</TimeoutId>
+                              <DirectionDependentOccupancy>0</DirectionDependentOccupancy>
+                            </CountingHead>
+                            <CountingHead name="DP20" description="" internId="941">
+                              <RefAeb>735</RefAeb>
+                              <DirectionInverse>1</DirectionInverse>
+                              <RailPosition>0</RailPosition>
+                              <Remote>0</Remote>
+                              <TimeoutId>0</TimeoutId>
+                              <DirectionDependentOccupancy>0</DirectionDependentOccupancy>
+                            </CountingHead>
+                          </CountingHeads>
+                          <Synchronisations syncType="SAFETY"/>
+                        </Fma>
+                        <Fma name="32BXT" description="" internId="802" fmaId="1" aebInternId="735">
+                          <FailsafeOccupancy>0</FailsafeOccupancy>
+                          <Supervision logicType="0" resetDelay="10" resetType="3"/>
+                          <CountingHeads>
+                            <CountingHead name="DP22" description="" internId="945">
+                              <RefAeb>705</RefAeb>
+                              <DirectionInverse>0</DirectionInverse>
+                              <RailPosition>0</RailPosition>
+                              <Remote>0</Remote>
+                              <TimeoutId>0</TimeoutId>
+                              <DirectionDependentOccupancy>0</DirectionDependentOccupancy>
+                            </CountingHead>
+                            <CountingHead name="DP20" description="" internId="946">
+                              <RefAeb>735</RefAeb>
+                              <DirectionInverse>0</DirectionInverse>
+                              <RailPosition>0</RailPosition>
+                              <Remote>0</Remote>
+                              <TimeoutId>0</TimeoutId>
+                              <DirectionDependentOccupancy>0</DirectionDependentOccupancy>
+                            </CountingHead>
+                            <CountingHead name="DP19" description="" internId="947">
+                              <RefAeb>347</RefAeb>
+                              <DirectionInverse>1</DirectionInverse>
+                              <RailPosition>0</RailPosition>
+                              <Remote>0</Remote>
+                              <TimeoutId>0</TimeoutId>
+                              <DirectionDependentOccupancy>0</DirectionDependentOccupancy>
+                            </CountingHead>
+                          </CountingHeads>
+                          <Synchronisations syncType="SAFETY"/>
+                        </Fma>
+                      </Fmas>
+                      <ConfigCountingPoints>
+                        <Interval>2</Interval>
+                        <SupervisorCount>2</SupervisorCount>
+                        <SupervisorCountLimit>0</SupervisorCountLimit>
+                        <SystemCount>2</SystemCount>
+                        <PartialCount>1</PartialCount>
+                      </ConfigCountingPoints>
+                      <ToggleSwitches resetBehaviour="7" simulationBehaviour="1"/>
+                      <Tracksection clearTrack="0" communicationFailure="0" resetRestriction="1">
+                        <Reset in="5" out="1"/>
+                        <Occupancy delay="0" extension="0"/>
+                      </Tracksection>
+                      <Wheelsensor dbv="0" digitalFilterTime="15" resetLeadTime="1" type="RSR180" typeProtectionCrc="0xb192f6cd" roadrailSuppression="0">
+                        <TrolleySuppression active="1" maxSuppressionTime="60" diameterRatio="109" axleDistance="5" speedTolerance="12"/>
+                      </Wheelsensor>
+                      <CountingHeadControls>
+                        <Control fmaInternId="797" timeoutId="0"/>
+                        <Control fmaInternId="802" timeoutId="0"/>
+                      </CountingHeadControls>
+                      <IoExbBehaviour in1="6" in2="6" in3="6" resetOpterationTimeInMs="500" toggleSwitches="7"/>
+                      <IoExbControl inputSv="0" positionInputSv="0" inputChc="0" positionInputChc="0" timeoutId="0"/>
+                    </Aeb>
+                    <IoExb name="ACO" description="" internId="739" slotId="48">
+                      <RefAeb>735</RefAeb>
+                      <AxleCountingOutput>
+                        <OutputFma1 timeout="0" typeAux1="0" aux1="3" aux1NoNc="0" typeAux2="0" aux2="3" aux2NoNc="0" clearOccupied="0">797</OutputFma1>
+                        <OutputFma2 timeout="0" typeAux1="0" aux1="3" aux1NoNc="0" typeAux2="0" aux2="3" aux2NoNc="0" clearOccupied="0">802</OutputFma2>
+                      </AxleCountingOutput>
+                    </IoExb>
+                  </Children>
+                </Bp>
+                <Bp name="D2" description="" internId="692" positionOnRack="2">
+                  <Parameter>
+                    <StartSlotId>49</StartSlotId>
+                    <BpType>BP_EXB1</BpType>
+                    <CanConnections next="695" previous="689"/>
+                  </Parameter>
+                  <Children>
+                    <Aeb name="AEB_DP23" description="" internId="740" slotId="49" cpName="DP23" dontUseTypeProtectedValues="0">
+                      <Id>242</Id>
+                      <Information device="GS04" rsrType="RSR180"/>
+                      <DipSwitch14>false</DipSwitch14>
+                      <AnalogDoubleUsageDisabled>true</AnalogDoubleUsageDisabled>
+                      <Timeouts>
+                        <Timeout id="0">340</Timeout>
+                        <Timeout id="1">610</Timeout>
+                      </Timeouts>
+                      <Fmas>
+                        <Fma name="2XT" description="" internId="808" fmaId="0" aebInternId="740">
+                          <FailsafeOccupancy>0</FailsafeOccupancy>
+                          <Supervision logicType="0" resetDelay="10" resetType="3">
+                            <Supervisor timeoutId="0">818</Supervisor>
+                          </Supervision>
+                          <CountingHeads>
+                            <CountingHead name="DP24" description="" internId="952">
+                              <RefAeb>709</RefAeb>
+                              <DirectionInverse>1</DirectionInverse>
+                              <RailPosition>1</RailPosition>
+                              <Remote>0</Remote>
+                              <TimeoutId>0</TimeoutId>
+                              <DirectionDependentOccupancy>0</DirectionDependentOccupancy>
+                            </CountingHead>
+                            <CountingHead name="DP23" description="" internId="953">
+                              <RefAeb>740</RefAeb>
+                              <DirectionInverse>1</DirectionInverse>
+                              <RailPosition>0</RailPosition>
+                              <Remote>0</Remote>
+                              <TimeoutId>0</TimeoutId>
+                              <DirectionDependentOccupancy>0</DirectionDependentOccupancy>
+                            </CountingHead>
+                          </CountingHeads>
+                          <Synchronisations syncType="SAFETY"/>
+                        </Fma>
+                        <Fma name="27AXT" description="" internId="813" fmaId="1" aebInternId="740">
+                          <FailsafeOccupancy>0</FailsafeOccupancy>
+                          <Supervision logicType="0" resetDelay="10" resetType="3"/>
+                          <CountingHeads>
+                            <CountingHead name="DP23" description="" internId="983">
+                              <RefAeb>740</RefAeb>
+                              <DirectionInverse>0</DirectionInverse>
+                              <RailPosition>0</RailPosition>
+                              <Remote>0</Remote>
+                              <TimeoutId>0</TimeoutId>
+                              <DirectionDependentOccupancy>0</DirectionDependentOccupancy>
+                            </CountingHead>
+                            <CountingHead name="DP21" description="" internId="984">
+                              <RefAeb>351</RefAeb>
+                              <DirectionInverse>1</DirectionInverse>
+                              <RailPosition>0</RailPosition>
+                              <Remote>0</Remote>
+                              <TimeoutId>0</TimeoutId>
+                              <DirectionDependentOccupancy>0</DirectionDependentOccupancy>
+                            </CountingHead>
+                          </CountingHeads>
+                          <Synchronisations syncType="SAFETY"/>
+                        </Fma>
+                      </Fmas>
+                      <ConfigCountingPoints>
+                        <Interval>2</Interval>
+                        <SupervisorCount>2</SupervisorCount>
+                        <SupervisorCountLimit>0</SupervisorCountLimit>
+                        <SystemCount>2</SystemCount>
+                        <PartialCount>1</PartialCount>
+                      </ConfigCountingPoints>
+                      <ToggleSwitches resetBehaviour="7" simulationBehaviour="1"/>
+                      <Tracksection clearTrack="0" communicationFailure="0" resetRestriction="1">
+                        <Reset in="5" out="2"/>
+                        <Occupancy delay="0" extension="0"/>
+                      </Tracksection>
+                      <Wheelsensor dbv="0" digitalFilterTime="15" resetLeadTime="1" type="RSR180" typeProtectionCrc="0xb192f6cd" roadrailSuppression="0">
+                        <TrolleySuppression active="1" maxSuppressionTime="60" diameterRatio="109" axleDistance="5" speedTolerance="12"/>
+                      </Wheelsensor>
+                      <CountingHeadControls>
+                        <Control fmaInternId="808" timeoutId="0"/>
+                        <Control fmaInternId="813" timeoutId="0"/>
+                      </CountingHeadControls>
+                      <IoExbBehaviour in1="6" in2="6" in3="6" resetOpterationTimeInMs="500" toggleSwitches="7"/>
+                      <IoExbControl inputSv="0" positionInputSv="0" inputChc="0" positionInputChc="0" timeoutId="0"/>
+                    </Aeb>
+                    <IoExb name="ACO" description="" internId="744" slotId="50">
+                      <RefAeb>740</RefAeb>
+                      <AxleCountingOutput>
+                        <OutputFma1 timeout="0" typeAux1="0" aux1="3" aux1NoNc="0" typeAux2="0" aux2="3" aux2NoNc="0" clearOccupied="0">808</OutputFma1>
+                        <OutputFma2 timeout="0" typeAux1="0" aux1="3" aux1NoNc="0" typeAux2="0" aux2="3" aux2NoNc="0" clearOccupied="0">813</OutputFma2>
+                      </AxleCountingOutput>
+                    </IoExb>
+                  </Children>
+                </Bp>
+                <Bp name="D3" description="" internId="695" positionOnRack="3">
+                  <Parameter>
+                    <StartSlotId>51</StartSlotId>
+                    <BpType>BP_EXB1</BpType>
+                    <CanConnections next="698" previous="692"/>
+                  </Parameter>
+                  <Children>
+                    <Aeb name="AEB_DP23-A" description="" internId="745" slotId="51" cpName="DP23-A" dontUseTypeProtectedValues="0">
+                      <Id>243</Id>
+                      <Information device="GS04" rsrType="RSR180"/>
+                      <DipSwitch14>false</DipSwitch14>
+                      <AnalogDoubleUsageDisabled>true</AnalogDoubleUsageDisabled>
+                      <Timeouts>
+                        <Timeout id="0">340</Timeout>
+                        <Timeout id="1">610</Timeout>
+                      </Timeouts>
+                      <Fmas>
+                        <Fma name="2XT-A" description="" internId="818" fmaId="0" aebInternId="745">
+                          <FailsafeOccupancy>0</FailsafeOccupancy>
+                          <Supervision logicType="0" resetDelay="10" resetType="3">
+                            <Supervisor timeoutId="0">808</Supervisor>
+                          </Supervision>
+                          <CountingHeads>
+                            <CountingHead name="DP24-A" description="" internId="963">
+                              <RefAeb>713</RefAeb>
+                              <DirectionInverse>1</DirectionInverse>
+                              <RailPosition>1</RailPosition>
+                              <Remote>0</Remote>
+                              <TimeoutId>0</TimeoutId>
+                              <DirectionDependentOccupancy>0</DirectionDependentOccupancy>
+                            </CountingHead>
+                            <CountingHead name="DP23-A" description="" internId="964">
+                              <RefAeb>745</RefAeb>
+                              <DirectionInverse>0</DirectionInverse>
+                              <RailPosition>1</RailPosition>
+                              <Remote>0</Remote>
+                              <TimeoutId>0</TimeoutId>
+                              <DirectionDependentOccupancy>0</DirectionDependentOccupancy>
+                            </CountingHead>
+                          </CountingHeads>
+                          <Synchronisations syncType="SAFETY"/>
+                        </Fma>
+                      </Fmas>
+                      <ConfigCountingPoints>
+                        <Interval>2</Interval>
+                        <SupervisorCount>2</SupervisorCount>
+                        <SupervisorCountLimit>0</SupervisorCountLimit>
+                        <SystemCount>2</SystemCount>
+                        <PartialCount>1</PartialCount>
+                      </ConfigCountingPoints>
+                      <ToggleSwitches resetBehaviour="7" simulationBehaviour="1"/>
+                      <Tracksection clearTrack="0" communicationFailure="0" resetRestriction="1">
+                        <Reset in="5" out="2"/>
+                        <Occupancy delay="0" extension="0"/>
+                      </Tracksection>
+                      <Wheelsensor dbv="0" digitalFilterTime="15" resetLeadTime="1" type="RSR180" typeProtectionCrc="0xb192f6cd" roadrailSuppression="0">
+                        <TrolleySuppression active="1" maxSuppressionTime="60" diameterRatio="109" axleDistance="5" speedTolerance="12"/>
+                      </Wheelsensor>
+                      <CountingHeadControls>
+                        <Control fmaInternId="818" timeoutId="0"/>
+                        <Control fmaInternId="813" timeoutId="0"/>
+                      </CountingHeadControls>
+                      <IoExbBehaviour in1="6" in2="6" in3="6" resetOpterationTimeInMs="500" toggleSwitches="7"/>
+                      <IoExbControl inputSv="0" positionInputSv="0" inputChc="0" positionInputChc="0" timeoutId="0"/>
+                    </Aeb>
+                    <IoExb name="ACO" description="" internId="749" slotId="52">
+                      <RefAeb>745</RefAeb>
+                      <AxleCountingOutput>
+                        <OutputFma1 timeout="0" typeAux1="0" aux1="3" aux1NoNc="0" typeAux2="0" aux2="3" aux2NoNc="0" clearOccupied="0">818</OutputFma1>
+                        <OutputFma2 timeout="0" typeAux1="0" aux1="3" aux1NoNc="0" typeAux2="0" aux2="3" aux2NoNc="0" clearOccupied="0">818</OutputFma2>
+                      </AxleCountingOutput>
+                    </IoExb>
+                  </Children>
+                </Bp>
+                <Bp name="D4" description="" internId="698" positionOnRack="4">
+                  <Parameter>
+                    <StartSlotId>53</StartSlotId>
+                    <BpType>BP_EXB1</BpType>
+                    <CanConnections next="701" previous="695"/>
+                  </Parameter>
+                  <Children>
+                    <Aeb name="AEB_DP25" description="" internId="750" slotId="53" cpName="DP25" dontUseTypeProtectedValues="0">
+                      <Id>244</Id>
+                      <Information device="GS04" rsrType="RSR180"/>
+                      <DipSwitch14>false</DipSwitch14>
+                      <AnalogDoubleUsageDisabled>true</AnalogDoubleUsageDisabled>
+                      <Timeouts>
+                        <Timeout id="0">340</Timeout>
+                        <Timeout id="1">610</Timeout>
+                      </Timeouts>
+                      <Fmas>
+                        <Fma name="2AXT" description="" internId="824" fmaId="0" aebInternId="750">
+                          <FailsafeOccupancy>0</FailsafeOccupancy>
+                          <Supervision logicType="0" resetDelay="10" resetType="3"/>
+                          <CountingHeads>
+                            <CountingHead name="DP25" description="" internId="995">
+                              <RefAeb>750</RefAeb>
+                              <DirectionInverse>0</DirectionInverse>
+                              <RailPosition>0</RailPosition>
+                              <Remote>0</Remote>
+                              <TimeoutId>0</TimeoutId>
+                              <DirectionDependentOccupancy>0</DirectionDependentOccupancy>
+                            </CountingHead>
+                            <CountingHead name="DP24" description="" internId="996">
+                              <RefAeb>709</RefAeb>
+                              <DirectionInverse>1</DirectionInverse>
+                              <RailPosition>0</RailPosition>
+                              <Remote>0</Remote>
+                              <TimeoutId>0</TimeoutId>
+                              <DirectionDependentOccupancy>0</DirectionDependentOccupancy>
+                            </CountingHead>
+                          </CountingHeads>
+                          <Synchronisations syncType="SAFETY"/>
+                        </Fma>
+                      </Fmas>
+                      <ConfigCountingPoints>
+                        <Interval>2</Interval>
+                        <SupervisorCount>2</SupervisorCount>
+                        <SupervisorCountLimit>0</SupervisorCountLimit>
+                        <SystemCount>2</SystemCount>
+                        <PartialCount>1</PartialCount>
+                      </ConfigCountingPoints>
+                      <ToggleSwitches resetBehaviour="7" simulationBehaviour="1"/>
+                      <Tracksection clearTrack="0" communicationFailure="0" resetRestriction="1">
+                        <Reset in="5" out="2"/>
+                        <Occupancy delay="0" extension="0"/>
+                      </Tracksection>
+                      <Wheelsensor dbv="0" digitalFilterTime="15" resetLeadTime="1" type="RSR180" typeProtectionCrc="0xb192f6cd" roadrailSuppression="0">
+                        <TrolleySuppression active="1" maxSuppressionTime="60" diameterRatio="109" axleDistance="5" speedTolerance="12"/>
+                      </Wheelsensor>
+                      <IoExbBehaviour in1="6" in2="6" in3="6" resetOpterationTimeInMs="500" toggleSwitches="7"/>
+                      <IoExbControl inputSv="0" positionInputSv="0" inputChc="0" positionInputChc="0" timeoutId="0"/>
+                    </Aeb>
+                    <IoExb name="ACO" description="" internId="754" slotId="54">
+                      <RefAeb>750</RefAeb>
+                      <AxleCountingOutput>
+                        <OutputFma1 timeout="0" typeAux1="0" aux1="3" aux1NoNc="0" typeAux2="0" aux2="3" aux2NoNc="0" clearOccupied="0">824</OutputFma1>
+                        <OutputFma2 timeout="0" typeAux1="0" aux1="3" aux1NoNc="0" typeAux2="0" aux2="3" aux2NoNc="0" clearOccupied="0">824</OutputFma2>
+                      </AxleCountingOutput>
+                    </IoExb>
+                  </Children>
+                </Bp>
+                <Bp name="D5" description="" internId="701" positionOnRack="5">
+                  <Parameter>
+                    <StartSlotId>55</StartSlotId>
+                    <BpType>BP_EXB1</BpType>
+                    <CanConnections previous="698"/>
+                  </Parameter>
+                  <Children>
+                    <Aeb name="AEB_DP3-A" description="" internId="755" slotId="55" cpName="DP3-A" dontUseTypeProtectedValues="0">
+                      <Id>245</Id>
+                      <Information device="GS04" rsrType="RSR180"/>
+                      <DipSwitch14>false</DipSwitch14>
+                      <AnalogDoubleUsageDisabled>true</AnalogDoubleUsageDisabled>
+                      <Timeouts>
+                        <Timeout id="0">340</Timeout>
+                        <Timeout id="1">610</Timeout>
+                      </Timeouts>
+                      <Fmas>
+                        <Fma name="1XT-A" description="" internId="831" fmaId="0" aebInternId="755">
+                          <FailsafeOccupancy>0</FailsafeOccupancy>
+                          <Supervision logicType="0" resetDelay="10" resetType="3">
+                            <Supervisor timeoutId="0">544</Supervisor>
+                          </Supervision>
+                          <CountingHeads>
+                            <CountingHead name="DP3-A" description="" internId="1001">
+                              <RefAeb>755</RefAeb>
+                              <DirectionInverse>1</DirectionInverse>
+                              <RailPosition>1</RailPosition>
+                              <Remote>0</Remote>
+                              <TimeoutId>0</TimeoutId>
+                              <DirectionDependentOccupancy>0</DirectionDependentOccupancy>
+                            </CountingHead>
+                            <CountingHead name="DP2-A" description="" internId="1002">
+                              <RefAeb>717</RefAeb>
+                              <DirectionInverse>0</DirectionInverse>
+                              <RailPosition>1</RailPosition>
+                              <Remote>0</Remote>
+                              <TimeoutId>0</TimeoutId>
+                              <DirectionDependentOccupancy>0</DirectionDependentOccupancy>
+                            </CountingHead>
+                          </CountingHeads>
+                          <Synchronisations syncType="SAFETY"/>
+                        </Fma>
+                      </Fmas>
+                      <ConfigCountingPoints>
+                        <Interval>2</Interval>
+                        <SupervisorCount>2</SupervisorCount>
+                        <SupervisorCountLimit>0</SupervisorCountLimit>
+                        <SystemCount>2</SystemCount>
+                        <PartialCount>1</PartialCount>
+                      </ConfigCountingPoints>
+                      <ToggleSwitches resetBehaviour="7" simulationBehaviour="1"/>
+                      <Tracksection clearTrack="0" communicationFailure="0" resetRestriction="1">
+                        <Reset in="5" out="2"/>
+                        <Occupancy delay="0" extension="0"/>
+                      </Tracksection>
+                      <Wheelsensor dbv="0" digitalFilterTime="15" resetLeadTime="1" type="RSR180" typeProtectionCrc="0xb192f6cd" roadrailSuppression="0">
+                        <TrolleySuppression active="1" maxSuppressionTime="60" diameterRatio="109" axleDistance="5" speedTolerance="12"/>
+                      </Wheelsensor>
+                      <CountingHeadControls>
+                        <Control fmaInternId="549" timeoutId="0"/>
+                        <Control fmaInternId="831" timeoutId="0"/>
+                      </CountingHeadControls>
+                      <IoExbBehaviour in1="6" in2="6" in3="6" resetOpterationTimeInMs="500" toggleSwitches="7"/>
+                      <IoExbControl inputSv="0" positionInputSv="0" inputChc="0" positionInputChc="0" timeoutId="0"/>
+                    </Aeb>
+                    <IoExb name="ACO" description="" internId="759" slotId="56">
+                      <RefAeb>755</RefAeb>
+                      <AxleCountingOutput>
+                        <OutputFma1 timeout="0" typeAux1="0" aux1="3" aux1NoNc="0" typeAux2="0" aux2="3" aux2NoNc="0" clearOccupied="0">831</OutputFma1>
+                        <OutputFma2 timeout="0" typeAux1="0" aux1="3" aux1NoNc="0" typeAux2="0" aux2="3" aux2NoNc="0" clearOccupied="0">831</OutputFma2>
+                      </AxleCountingOutput>
+                    </IoExb>
+                  </Children>
+                </Bp>
+              </Children>
+            </Rack>
+          </Children>
+          <DiagnosticElements>
+            <FdsFAdCR2 name="FDS_KAMAKHYA NAGAR" description="" internId="1040" version="1.4.21" defaultGateway="None">
+              <Timezone ntp="UTC+05:30" zone="UTC+05:30"/>
+              <StationName name="KAMAKHYA NAGAR"/>
+              <ConfigurationVersion>1.4.21</ConfigurationVersion>
+              <Network1 redundant="1">
+                <Ip>192.165.1.7</Ip>
+                <Netmask>255.255.255.0</Netmask>
+                <Gateway></Gateway>
+                <Port>45</Port>
+              </Network1>
+              <Network2>
+                <Ip>192.165.2.7</Ip>
+                <Netmask>255.255.255.0</Netmask>
+                <Gateway></Gateway>
+              </Network2>
+              <TimeServers/>
+              <ConnectedComs>
+                <ComAgent id="283"/>
+              </ConnectedComs>
+              <SyslogNetwork1>
+                <Ip></Ip>
+                <Netmask></Netmask>
+                <Port>0</Port>
+              </SyslogNetwork1>
+              <SyslogNetwork2>
+                <Ip></Ip>
+                <Netmask></Netmask>
+                <Port>0</Port>
+              </SyslogNetwork2>
+              <LdapNetwork1>
+                <Ip></Ip>
+                <Netmask></Netmask>
+                <Port>0</Port>
+              </LdapNetwork1>
+              <LdapNetwork2>
+                <Ip></Ip>
+                <Netmask></Netmask>
+                <Port>0</Port>
+              </LdapNetwork2>
+              <XmlInterface active="0" sendHeartbeat="0" sendEvents="0" connectionRetry="1" heartbeatInterval="1">
+                <Ip ip="" port="0"/>
+                <RedundantIp ip="" port="0"/>
+              </XmlInterface>
+              <LogSettings wheelSensorSpeed="0" wheelSensorDiameter="0" comWncInterlockingWarnings="0"/>
+              <UiSettings>
+                <selectedBaseTheme>LIGHT_THEME</selectedBaseTheme>
+                <offlineStatus value2="0xffffffff" type="solid" animation="NO" interval="500">0xffffffff</offlineStatus>
+                <okStatus value2="0xffffffff" type="solid" animation="NO" interval="500">0x47616eff</okStatus>
+                <occupiedStatus value2="0xffffffff" type="solid" animation="NO" interval="500">0x0097d5ff</occupiedStatus>
+                <desensitisedStatus value2="0xffffffff" type="solid" animation="NO" interval="500">0x82a1abff</desensitisedStatus>
+                <warningStatus value2="0xffffffff" type="solid" animation="NO" interval="500">0xf9be04ff</warningStatus>
+                <errorStatus value2="0xffffffff" type="solid" animation="NO" interval="500">0xe52027ff</errorStatus>
+                <wctStatus value2="0xffffffff" type="solid" animation="NO" interval="500">0xae8503ff</wctStatus>
+                <backgroundColor>0xdadee1ff</backgroundColor>
+              </UiSettings>
+            </FdsFAdCR2>
+          </DiagnosticElements>
+        </Cubicle>
+      </Children>
+    </Station>
+    <UnsortedFmas/>
+  </ProjectElements>
+</FAdcWizard>

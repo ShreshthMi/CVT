@@ -1,0 +1,441 @@
+FCVT Phase 2 — Backend Child Story Descriptions (VTF-331 .. VTF-345)
+Paste each body (everything under the divider, excluding the navigation header) into the matching Jira story's Description field.
+Format: Jira wiki markup.
+
+==================================================================
+########## VTF-331 (BE-01) — PDQ Parser: CQ-IR Subsheet ##########
+==================================================================
+
+*Context*
+Parse the CQ-IR subsheet of the PDQ workbook into block-grouped {{cqIrParameters}} that mirror the Phase 1 {{userInput}} structure, so the existing engine path can consume PDQ-sourced reference values.
+
+*Scope*
+ - Drive parsing from the dedicated Config Key column: non-empty = parametric row (read Response, emit under that key); empty = meta row, skipped entirely.
+ - Group every key under its CFG_* block, mirroring Phase 1 {{userInput}}.
+ - Honour workbook visibility flags (hidden sheets/rows/columns are not parsed).
+
+*Technical notes*
+ - Value normalisation: split Response on first ':' (keep left, trim both sides); ' & ' splits arrays; IDENTIFICATION 'to' -> {{{min,max}}}; per-field step-division; INTERVAL enum-mapped; TIMEOUT_VALUE nested under CFG_TIMEOUT, step-divided, padded to 8.
+ - The Remarks column is never read.
+ - Project blocks (CFG_PROJECT_AEB / CFG_PROJECT_COM) and the version-aware group come from PDQ rows 1.08 / 1.09.
+ - Single external error code {{PDQ_INVALID}}; internal enum variants drive logging only.
+
+*Dependencies & blockers*
+ - Feeds VTF-335 (preprocessor).
+ - Open: Spring Boot 4.0.2 multipart override behaviour (B4).
+
+*References*
+Contract VTF-329.
+
+*Acceptance criteria*
+ - *Given* a CQ-IR sheet with populated Config Key rows, *When* parsed, *Then* each key is emitted under its CFG_* block with the normalised value.
+ - *Given* a meta row (empty Config Key), *When* parsed, *Then* it is skipped regardless of Response content.
+ - *Given* a parametric row with an empty Response, *When* parsed, *Then* the upload is rejected as {{PDQ_INVALID}}.
+
+*Test/BDD*
+Cucumber: happy path, each value-transform form, meta-row skip, malformed/empty-response rejection. Phase 1 features must still pass.
+
+==================================================================
+########## VTF-332 (BE-02) — PDQ Parser: ConfigControlTable + DT Inputs ##########
+==================================================================
+
+*Context*
+Parse the ConfigControlTable subsheet (and the conditional Data Transmission Inputs subsheet) into the {{controlTable}} structure, matched to the parsed ADC files by DP name.
+
+*Scope*
+ - {{controlTable.trackSections[]}} from source cols A-H; {{controlTable.dpTable[]}} from cols J-M (col I is the empty boundary).
+ - Match CCT rows to {{parsedConfigFile}} by exact case- and whitespace-sensitive DP-name comparison.
+ - Return unmatched rows from either side as distinct categories - never silently dropped.
+ - Data Transmission Inputs subsheet: absent -> {{dataTransmission: null}} (valid); present-but-empty -> reject as malformed; present-and-populated -> {{dataSafetyLevels[]}} + {{outputDataTransmission[]}}.
+
+*Technical notes*
+ - {{fadcAutoReset}} parsed as a structured logic tree (not a raw string).
+ - DT-sheet SAFE_OUT_FDBCK_QUAD kept numeric 0/1; DT-sheet POSITION integer in [0,31] - distinct from the dpTable POSITION (ABOVE/BELOW THE RAIL).
+ - Single external error code {{PDQ_INVALID}}.
+
+*Dependencies & blockers*
+ - Feeds VTF-335 (preprocessor) and every cluster story that reads the CCT.
+
+*References*
+Contract VTF-329.
+
+*Acceptance criteria*
+ - *Given* a ConfigControlTable with rows matching parsed ADC DP names, *When* parsed, *Then* trackSections[] and dpTable[] are populated and matched by literal DP name.
+ - *Given* a DP-name differing only in case or whitespace, *When* matched, *Then* it is reported as unmatched, not coerced.
+ - *Given* a present-but-empty DT Inputs sheet, *When* parsed, *Then* the upload is rejected as malformed.
+
+*Test/BDD*
+Cucumber: happy path, literal-match boundary (case/whitespace), unmatched-row categories, DT sheet absent/empty/populated.
+
+==================================================================
+########## VTF-333 (BE-03) — Baseline FCT Parser ##########
+==================================================================
+
+*Context*
+Parse the uploaded Baseline FCT2 archive into the ComAebMap that the validate-time preprocessor consumes. The source of truth for CAN-segment membership.
+
+*Scope*
+ - Identify the archive: {{.fct2}} extension + ZIP magic-byte stream check (sample first 8-40 KB).
+ - Parse {{Project.xml}} only, walking {{ProjectElements > Station > Cubicle > Rack > Bp}}.
+ - Build CAN-segment membership from the {{Bp}} {{CanConnections}} previous/next chain.
+ - Collapse MASTER/SLAVE redundancy (discard SLAVE, keep MASTER, set {{redundantComPresent: true}}).
+ - Emit {{chains[]}} -> {{com}} + {{aebs[]}} ({{dpId}}, {{dpName}}, {{evaluatedFmas[]}}, {{acoIoExbs[]}} outputFma triplets, {{dtIoExbCount}}).
+
+*Out of scope*
+ - Trackplan XMLs inside the archive (only {{Project.xml}} is opened).
+ - Counting-head-output mode IoExbs -> reject the upload.
+
+*Technical notes*
+ - {{dpId}} <- {{Aeb<Id>}}; {{dpName}} <- {{Aeb@cpName}}. ACO OutputFma resolved text -> {{Fma@internId}} -> {{Fma@aebInternId}} -> {{Aeb<Id>}}. All IDs serialised as strings.
+ - Security limits: 10 MB file / 15 MB request / 20 MB threshold, 50:1 decompression cap, 50 MB uncompressed cap, 20 MB per-entry; nested-archive + password-protected rejection.
+ - Two external error codes: {{FCT_TAMPERED}} (xref/invariant/XML-parse fail) and {{FCT_INCOMPLETE_BASELINE}} (dangling CanConnections, chain with no COM, etc.). Internal enum drives logging only.
+
+*Dependencies & blockers*
+ - Feeds VTF-335 (preprocessor).
+ - Open: exact 8 root filenames + 2 folder names (B3); SB 4.0.2 multipart override (B4); counting-head-output rejection error-code mapping (B11).
+
+*References*
+Contract VTF-328.
+
+*Acceptance criteria*
+ - *Given* a valid FCT2, *When* uploaded, *Then* the ComAebMap is returned with one {{chains[]}} entry per CAN segment and redundancy collapsed.
+ - *Given* an FCT2 containing a counting-head-output IoExb, *When* uploaded, *Then* it is rejected.
+ - *Given* a manually edited / cross-reference-broken FCT2, *When* parsed, *Then* {{FCT_TAMPERED}} is returned.
+
+*Test/BDD*
+Cucumber: happy path, malformed archive, incomplete baseline, tampered xref.
+
+==================================================================
+########## VTF-334 (BE-04) — v2 Validate Endpoint and Coupled-Artifacts Gate ##########
+==================================================================
+
+*Context*
+Add the Phase 2 validate endpoint and the coupled-artifacts gate; invoke the preprocessor and assemble the v2 response. The Phase 1 path stays untouched.
+
+*Scope*
+ - Add {{POST /api/config/v2/validate}}.
+ - Coupled-artifacts gate: both FCT + PDQ -> v2; neither -> Phase 1 path; only one -> {{HTTP 400 PHASE2_INPUTS_INCOMPLETE}}.
+ - {{userInput}} is upload-sourced: {{fctData}} + {{pdqData}} mandatory; four tpf keys (CFG_TROLLEY_SUPP, CFG_PARAM_TROLLEY_SUPP, CFG_RSR_TYPE, CFG_TYPE_PRTCT) optional when a tpf was uploaded.
+ - Invoke the preprocessor (VTF-335) and assemble the response: {{validation_results[]}} (seven-field) + the eight detail tables; detail-cell {{_expected}} sibling on mismatch.
+
+*Out of scope*
+ - Phase 1 form keys are not sent on v2 (UI frozen). The tpf upload is independent of the gate.
+
+*Technical notes*
+ - Phase 1 {{POST /api/config/validate}} behaviour is preserved unchanged.
+ - A zero-mismatch v2 response is shape-compatible with a Phase 1 response.
+
+*Dependencies & blockers*
+ - Depends on VTF-331, VTF-332, VTF-333 (parsers) and VTF-335 (preprocessor); response wiring shared with VTF-337.
+
+*References*
+Contract VTF-330.
+
+*Acceptance criteria*
+ - *Given* both uploads present, *When* validate is called, *Then* the v2 path runs and returns the v2 response shape.
+ - *Given* only one upload present, *When* validate is called, *Then* {{HTTP 400 PHASE2_INPUTS_INCOMPLETE}}.
+ - *Given* neither upload present, *When* validate is called, *Then* the Phase 1 path runs unchanged.
+
+*Test/BDD*
+Endpoint scenarios for all three gate states; tpf-present and tpf-absent; v2 response assembly.
+
+==================================================================
+########## VTF-335 (BE-05) — Validate-Time Preprocessor and Expectations JSON ##########
+==================================================================
+
+*Context*
+Build the validate-time preprocessor that turns the FCT ComAebMap + parsed PDQ into the Expectations JSON the engine looks up against. In-memory, stateless, constructed fresh per request.
+
+*Scope*
+ - Produce the Expectations JSON keyed {{(ADC file, block, instance, entry) -> expected value}}.
+ - Source expectations only from FCT + PDQ; never read ADC as a source of truth (ADC is the target).
+ - Implement the three cross-correlation rules: project-block consistency (CFG_PROJECT_AEB / CFG_PROJECT_COM); dual-FMA consistency (RESET_TYPE / RESET_DELAY identical across CFG_SUPERVIS_FMA1 / FMA2); CFG_IP_SWITCH derivation from FCT {{redundantComPresent}}.
+ - Group virtual references into channels for Check B forwarding expectations (internal, not exposed).
+
+*Technical notes*
+ - Stateless: method-local only, no caching, no shared singleton.
+ - CFG_IP_SWITCH: {{redundantComPresent}} true -> add {{CFG_IP_SWITCH { IP_SWITCH: "1" }}}; false/absent -> omit. Distinct from CFG_IP_SWITCH_TIME (a CQ-IR key carried in {{pdqData}}).
+
+*Dependencies & blockers*
+ - Depends on VTF-333 (ComAebMap), VTF-331 / VTF-332 (parsed PDQ).
+ - Feeds VTF-336 (engine lookup). Cross-correlation rule implementation tracked as B14.
+
+*References*
+Contract VTF-330.
+
+*Acceptance criteria*
+ - *Given* parsed FCT + PDQ, *When* the preprocessor runs, *Then* an Expectations JSON keyed by (file, block, instance, entry) is produced from baseline sources only.
+ - *Given* divergent CFG_PROJECT_AEB / CFG_PROJECT_COM values, *When* the project-block rule runs, *Then* the check fails.
+ - *Given* {{redundantComPresent}} true, *When* expectations are built, *Then* {{CFG_IP_SWITCH.IP_SWITCH}} = "1" is present.
+
+*Test/BDD*
+Cucumber: expectations-build, source-of-truth assertion (no ADC reads), each of the three cross-correlation rules.
+
+==================================================================
+########## VTF-336 (BE-06) — Rule Engine Composite-Key Lookup Extension ##########
+==================================================================
+
+*Context*
+Extend the rule engine so it can look up expected values by {{(file, block, instance, entry)}}, widening the Phase 1 {{(block, entry)}} key. This gates all cluster stories.
+
+*Scope*
+ - Add a composite-key lookup mode that consumes the Expectations JSON as an external expected-value source.
+ - Map Check A to InputMatch-style per (file, block, instance, entry); map Check B to list-membership (closest analog: MultipleBlockMultipleInputMatch).
+ - Reuse the existing 9 rule types; introduce no new rule types structurally.
+
+*Technical notes*
+ - Open decision: lookup mechanism - JSONPath in rule config vs named Java lookups (B2). Resolve before cluster work starts.
+ - All Phase 1 rules must continue to pass; the Cucumber suite is extended, not replaced.
+
+*Dependencies & blockers*
+ - Depends on VTF-335. Gates VTF-338 .. VTF-344. Blocked decision: B2.
+
+*References*
+Contract VTF-330.
+
+*Acceptance criteria*
+ - *Given* an Expectations JSON, *When* a rule executes in composite-key mode, *Then* it resolves the expected value by (file, block, instance, entry) and compares against the actual ADC value.
+ - *Given* the existing Phase 1 rule set, *When* the engine runs, *Then* all Phase 1 scenarios still pass.
+
+*Test/BDD*
+Cucumber: composite-key resolution, Check A InputMatch mapping, Check B list-membership mapping, full Phase 1 regression.
+
+==================================================================
+########## VTF-337 (BE-07) — Rule Registry and Phase 2 ruleType Finalisation ##########
+==================================================================
+
+*Context*
+Finalise the Phase 2 {{ruleType}} vocabulary as cluster rules land, and wire the verdict/annotation output.
+
+*Scope*
+ - Maintain the Rule Registry as the canonical list of Phase 2 ruleTypes.
+ - Wire {{validation_results[]}} verdict rows (seven-field Phase 1 shape) and the detail-cell {{_expected}} annotation on mismatch.
+
+*Technical notes*
+ - {{validation_results[]}} stays shape-identical to Phase 1 (no extra fields).
+ - Companion Confluence page: Rule Registry.
+
+*Dependencies & blockers*
+ - Tracks the cluster stories (VTF-338 .. VTF-344) as they define ruleTypes; pairs with VTF-334 on response wiring.
+
+*References*
+Contract VTF-330.
+
+*Acceptance criteria*
+ - *Given* a Phase 2 rule, *When* it is added, *Then* its ruleType is registered and appears in {{validation_results[]}}.
+ - *Given* a mismatch, *When* the response is built, *Then* the detail cell carries a sibling {{_expected}} key and no per-cell status flag.
+
+*Test/BDD*
+Cucumber: ruleType registration, validation_results[] shape, _expected annotation presence/absence.
+
+==================================================================
+########## VTF-338 (BE-08) — Cluster 1: CAN Segment ##########
+==================================================================
+
+*Context*
+Validate per-AEB identity and SLCT_TIMEOUT, and virtual forwarding, against the FCT-derived baseline. The most fully specified cluster.
+
+*Scope*
+ - Check A: read [IDENTIFICATION] ID from each AEB ADC, look up in ComAebMap (miss -> ORPHANED); per in-scope block validate the referenced AEB id (miss -> FILE NOT FOUND); classify physical/virtual by segment membership; expected SLCT_TIMEOUT 0 (physical) / 1 (virtual); compare actual (2-7 -> INVALID SCOPE; other -> INVALID VALUE).
+ - Check B: compute expected CFG_FWRD_ACD set per (homeCom, channel); evaluate as list-membership against actual entries.
+ - Owns ID and SLCT_TIMEOUT across all in-scope blocks (CFG_ZP_FMA1/2, CFG_SECTION_OUT, CFG_CONTROL, CFG_SUPERVIS_FMA1/2, CFG_DATA_OUT).
+
+*Technical notes*
+ - Classification comes from ComAebMap segment membership, not the ADC value (the ADC value is the actual under test).
+ - Socket numbering: socket = header - 32; Check B uses NW1 only.
+
+*Dependencies & blockers*
+ - Depends on VTF-336, VTF-335, VTF-333.
+
+*References*
+Contract VTF-330. Report sheet: Ethernet Details.
+
+*Acceptance criteria*
+ - *Given* an AEB whose ID is absent from ComAebMap, *When* Check A runs, *Then* ORPHANED is emitted.
+ - *Given* a virtual reference (different segment), *When* expected SLCT_TIMEOUT is derived, *Then* it is 1 and compared to the ADC actual.
+ - *Given* a homeCom file missing an expected forwarding entry, *When* Check B runs, *Then* the rule fails.
+
+*Test/BDD*
+Cucumber: Check A (orphaned, file-not-found, physical/virtual, invalid scope/value), Check B (forwarding membership).
+
+==================================================================
+########## VTF-339 (BE-09) — Cluster 2: IOEXB ACO ##########
+==================================================================
+
+*Context*
+Validate ACO IoExb position and count against CFG_SECTION_OUT, using the FCT {{acoIoExbs}} data.
+
+*Scope*
+ - Validate IoExb position within the board rack.
+ - Validate the number of ACO IoExbs per AEB (ComAebMap count vs CFG_SECTION_OUT occurrences).
+ - Enforce CFG_SECTION_OUT block count <= 16 per file.
+ - Owns ID and SECTION on CFG_SECTION_OUT (position/count semantics; distinct from Cluster 1).
+
+*Technical notes*
+ - Both Cluster 1 and Cluster 2 run on CFG_SECTION_OUT with non-overlapping failure modes.
+
+*Dependencies & blockers*
+ - Depends on VTF-336, VTF-333.
+
+*References*
+Contract VTF-330. Report sheet: IOEXB ACO Details.
+
+*Acceptance criteria*
+ - *Given* an AEB with N ACO IoExbs in the FCT, *When* Cluster 2 runs, *Then* the ADC CFG_SECTION_OUT count is validated against N.
+ - *Given* an IoExb in the wrong rack position, *When* validated, *Then* a mismatch is reported.
+ - *Given* more than 16 CFG_SECTION_OUT blocks, *When* validated, *Then* the bound is flagged.
+
+*Test/BDD*
+Cucumber: position match/mismatch, count match/mismatch, block-count bound.
+
+==================================================================
+########## VTF-340 (BE-10) — Cluster 3: Track Section ##########
+==================================================================
+
+*Context*
+Validate track-section configuration via four sub-checks against the PDQ Config Control Table.
+
+*Scope*
+ - Sub-check 1: CHC counting-head assignment per sensor/ADC (ADC-only feasible).
+ - Sub-check 2: correct sensors per track section (requires station layout).
+ - Sub-check 3: supervisory track config (requires station layout).
+ - Sub-check 4: ACO/DT IO assignment (ADC-only feasible).
+
+*Dependencies & blockers*
+ - Depends on VTF-336.
+ - Blocked: blocks/keys + station-layout input strategy (B7). Sub-checks 1 and 4 can proceed ahead of the station-layout decision.
+
+*References*
+Contract VTF-330. Report sheet: Track Section Details.
+
+*Acceptance criteria*
+ - *Given* finalised blocks/keys and a station-layout input, *When* the four sub-checks run, *Then* each emits its verdict against the CCT-derived expectation.
+ - (Full ACs to be completed once B7 closes.)
+
+*Test/BDD*
+Cucumber per sub-check; the ADC-only sub-checks (1, 4) can be covered first.
+
+==================================================================
+########## VTF-341 (BE-11) — Cluster 4a: CHC ##########
+==================================================================
+
+*Context*
+Validate CHC count against the CFG_CONTROL block count, driven by BEHAV_IN3.
+
+*Scope*
+ - Derive the expected CFG_CONTROL block count from BEHAV_IN3 (7 -> 1 block; 6 -> 2 blocks); flag mismatches.
+ - Use adjacency from the CCT Track table.
+
+*Dependencies & blockers*
+ - Depends on VTF-336.
+ - Blocked: full blocks/keys (B8).
+
+*References*
+Contract VTF-330. Report sheet: IOEXB Behaviour Details.
+
+*Acceptance criteria*
+ - *Given* BEHAV_IN3 = 7, *When* validated, *Then* exactly 1 CFG_CONTROL block is expected; deviation flagged.
+ - *Given* BEHAV_IN3 = 6, *When* validated, *Then* 2 CFG_CONTROL blocks are expected; deviation flagged.
+
+*Test/BDD*
+Cucumber: 7 -> 1, 6 -> 2, mismatch.
+
+==================================================================
+########## VTF-342 (BE-12) — Cluster 4b: External CHC ##########
+==================================================================
+
+*Context*
+Validate the external CHC configuration on CFG_CONTROL against the Config Control Table.
+
+*Scope*
+ - Counting-head control check on CFG_CONTROL (<= 2 instances per ADC), table-based per sensor point.
+ - Use CFG_ZP for adjacency.
+
+*Dependencies & blockers*
+ - Depends on VTF-336.
+ - Blocked: sub-cluster split + keys (B8).
+
+*References*
+Contract VTF-330. Report sheet: CHC Details.
+
+*Acceptance criteria*
+ - *Given* an ADC with <= 2 CFG_CONTROL external CHC blocks, *When* validated, *Then* each is checked per sensor point against the CCT.
+ - *Given* more than 2 external CHC blocks, *When* validated, *Then* the bound is flagged.
+ - (Full ACs to be completed once B8 closes.)
+
+*Test/BDD*
+Cucumber: per-sensor-point check, <= 2 bound.
+
+==================================================================
+########## VTF-343 (BE-13) — Cluster 5: Supervisor ##########
+==================================================================
+
+*Context*
+Validate the FMA Supervisor configuration (CFG_SUPERVIS_FMA1 / CFG_SUPERVIS_FMA2) against the Config Control Table.
+
+*Scope*
+ - Supervisor table validation across CFG_SUPERVIS_FMA1 / CFG_SUPERVIS_FMA2.
+
+*Technical notes*
+ - RESET_TYPE / RESET_DELAY dual-FMA consistency is handled in the preprocessor (VTF-335), not here - do not duplicate it in this cluster.
+
+*Dependencies & blockers*
+ - Depends on VTF-336.
+ - Blocked: blocks/keys + 3B FMA Supervisor re-confirmation against the Confluence requirements doc (B9).
+
+*References*
+Contract VTF-330. Report sheet: Supervisor Details.
+
+*Acceptance criteria*
+ - *Given* finalised supervisor blocks/keys, *When* validated, *Then* each key is checked against the CCT-derived expectation.
+ - (Full ACs to be completed once B9 closes.)
+
+*Test/BDD*
+Cucumber once blocks/keys are confirmed.
+
+==================================================================
+########## VTF-344 (BE-14) — Cluster 6: Data Transmission ##########
+==================================================================
+
+*Context*
+Validate data-transmission configuration against the PDQ Data Transmission Output subsheet.
+
+*Scope*
+ - Blocks: CFG_DATA_OUT, CFG_DATA_SAFETY_LEVELS.
+ - SAFE_OUT_FDBCK_QUAD numeric 0/1; DT POSITION integer in [0,31].
+
+*Out of scope*
+ - CFG_DATA_IO SAFETY_LEVEL_IN/OUT - discarded (an incorrect earlier scope).
+
+*Dependencies & blockers*
+ - Depends on VTF-336.
+ - Blocked: full keys list + rule semantics (B10).
+
+*References*
+Contract VTF-330. Report sheet: Data Transmission Details.
+
+*Acceptance criteria*
+ - *Given* finalised DT keys, *When* validated, *Then* each is checked against the DT-output expectation.
+ - (Full ACs to be completed once B10 closes.)
+
+*Test/BDD*
+Cucumber once keys/semantics are confirmed.
+
+==================================================================
+########## VTF-345 (BE-15) — PDF Report Output [Stretch] ##########
+==================================================================
+
+*Context*
+Produce a consolidated PDF report of Validation Input and Validation Results. Stretch goal, off the critical path.
+
+*Scope*
+ - Generate a PDF consolidating Validation Input and Validation Results.
+
+*Dependencies & blockers*
+ - Depends on the v2 response being available (VTF-334). Lowest priority; defer if the release date is at risk.
+
+*Acceptance criteria*
+ - *Given* a completed v2 validation, *When* the PDF report is requested, *Then* it consolidates Validation Input and Validation Results.
+
+*Test/BDD*
+Smoke test on report generation; keep light.
