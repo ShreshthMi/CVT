@@ -32,6 +32,7 @@ public class PdqParsingService {
     private final CqIrSheetParser cqIrSheetParser;
     private final ControlTableParser controlTableParser;
     private final DataTransmissionParser dataTransmissionParser;
+    private final ProjectBlockResolver projectBlockResolver;
 
     public PdqUploadResponse parse(InputStream xlsx) {
         try (Workbook workbook = WorkbookFactory.create(xlsx)) {
@@ -43,7 +44,7 @@ public class PdqParsingService {
             PdqHeader header = headerParser.parse(pdqSheet);
             Map<String, Map<String, Object>> cqIrParameters =
                     cqIrSheetParser.parse(cqIrSheet, header.gs06Plus());
-            appendProjectBlocks(cqIrParameters, header);
+            appendProjectBlocks(cqIrParameters, projectBlockResolver.resolve(cqIrSheet));
 
             return PdqUploadResponse.builder()
                     .projectCode(header.projectCode())
@@ -66,16 +67,16 @@ public class PdqParsingService {
         return sheet;
     }
 
-    /** CFG_PROJECT_AEB and CFG_PROJECT_COM carry the same BLOCK_EXISTS + PROJECT_NUMBER. Design §6.4. */
-    private void appendProjectBlocks(Map<String, Map<String, Object>> cqIrParameters, PdqHeader header) {
-        cqIrParameters.put("CFG_PROJECT_AEB", projectBlock(header));
-        cqIrParameters.put("CFG_PROJECT_COM", projectBlock(header));
+    /** CFG_PROJECT_AEB and CFG_PROJECT_COM carry the same BLOCK_EXISTS + PROJECT_NUMBER (from the CQ-IR PROJECT_NUMBER row). */
+    private void appendProjectBlocks(Map<String, Map<String, Object>> cqIrParameters, ProjectBlockResolver.ProjectBlock project) {
+        cqIrParameters.put("CFG_PROJECT_AEB", projectBlock(project));
+        cqIrParameters.put("CFG_PROJECT_COM", projectBlock(project));
     }
 
-    private Map<String, Object> projectBlock(PdqHeader header) {
+    private Map<String, Object> projectBlock(ProjectBlockResolver.ProjectBlock project) {
         Map<String, Object> block = new LinkedHashMap<>();
-        block.put("BLOCK_EXISTS", header.blockExists());
-        block.put("PROJECT_NUMBER", header.projectCode());
+        block.put("BLOCK_EXISTS", project.blockExists());
+        block.put("PROJECT_NUMBER", project.projectNumber());
         return block;
     }
 }

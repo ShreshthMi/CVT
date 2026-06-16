@@ -51,12 +51,12 @@ public class PdqWorkbookContract {
 
     public String cqirConfigWordHeader() { return require("cqir.header.configWord"); }
     public String cqirResponseHeader() { return require("cqir.header.response"); }
+    public String cqirRemarksHeader() { return require("cqir.header.remarks"); }
 
     public String pdqSlNoHeader() { return require("pdq.header.slNo"); }
     public String pdqResponseHeader() { return require("pdq.header.response"); }
 
     public String projectCodeLabel() { return require("pdq.projectCode.label"); }
-    public String systemRedundancySlNo() { return require("pdq.slNo.systemRedundancy"); }
     public String aebVersionSlNo() { return require("pdq.slNo.aebEquipmentVersion"); }
 
     // Data Transmission Inputs sub-table section anchors (BE-02).

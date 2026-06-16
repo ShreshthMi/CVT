@@ -43,14 +43,14 @@ class PdqUploadControllerTest {
 
         mockMvc.perform(multipart("/api/upload/pdq").file(file))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.aebEquipmentVersion").value("GS05 and below"))
+                .andExpect(jsonPath("$.aebEquipmentVersion").value("GS07"))
                 .andExpect(jsonPath("$.projectCode").exists())
                 .andExpect(jsonPath("$.cqIrParameters.IDENTIFICATION.min").value("1"))
                 .andExpect(jsonPath("$.cqIrParameters.CFG_SECTION.COMM_FAIL").value("0"))
                 .andExpect(jsonPath("$.cqIrParameters.CFG_TIMEOUT.TIMEOUT_VALUE[0]").value("34"))
                 .andExpect(jsonPath("$.cqIrParameters.CFG_PROJECT_AEB.BLOCK_EXISTS").value("true"))
-                // GS05 -> version-aware key omitted
-                .andExpect(jsonPath("$.cqIrParameters.CFG_ZP.SUPERVIS_COUNT_LMT").doesNotExist());
+                // GS07 -> version-aware key included
+                .andExpect(jsonPath("$.cqIrParameters.CFG_ZP.SUPERVIS_COUNT_LMT").value("0"));
     }
 
     @Test

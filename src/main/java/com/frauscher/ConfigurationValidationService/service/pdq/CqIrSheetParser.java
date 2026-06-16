@@ -47,6 +47,7 @@ public class CqIrSheetParser {
         TEMPLATE.put("CFG_SUPERVIS_FMA1", List.of("RESET_TYPE", "RESET_DELAY"));
         TEMPLATE.put("CFG_SUPERVIS_FMA2", List.of("RESET_TYPE", "RESET_DELAY"));
         TEMPLATE.put("CFG_IP_SWITCH_TIME", List.of("IP_SWITCH_TIME"));
+        TEMPLATE.put("CFG_RSR_TYPE", List.of("RSR_TYPE"));
     }
 
     /** Keys emitted only for GS06+, sourced from {@code versionDefault.*} (never the sheet). Design §6.4. */

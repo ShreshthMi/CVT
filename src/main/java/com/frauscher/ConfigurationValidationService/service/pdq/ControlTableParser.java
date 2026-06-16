@@ -3,7 +3,6 @@ package com.frauscher.ConfigurationValidationService.service.pdq;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DataFormatter;
@@ -31,8 +30,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ControlTableParser {
 
-    private static final String OR_TOKEN = "(or)";
-    private static final String AND_TOKEN = "(and)";
     private static final int MAX_FADC_OPERANDS = 8;
 
     private final PdqWorkbookContract contract;
@@ -64,7 +61,7 @@ public class ControlTableParser {
                     splitComma(cellText(row, c.get("dpOut"))),
                     cellText(row, c.get("resetType")),
                     trackType(cellText(row, c.get("trackOutput"))),
-                    fadcAutoReset(cellText(row, c.get("fadcAutoReset"))),
+                    fadcAutoReset(cellText(row, c.get("fadcAutoReset")), cellText(row, c.get("logicType"))),
                     yesNo(cellText(row, c.get("autoResetByTimer")))));
         }
         return out;
@@ -116,28 +113,29 @@ public class ControlTableParser {
         throw new PdqInvalidException(PdqInvalidReason.INVALID_YES_NO, "Expected YES/NO: " + value);
     }
 
-    private FadcAutoReset fadcAutoReset(String raw) {
-        String value = raw.strip();
-        if (value.isEmpty() || value.equalsIgnoreCase("NA")) {
+    /**
+     * Frozen PDQ Ver14: the operands live in the "FAdC - FAdC Auto reset" column (comma-separated) and
+     * the operator in the separate "Logic type" column. A blank/NA operands cell -&gt; no auto-reset.
+     */
+    private FadcAutoReset fadcAutoReset(String operandsRaw, String operatorRaw) {
+        String operandsCell = operandsRaw.strip();
+        if (operandsCell.isEmpty() || operandsCell.equalsIgnoreCase("NA")) {
             return null;
         }
-        String lower = value.toLowerCase();
-        boolean hasOr = lower.contains(OR_TOKEN);
-        boolean hasAnd = lower.contains(AND_TOKEN);
-        if (hasOr && hasAnd) {
-            throw new PdqInvalidException(PdqInvalidReason.MIXED_OPERATOR_FADC,
-                    "fadcAutoReset cell mixes OR and AND: " + value);
-        }
-        if (!hasOr && !hasAnd) {
-            return new FadcAutoReset(null, List.of(value)); // single bare operand, no operator
-        }
-        String op = hasOr ? "OR" : "AND";
-        List<String> operands = splitOperator(value, hasOr ? OR_TOKEN : AND_TOKEN);
+        List<String> operands = splitComma(operandsCell);
         if (operands.size() > MAX_FADC_OPERANDS) {
             throw new PdqInvalidException(PdqInvalidReason.RANGE_INVALID,
-                    "fadcAutoReset has more than " + MAX_FADC_OPERANDS + " operands: " + value);
+                    "fadcAutoReset has more than " + MAX_FADC_OPERANDS + " operands: " + operandsCell);
         }
-        return new FadcAutoReset(op, operands);
+        String operator = operatorRaw.strip();
+        if (operator.isEmpty()) {
+            return new FadcAutoReset(null, operands); // single operand, no operator
+        }
+        if (!"OR".equalsIgnoreCase(operator) && !"AND".equalsIgnoreCase(operator)) {
+            throw new PdqInvalidException(PdqInvalidReason.UNSUPPORTED_LOGIC_TYPE,
+                    "Logic type must be OR/AND: " + operator);
+        }
+        return new FadcAutoReset(operator.toUpperCase(), operands);
     }
 
     private int locateHeaderRow(Sheet sheet) {
@@ -160,17 +158,6 @@ public class ControlTableParser {
             }
         }
         throw new PdqInvalidException(PdqInvalidReason.SHEET_MISSING, "Control table has no data rows");
-    }
-
-    private List<String> splitOperator(String value, String token) {
-        List<String> operands = new ArrayList<>();
-        for (String part : value.split("(?i)" + Pattern.quote(token))) {
-            String trimmed = part.strip();
-            if (!trimmed.isEmpty()) {
-                operands.add(trimmed);
-            }
-        }
-        return operands;
     }
 
     private List<String> splitComma(String value) {

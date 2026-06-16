@@ -42,5 +42,11 @@ public enum PdqInvalidReason {
     UNSUPPORTED_POSITION,
 
     /** A YES / NO cell holds an unexpected value. */
-    INVALID_YES_NO
+    INVALID_YES_NO,
+
+    /** Control table "Logic type" is not OR / AND. */
+    UNSUPPORTED_LOGIC_TYPE,
+
+    /** The CQ-IR PROJECT_NUMBER row is missing or inconsistent (e.g. NO with a non-empty Remarks). */
+    PROJECT_BLOCK_INVALID
 }

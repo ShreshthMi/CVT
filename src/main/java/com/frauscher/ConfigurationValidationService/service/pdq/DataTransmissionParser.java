@@ -57,8 +57,8 @@ public class DataTransmissionParser {
         for (int r = dataStart; r <= sheet.getLastRowNum(); r++) {
             Row row = sheet.getRow(r);
             String dpName = cellText(row, c.get("dpName"));
-            if (dpName.isEmpty()) {
-                continue;
+            if (dpName.isEmpty() || dpName.startsWith("*")) {
+                continue; // empty row or a footer note (e.g. "*Note : ...")
             }
             out.add(new DataSafetyLevel(
                     dpName,
@@ -74,8 +74,8 @@ public class DataTransmissionParser {
         for (int r = dataStart; r <= sheet.getLastRowNum(); r++) {
             Row row = sheet.getRow(r);
             String sourceDpName = cellText(row, c.get("sourceDpName"));
-            if (sourceDpName.isEmpty()) {
-                continue;
+            if (sourceDpName.isEmpty() || sourceDpName.startsWith("*")) {
+                continue; // empty row or a footer note
             }
             out.add(new OutputDataTransmission(
                     sourceDpName,

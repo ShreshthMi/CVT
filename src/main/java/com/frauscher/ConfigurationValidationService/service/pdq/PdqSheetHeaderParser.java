@@ -1,5 +1,8 @@
 package com.frauscher.ConfigurationValidationService.service.pdq;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
@@ -17,14 +20,15 @@ import lombok.RequiredArgsConstructor;
  * <ul>
  *   <li><b>projectCode</b> — anchored on the "Project Code" label, read from the cell to its right
  *       (merges resolved); blank or absent -&gt; {@code "0"}.</li>
- *   <li><b>System Redundancy</b> (Sl. No. 1.08) — {@code Single -> "true"}, {@code Dual -> "false"} (BLOCK_EXISTS).</li>
- *   <li><b>AEB Equipment Version</b> (Sl. No. 1.09) — the version string + the GS06+ flag.</li>
+ *   <li><b>AEB Equipment Version</b> (Sl. No. 1.09) — the AEB board version string + the GS06+ flag.</li>
  * </ul>
  * Rows/columns are located by content (the contract labels), never fixed positions.
  */
 @Component
 @RequiredArgsConstructor
 public class PdqSheetHeaderParser {
+
+    private static final Pattern GS_VERSION = Pattern.compile("GS\\s*0*(\\d+)", Pattern.CASE_INSENSITIVE);
 
     private final PdqWorkbookContract contract;
     private final DataFormatter dataFormatter = new DataFormatter();
@@ -33,11 +37,15 @@ public class PdqSheetHeaderParser {
         String projectCode = readProjectCode(sheet);
 
         StructuredColumns cols = locateStructuredColumns(sheet);
-        String redundancy = readBySlNo(sheet, cols, contract.systemRedundancySlNo());
         String version = readBySlNo(sheet, cols, contract.aebVersionSlNo());
 
-        boolean gs06Plus = version.toUpperCase().contains("GS06");
-        return new PdqHeader(projectCode, version, gs06Plus, toBlockExists(redundancy));
+        return new PdqHeader(projectCode, version, isGs06Plus(version));
+    }
+
+    /** GS06-and-above test by the numeric board version (e.g. "GS07" -&gt; 7 &gt;= 6). */
+    private boolean isGs06Plus(String version) {
+        Matcher matcher = GS_VERSION.matcher(version);
+        return matcher.find() && Integer.parseInt(matcher.group(1)) >= 6;
     }
 
     private String readProjectCode(Sheet sheet) {
@@ -84,17 +92,6 @@ public class PdqSheetHeaderParser {
         }
         throw new PdqInvalidException(PdqInvalidReason.SHEET_MISSING,
                 "PDQ sheet has no Sl. No. '" + slNo + "' row");
-    }
-
-    private String toBlockExists(String redundancy) {
-        if ("Single".equalsIgnoreCase(redundancy)) {
-            return "true";
-        }
-        if ("Dual".equalsIgnoreCase(redundancy)) {
-            return "false";
-        }
-        throw new PdqInvalidException(PdqInvalidReason.MAPPING_LOOKUP_FAILED,
-                "Unexpected System Redundancy value (expected Single/Dual): '" + redundancy + "'");
     }
 
     /** Reads a cell, following a merged region to its top-left if the target is merged. */

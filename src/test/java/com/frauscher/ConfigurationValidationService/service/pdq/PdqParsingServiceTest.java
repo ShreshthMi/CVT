@@ -1,7 +1,6 @@
 package com.frauscher.ConfigurationValidationService.service.pdq;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.File;
@@ -16,7 +15,7 @@ import com.frauscher.ConfigurationValidationService.dto.pdq.PdqUploadResponse;
 import com.frauscher.ConfigurationValidationService.testsupport.PdqFixtures;
 
 /**
- * End-to-end parse of the fully-populated fixture workbook (GS05, Single redundancy) through
+ * End-to-end parse of the fully-populated (Ver14, GS07) fixture workbook through
  * {@link PdqParsingService}. Asserts the header/project-block invariants and the BE-02
  * control-table / data-transmission state, and dumps the full response to
  * {@code build/pdq-result.json} for eyeballing.
@@ -34,7 +33,8 @@ class PdqParsingServiceTest {
                 new PdqSheetHeaderParser(contract),
                 new CqIrSheetParser(new CqIrValueNormalizer(mapping), mapping, contract),
                 new ControlTableParser(contract),
-                new DataTransmissionParser(contract));
+                new DataTransmissionParser(contract),
+                new ProjectBlockResolver(contract));
     }
 
     @Test
@@ -44,23 +44,23 @@ class PdqParsingServiceTest {
             response = service.parse(in);
         }
 
-        // Header: fixture is GS05 / Single.
-        assertEquals("GS05 and below", response.getAebEquipmentVersion());
+        // Header: Ver14 fixture is GS07 (GS06-and-above).
+        assertEquals("GS07", response.getAebEquipmentVersion());
         assertNotNull(response.getProjectCode());
 
         Map<String, Map<String, Object>> cqir = response.getCqIrParameters();
         Map<String, Object> aeb = cqir.get("CFG_PROJECT_AEB");
         Map<String, Object> com = cqir.get("CFG_PROJECT_COM");
 
-        // Single -> BLOCK_EXISTS "true"; PROJECT_NUMBER == projectCode in both blocks.
+        // PROJECT_NUMBER row Response "Yes" -> BLOCK_EXISTS "true"; PROJECT_NUMBER from Remarks (blank -> "0").
         assertEquals("true", aeb.get("BLOCK_EXISTS"));
         assertEquals("true", com.get("BLOCK_EXISTS"));
-        assertEquals(response.getProjectCode(), aeb.get("PROJECT_NUMBER"));
-        assertEquals(response.getProjectCode(), com.get("PROJECT_NUMBER"));
+        assertEquals("0", aeb.get("PROJECT_NUMBER"));
+        assertEquals("0", com.get("PROJECT_NUMBER"));
 
-        // GS05 -> version-aware group omitted.
-        assertFalse(cqir.get("CFG_ZP").containsKey("SUPERVIS_COUNT_LMT"));
-        assertFalse(cqir.get("CFG_SECTION_OUT").containsKey("TYPE_AUX1"));
+        // GS07 -> version-aware group included (versionDefault "0").
+        assertEquals("0", cqir.get("CFG_ZP").get("SUPERVIS_COUNT_LMT"));
+        assertEquals("0", cqir.get("CFG_SECTION_OUT").get("TYPE_AUX1"));
 
         // BE-02: control table + data transmission both populated in the fully-populated fixture.
         assertNotNull(response.getControlTable());

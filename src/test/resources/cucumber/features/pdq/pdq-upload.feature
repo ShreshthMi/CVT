@@ -9,13 +9,13 @@ Feature: PDQ workbook upload parsing
   Scenario: The sample PDQ workbook parses into the block-grouped cqIrParameters
     Given the sample PDQ workbook
     When the PDQ workbook is parsed
-    Then the parsed AEB equipment version is "GS05 and below"
+    Then the parsed AEB equipment version is "GS07"
     And cqIrParameters block "IDENTIFICATION" has "min" equal to "1"
     And cqIrParameters block "CFG_SECTION" has "COMM_FAIL" equal to "0"
-    And cqIrParameters block "CFG_OCC" has "OCC_EXT" equal to "26"
+    And cqIrParameters block "CFG_OCC" has "OCC_EXT" equal to "0"
     And cqIrParameters block "CFG_SUPERVIS_FMA2" has "RESET_TYPE" equal to "3"
     And cqIrParameters block "CFG_PROJECT_AEB" has "BLOCK_EXISTS" equal to "true"
-    And cqIrParameters block "CFG_ZP" does not contain "SUPERVIS_COUNT_LMT"
+    And cqIrParameters block "CFG_ZP" has "SUPERVIS_COUNT_LMT" equal to "0"
 
   Scenario: The sample PDQ workbook parses the control table and data transmission
     Given the sample PDQ workbook
