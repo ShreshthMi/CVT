@@ -38,7 +38,7 @@ h2. 3. In-scope sheets
 Four sheets, with the following mandatory / conditional status:
 
 || Sheet || Status || Drives ||
-| PDQ | Mandatory | {{projectCode}} and {{blockExistsForProjectCode}} |
+| PDQ | Mandatory | {{projectCode}} and {{aebEquipmentVersion}} (AEB board version, row 1.09) |
 | CQ-IR | Mandatory | {{cqIrParameters}} |
 | Control table | Mandatory | {{controlTable.trackSections[]}} and {{controlTable.dpTable[]}} |
 | Data Transmission Inputs | Conditional | {{dataTransmission}} block (see below) |
@@ -57,7 +57,7 @@ The response body is a parsed PDQ JSON object. Full sample in {{UploadPDQRespons
 
 h3. 4.1 CQ-IR row identification
 
-Rows are extracted by the bracketed all-caps token in the question text — e.g. {{(OCC_EXT)}}. The token in parentheses is the ADC config key under which the response value is exposed in {{cqIrParameters}}. Rows without a bracketed token are skipped as meta questions. The question wording outside the bracket is descriptive context for AE readability; the parser only cares about the bracket.
+Rows are identified by the *Configuration Word* column — a dedicated CQ-IR column holding the ADC config key (e.g. {{OCC_EXT}}). A row with a non-empty Configuration Word is parametric: its Response value is exposed under that key in {{cqIrParameters}}. A row with an empty Configuration Word is a meta question and is skipped. (This replaced the earlier bracket-scanning model; in frozen Ver14 the Configuration Word column is hidden in the sheet but still read by its header label, so hiding it does not affect parsing.)
 
 h3. 4.2 Keys dropped from cqIrParameters
 
@@ -79,7 +79,7 @@ h3. 4.3 Normalisations applied at parse time
 h3. 4.4 Special-case rows handled inside the PDQ JSON output
 
 * The {{CFG_TIMEOUT}} row (with its unit conversion).
-* The Single/Dual architecture row (PDQ row 1.08), which drives {{blockExistsForProjectCode}}.
+* The CQ-IR {{PROJECT_NUMBER}} row, which drives the project blocks: Response {{YES}} → {{BLOCK_EXISTS:"true"}} with {{PROJECT_NUMBER}} taken from that row's Remarks column; {{NO}} → {{"false"}} (Remarks must be empty). *(Frozen Ver14 — replaced the former Single/Dual architecture row 1.08.)*
 
 For any field present in {{UploadPDQResponse.json}} that this document does not explicitly call out, the sample is authoritative.
 
@@ -88,9 +88,9 @@ h2. 5. Response — error contract
 A single external error code. The frontend renders the user-facing message; the code itself is the contract.
 
 || Code || Meaning ||
-| {{PDQ_INVALID}} | All parse and validation failures collapse here — missing mandatory sheet, missing bracketed token on a CQ-IR row that requires one, invalid range, lookup failed, value not divisible by step, present-but-empty Data Transmission sheet, and so on. |
+| {{PDQ_INVALID}} | All parse and validation failures collapse here — missing mandatory sheet, a parametric CQ-IR row with an empty Response, invalid range, lookup failed, value not divisible by step, present-but-empty Data Transmission sheet, an inconsistent project block, and so on. |
 
-Internally, an enum carries diagnostic detail (sheet missing, bracket missing, range invalid, lookup failed, value-not-divisible-by-step, etc.) for logging and debugging. This detail is *not* surfaced externally — the frontend only ever sees {{PDQ_INVALID}}.
+Internally, an enum carries diagnostic detail (sheet missing, range invalid, lookup failed, value-not-divisible-by-step, unsupported track output / position / logic type, inconsistent project block, etc.) for logging and debugging. This detail is *not* surfaced externally — the frontend only ever sees {{PDQ_INVALID}}.
 
 *Pre-business-logic rejections* are returned as standard HTTP status codes and are _not_ folded into {{PDQ_INVALID}}:
 
@@ -110,7 +110,7 @@ As of v1.4 (frozen PDQ Ver14) the sample {{UploadPDQResponse.json}} carries {{CF
 h2. 7. Out of scope for this contract
 
 * Parser internals (how each sheet is walked, how the lookups against MappingProperties are performed).
-* PDQ workbook format corrections currently in flight (CQ-IR bracket additions, populated DT Inputs sample, the Single/Dual architecture row 1.08, the {{CFG_TIMEOUT}} unit fix). These do not block the contract — they affect the source workbook, not the response shape.
+* PDQ workbook content — the frozen Ver14 template the parser reads, and any future AE corrections to it. These affect the source workbook, not the response shape the frontend wires against.
 * The MappingProperties values supplied for new keys ({{IP_SWITCH_TIME}}, {{RESET_DELAY}}, {{SWITCH_GE}}, {{SWITCH_GSF}}, {{PRERESET_ACT_TIME}}, {{NMBR_OUT}}) and the hex format pattern for the protection code. These affect parser behaviour, not the response shape the frontend wires against.
 * The {{/api/upload/fct}} endpoint (separate contract).
 * The {{/api/upload/translate}} endpoint (Phase 1, unchanged).
@@ -125,6 +125,6 @@ Frontend lead to confirm contract review in writing (Jira comment or Confluence 
 
 h2. Revision history
 
-* *v1.4* — Frozen PDQ *Ver14* alignment. (1) {{RSR_TYPE}} re-introduced into {{cqIrParameters}} as {{CFG_RSR_TYPE}} → {{RSR_TYPE}} (PDQ-sourced; reverses the v1.1 drop). {{TYPE_PRTCT_CODE}} stays dropped (tpf-sourced, meta row). (2) The System Redundancy row (PDQ Sl. No. 1.08) is *removed*; {{BLOCK_EXISTS}} / {{PROJECT_NUMBER}} (CFG_PROJECT_AEB/COM) are now derived from the CQ-IR {{PROJECT_NUMBER}} row — Response {{YES}} → {{BLOCK_EXISTS:"true"}} with {{PROJECT_NUMBER}} read from that row's Remarks column (blank → {{"0"}}); {{NO}} → {{"false"}} and Remarks must be empty (else {{PDQ_INVALID}}). (3) AEB Equipment Version (Sl. No. 1.09) is now a board version such as {{GS07}}; GS06-and-above is tested numerically. (4) Control table: the FAdC auto-reset operator now lives in a separate {{Logic type}} column (operands comma-separated), shifting the empty boundary to col J and the DP table to cols K–N. *Note:* §3, §4.4 and §6.5 prose still describe pre-Ver14 behaviour and are pending a follow-up edit.
+* *v1.4* — Frozen PDQ *Ver14* alignment. (1) {{RSR_TYPE}} re-introduced into {{cqIrParameters}} as {{CFG_RSR_TYPE}} → {{RSR_TYPE}} (PDQ-sourced; reverses the v1.1 drop). {{TYPE_PRTCT_CODE}} stays dropped (tpf-sourced, meta row). (2) The System Redundancy row (PDQ Sl. No. 1.08) is *removed*; {{BLOCK_EXISTS}} / {{PROJECT_NUMBER}} (CFG_PROJECT_AEB/COM) are now derived from the CQ-IR {{PROJECT_NUMBER}} row — Response {{YES}} → {{BLOCK_EXISTS:"true"}} with {{PROJECT_NUMBER}} read from that row's Remarks column (blank → {{"0"}}); {{NO}} → {{"false"}} and Remarks must be empty (else {{PDQ_INVALID}}). (3) AEB Equipment Version (Sl. No. 1.09) is now a board version such as {{GS07}}; GS06-and-above is tested numerically. (4) Control table: the FAdC auto-reset operator now lives in a separate {{Logic type}} column (operands comma-separated), shifting the empty boundary to col J and the DP table to cols K–N. (§3, §4.1 and §4.4 prose updated to match; the control-table column layout is detailed in {{fcvt-phase2-design.md}} §6.5.)
 * *v1.1* — Dropped {{RSR_TYPE}} and {{TYPE_PRTCT_CODE}} from {{cqIrParameters}}. These keys are now sourced exclusively from the Phase 1 {{/api/upload/translate}} (tpf) response on v2 validate. Added §4.2 explicitly documenting the drop. The sample {{UploadPDQResponse.json}} requires a corresponding update.
 * *v1.0* — Initial locked contract.

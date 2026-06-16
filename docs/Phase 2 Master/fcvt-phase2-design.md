@@ -66,7 +66,7 @@ This decision was reached in the May 2026 design freeze and recorded against the
 ```json
 {
   "projectCode": "123",
-  "aebEquipmentVersion": "GS06 and above",
+  "aebEquipmentVersion": "GS07",
   "cqIrParameters": {
     "CFG_SECTION":       { "COMM_FAIL": "0", "BEHAV_GE": "1", "CLR_TRACK": "0", "RESET_IN": "5" },
     "CFG_RESET":         { "RESET_OP_TIME": "50", "RESET_LD_TIME": "1" },
@@ -92,9 +92,9 @@ This decision was reached in the May 2026 design freeze and recorded against the
 ```
 
 - `projectCode` — from the PDQ sheet header.
-- `aebEquipmentVersion` — from PDQ row 1.09 (e.g. `GS05 and below`, `GS06 and above`). Governs the version-aware key group (§6.4).
+- `aebEquipmentVersion` — from PDQ row 1.09 AEB board version (e.g. `GS05`, `GS07`). Governs the version-aware key group (§6.4): GS06-and-above is tested numerically on the `GSnn` value.
 - `cqIrParameters` — **block-grouped**, mirroring the Phase 1 `userInput` structure: each ADC config key nests under its parent `CFG_*` block rather than sitting flat. Values are strings after numeric transform (§6.3); arrays for multi-value keys; `IDENTIFICATION` is a `{ min, max }` object. The former top-level `blockExistsForProjectCode` is removed — that information now lives in `CFG_PROJECT_AEB.BLOCK_EXISTS` and `CFG_PROJECT_COM.BLOCK_EXISTS`. Full block-to-key mapping in §6.4.
-- `controlTable` — two sub-tables: `trackSections[]` from source cols A–H, `dpTable[]` from cols J–M. Col I is the empty boundary.
+- `controlTable` — two sub-tables: `trackSections[]` from source cols A–I, `dpTable[]` from cols K–N. Col J is the empty boundary (frozen Ver14 layout; §6.5).
 - `dataTransmission` — `null` when the DT sheet is absent; otherwise `{ dataSafetyLevels[], outputDataTransmission[] }`.
 
 Parser detail for each section is in §6.
@@ -281,7 +281,7 @@ The PDQ parser scope was locked at the May 2026 design freeze. The shape and dec
 
 Hidden sheets, rows, and columns are skipped — the parser honours workbook visibility flags. The intent is that AE controls scope by hiding rather than deleting.
 
-The parser locates sheets and within-sheet anchors via a `pdq-workbook.properties` contract: sheet names; the CQ-IR `Configuration Word` / `Response` header labels; the `Project Code` label; the `Sl. No.` keys for rows 1.08 / 1.09; and the Data Transmission section titles + column headers. Columns and rows are found by **scanning for these labels**, not fixed positions — so AE inserting or moving rows/columns needs no code change; only a tab rename or relabel is a one-line config edit.
+The parser locates sheets and within-sheet anchors via a `pdq-workbook.properties` contract: sheet names; the CQ-IR `Configuration Word` / `Response` / `Remarks` header labels; the `Project Code` label; the `Sl. No.` key for row 1.09 (AEB board version); the control-table column map; and the Data Transmission section titles + column headers. Columns and rows are found by **scanning for these labels**, not fixed positions — so AE inserting or moving rows/columns needs no code change; only a tab rename or relabel is a one-line config edit. (Frozen Ver14 removed the System Redundancy row 1.08; `BLOCK_EXISTS` / `PROJECT_NUMBER` now come from the CQ-IR `PROJECT_NUMBER` row's Response + Remarks — §6.4.)
 
 ### 6.2 CQ-IR row identification
 
@@ -353,18 +353,18 @@ The Remarks column is never read by the parser. Verbose labels and notes remain 
 
 ### 6.5 Control table parsing
 
-The Control table sheet contains two side-by-side sub-tables separated by an empty column:
+The Control table sheet contains two side-by-side sub-tables separated by an empty column (frozen PDQ Ver14 layout):
 
-- **Track sections** — cols A–H. Becomes `controlTable.trackSections[]`.
-- **DP table** — cols J–M. Becomes `controlTable.dpTable[]`.
-- **Col I** — empty boundary column. Never contains data.
+- **Track sections** — cols A–I. Becomes `controlTable.trackSections[]`. (Col G holds the FAdC auto-reset operands, col H the separate `Logic type` operator, col I the `Auto reset by timer circuit` flag.)
+- **DP table** — cols K–N. Becomes `controlTable.dpTable[]`.
+- **Col J** — empty boundary column. Never contains data.
 
 Parsing rules:
 
 - **Track Output column terminology.** Source values `PHYSICAL` and `VIRTUAL` are translated at parse time to `MAIN` and `COMBINATION` respectively. This avoids collision with Cluster 1's `physical/virtual` segment-boundary terminology (§8.1 step 3).
-- **`fadcAutoReset` cells.** Source cells contain expressions like `"1AXT2 (or) SUP1-AXT1"` or `"1AXT1 (and) 2AXT1"`. Parsed into a logic tree of the shape `{ op: "OR" | "AND", operands: [...] }`:
-  - Up to 8 operands per cell.
-  - A single operator per cell only. Cells mixing `OR` and `AND` are rejected.
+- **`fadcAutoReset` (Ver14).** Operands and operator live in two separate columns: the `FAdC - FAdC Auto reset` column (col G) carries the comma-separated operands (e.g. `"1AXT2,SUP1-AXT1"`), and the `Logic type` column (col H) carries the operator (`OR` / `AND`). Parsed into a logic tree of the shape `{ op: "OR" | "AND", operands: [...] }`:
+  - Up to 8 operands.
+  - A blank/`NA` operands cell yields `null` (no auto-reset). A single operand with no operator yields `{ op: null, operands: [...] }`. A `Logic type` other than `OR`/`AND` is rejected.
 - **Yes/No cells.** `E-CHC` and `autoResetByTimer` columns contain `YES` / `NO`. Translated to boolean `true` / `false` in JSON.
 - **POSITION column in the DP sub-table** is restricted to `ABOVE THE RAIL` and `BELOW THE RAIL`. Other values rejected. (Not to be confused with the DT-sheet `POSITION`, which is integer 0–31 — see §6.6.)
 - **Comma is the only delimiter** for multi-DP cells (e.g. `"DP4,DP5"`). No other delimiters are recognised.
@@ -563,7 +563,7 @@ Tracked in two pools — items needing AE coordination, and items needing backen
 | # | Item | Blocks / context | Status |
 |---|---|---|---|
 | A1 | PDQ workbook corrections — originally CQ-IR bracket additions, `CFG_TIMEOUT` unit fix, new row 1.08, populated DT sample | PDQ parser correctness | **Resolved** — workbook rebuilt (Config Key column, normalized values, units in question text, rows 1.08 + 1.09 added). Bracket additions obsolete (Config Key column replaces bracket scanning). Populated DT Inputs sample still pending. |
-| A2 | Confirm exact spelling/casing for the PDQ row 1.08 response (`Single`/`Dual`) | Project-block `BLOCK_EXISTS` derivation | **Resolved** — fixed via template validation list (`Single` / `Dual`). |
+| A2 | Confirm exact spelling/casing for the PDQ row 1.08 response (`Single`/`Dual`) | Project-block `BLOCK_EXISTS` derivation | **Superseded (Ver14)** — row 1.08 removed; `BLOCK_EXISTS` / `PROJECT_NUMBER` now derive from the CQ-IR `PROJECT_NUMBER` row (Response `YES`/`NO` + Remarks). |
 | A3 | Reset Type catalog enumeration in the Control table — full set of allowed values | Control table parsing (§6.5) | **Open** — carried as a Control table validation list; full set pending AE. |
 | A4 | MappingProperties values for `IP_SWITCH_TIME`, `RESET_DELAY`, `SWITCH_GE`, `SWITCH_GSF`, `PRERESET_ACT_TIME`, `NMBR_OUT`, plus hex pattern for protection code | Backend MappingProperties additions | **Resolved** — step values locked (§6.3 transform table). Hex pattern moot: `TYPE_PRTCT_CODE` is now tpf-sourced, not PDQ. |
 | A5 | Phase 2 input files formally shared with Max; PDQ document circulated | AE coordination (see `fcvt-meeting-and-strategy.md`) | **Open**. |

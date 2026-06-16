@@ -1,7 +1,11 @@
 h1. PDQ Upload Endpoint — Frontend Contract
 
+{warning}
+*SUPERSEDED* — the current PDQ upload contract is {{pdq-upload-contract-v1.1.wiki}} (now at v1.4, aligned to the frozen PDQ Ver14 workbook). This v1.0 baseline is kept for history only; the prose below predates the Config-Word parse model and the frozen-Ver14 changes (control-table Logic-type column, CQ-IR-row project blocks, RSR_TYPE re-introduction). Do not wire against this document.
+{warning}
+
 {info}
-*Status:* Locked
+*Status:* Superseded by v1.1 (kept for history)
 *Audience:* Frontend integration
 *Source:* {{fcvt-phase2-design.md}} §6; sample response {{UploadPDQResponse.json}}
 *Owner:* Backend
