@@ -64,12 +64,13 @@ A zero-mismatch v2 response is shape-compatible with a Phase 1 response.
 These span more than one contract and are worth holding in one place.
 
 - **Block-grouped `cqIrParameters`** mirrors Phase 1 `userInput` so the engine path is shared. Full block-to-key mapping in `fcvt-phase2-design.md` §6.4.
-- **Source split for the userInput keys on v2:** PDQ supplies the CQ-IR-derived blocks; tpf supplies `CFG_TROLLEY_SUPP` / `CFG_PARAM_TROLLEY_SUPP` / `CFG_RSR_TYPE` / `CFG_TYPE_PRTCT`; the control table supplies `RESET_OUT` and `BEHAV_INPUT3` (derived at validate time); the FCT supplies the basis for `CFG_IP_SWITCH`. No key has two sources.
+- **Source split for the userInput keys on v2:** PDQ supplies the CQ-IR-derived blocks; tpf supplies `CFG_TROLLEY_SUPP` / `CFG_PARAM_TROLLEY_SUPP` / `CFG_RSR_TYPE` / `CFG_TYPE_PRTCT`; the control table supplies `RESET_OUT` and `BEHAV_INPUT3` (derived at validate time); the FCT supplies the basis for `CFG_IP_SWITCH`. *Frozen Ver14:* `CFG_RSR_TYPE` is the one dual-sourced key — PDQ (`cqIrParameters`) **and** tpf — cross-checked at preprocess time (must match, else the validate is rejected); every other key is single-sourced.
 - **Version-aware group** (`TYPE_IN1/2/3`, `TYPE_AUX1/2`, `SUPERVIS_COUNT_LMT`): keyed on PDQ row 1.09 (AEB Equipment Version) — omitted for GS05-and-below, property-file defaults for GS06-and-above.
-- **Three validate-time cross-correlation rules** (specified `fcvt-phase2-design.md` §4.1; not in any single contract because they operate on the assembled payload):
+- **Four validate-time cross-correlation rules** (specified `fcvt-phase2-design.md` §4.1; not in any single contract because they operate on the assembled payload):
   1. Project-block consistency — ADC `CFG_PROJECT_AEB` / `CFG_PROJECT_COM` both-absent-or-both-present, same value.
   2. Dual-FMA consistency — ADC `RESET_TYPE` / `RESET_DELAY` for FMA1 and FMA2 both checked against the single parsed source; divergence fails.
   3. `CFG_IP_SWITCH` derivation — added from FCT `redundantComPresent` at preprocessing; absent = disabled.
+  4. `CFG_RSR_TYPE` consistency (Ver14) — when tpf is uploaded, the PDQ and tpf `RSR_TYPE` must match; mismatch stops validation with a baseline error.
 - **Samples:** `UploadFCTResponse.json` and `UploadPDQResponse` (block-grouped) are the authoritative shape references attached to the upload contracts.
 
 ---

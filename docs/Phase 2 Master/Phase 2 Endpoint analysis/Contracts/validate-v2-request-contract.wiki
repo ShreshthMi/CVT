@@ -53,7 +53,7 @@ The v2 {{userInput}} contains only what the upload endpoints produced. Phase 1's
 || Key || Source || Notes ||
 | {{CFG_TROLLEY_SUPP}} | {{POST /api/upload/translate}} response body | Sent verbatim |
 | {{CFG_PARAM_TROLLEY_SUPP}} | {{POST /api/upload/translate}} response body | Sent verbatim |
-| {{CFG_RSR_TYPE}} | {{POST /api/upload/translate}} response body | Sent verbatim — sole source on v2 |
+| {{CFG_RSR_TYPE}} | {{POST /api/upload/translate}} response body | Sent verbatim. *Frozen Ver14:* also carried in {{pdqData}} ({{cqIrParameters.CFG_RSR_TYPE}}); the preprocessor cross-checks the two and rejects the validate if they differ (see §5). |
 | {{CFG_TYPE_PRTCT}} | {{POST /api/upload/translate}} response body | Sent verbatim — sole source on v2 |
 
 If tpf is not uploaded, these 4 keys are absent from {{userInput}}. The engine handles their absence the same way Phase 1 handles missing userInput keys today.
@@ -76,9 +76,12 @@ tpf upload state does not affect the gate or the endpoint choice. tpf is indepen
 
 h2. 5. Overlap rule between PDQ and tpf
 
-The Phase 1 tpf response and the Phase 2 PDQ response previously had two overlapping keys ({{CFG_RSR_TYPE}}, {{CFG_TYPE_PRTCT}}). To eliminate ambiguity, the PDQ parser drops these two keys from {{cqIrParameters}} during parsing — they no longer appear in the PDQ upload response. On v2, tpf is the sole source for these keys when tpf is uploaded; when tpf is not uploaded, the keys are absent from {{userInput}}.
+The Phase 1 tpf response and the Phase 2 PDQ response have two potentially overlapping keys ({{CFG_RSR_TYPE}}, {{CFG_TYPE_PRTCT}}), handled differently:
 
-This change to the PDQ contract is small but affects the locked PDQ upload contract document, which will be revised separately.
+* *{{CFG_TYPE_PRTCT}}* — dropped from {{cqIrParameters}} by the PDQ parser (its CQ-IR row is a meta row). tpf is the sole source on v2 when uploaded; absent from {{userInput}} otherwise.
+* *{{CFG_RSR_TYPE}}* — *(frozen Ver14)* emitted by *both* sources: carried in {{pdqData}} ({{cqIrParameters.CFG_RSR_TYPE}}) and, when a tpf is uploaded, also in the tpf-sourced {{userInput.CFG_RSR_TYPE}}. The validate-time preprocessor *cross-checks the two {{RSR_TYPE}} values and requires them to be identical.* If both are present and differ, the preprocessor stops and the validate is rejected with a baseline error ({{HTTP 400}}) — the FCT/PDQ design baseline and the tpf translation disagree on the wheel-sensor type. If only one is present (no tpf uploaded), that value is used.
+
+These changes affect the locked PDQ upload contract document (the PDQ parser now emits {{CFG_RSR_TYPE}}), revised there as v1.4.
 
 h2. 6. Worked example — v2 request with tpf uploaded
 

@@ -65,6 +65,9 @@
     "CFG_IP_SWITCH_TIME": {
       "IP_SWITCH_TIME": "10"
     },
+    "CFG_RSR_TYPE": {
+      "RSR_TYPE": "1"
+    },
     "CFG_PROJECT_AEB": {
       "BLOCK_EXISTS": "true",
       "PROJECT_NUMBER": "123"

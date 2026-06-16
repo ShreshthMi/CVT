@@ -127,11 +127,12 @@ This rule corrects an earlier design that had the preprocessor reading SLCT_TIME
 
 The `ComIpMap` and self-IP findings that featured in the older design have been **dropped**. COM file IP validation is out of scope for Phase 2 (§11). If it gets reintroduced later, it will be static checks only — format validity, distinctness, existence in the expected list — not file-sourced cross-referencing.
 
-**Validate-time cross-correlation rules.** Beyond the per-entry expectation lookups, the preprocessor applies three consistency rules that span files or blocks:
+**Validate-time cross-correlation rules.** Beyond the per-entry expectation lookups, the preprocessor applies four consistency rules that span files or blocks:
 
 - **Project-block consistency.** In the ADC files, `CFG_PROJECT_AEB` and `CFG_PROJECT_COM` must either both be absent or both be present (in their respective AEB and COM files), and where present must carry the same project value. The expected project value is the single `projectCode`-derived number the PDQ parser writes identically into both `CFG_PROJECT_AEB.PROJECT_NUMBER` and `CFG_PROJECT_COM.PROJECT_NUMBER`. Divergence fails the check.
 - **Dual-FMA consistency.** `RESET_TYPE` and `RESET_DELAY` are parsed once from CQ-IR and written identically into `CFG_SUPERVIS_FMA1` and `CFG_SUPERVIS_FMA2`. At validate time, both ADC FMA values for each key are checked against that single source; if either diverges, the check fails.
 - **`CFG_IP_SWITCH` derivation.** `CFG_IP_SWITCH` is not a CQ-IR key. The preprocessor derives it from the FCT response field `redundantComPresent`: when `true`, it adds `CFG_IP_SWITCH: { IP_SWITCH: "1" }` to the Expectations JSON; when `false`/absent, the block is omitted and IP switching is treated as disabled. This is distinct from `CFG_IP_SWITCH_TIME`, which is a CQ-IR key carried in `pdqData`.
+- **`CFG_RSR_TYPE` consistency (PDQ ↔ tpf).** *(Frozen Ver14)* `RSR_TYPE` is supplied by both sources: the PDQ response (`pdqData.cqIrParameters.CFG_RSR_TYPE.RSR_TYPE`) and, when a tpf file is uploaded, the tpf-sourced `userInput.CFG_RSR_TYPE.RSR_TYPE`. The preprocessor cross-checks the two and requires them to be identical. If both are present and differ, validation stops and the v2 request is rejected with a baseline error (`HTTP 400`) — the design baseline and the tpf translation disagree on the wheel-sensor type, so the project cannot be validated. If only one is present (no tpf uploaded), that single value is used.
 
 ### 4.2 Engine extension
 
@@ -344,11 +345,11 @@ The Remarks column is never read by the parser. Verbose labels and notes remain 
 - **`IDENTIFICATION`** — value `1 to 4095` is split on `to`, trimmed, emitted as a **top-level** `cqIrParameters` block `{ min, max }` with both bounds as **strings** (e.g. `{"min":"1","max":"4095"}`). Matches the Phase 1 `RangeCheck` userInput shape; feeds the same engine path. Only `to`-separated, min/max-shaped value.
 - **`CFG_TIMEOUT` / `TIMEOUT_VALUE`** — multi-value response split on ` & `, step-divided, then **padded to a fixed width of 8** with `0`. Example: `340 & 610` → `["34","61","0","0","0","0","0","0"]`. Always nested under the `CFG_TIMEOUT` block. The allowed value set on the cell is governed by a project-appropriate Excel validation list (Indian standard `340 & 610`); this is a template concern, not a parser constant.
 
-**Project blocks.** `CFG_PROJECT_AEB` and `CFG_PROJECT_COM` each carry `BLOCK_EXISTS` (string `"true"`/`"false"`, from PDQ row 1.08 System Redundancy: `Single` → `"true"`, `Dual` → `"false"`) and `PROJECT_NUMBER` (both derived from the single `projectCode` field, so always identical). This replaces the former top-level `blockExistsForProjectCode`. `projectCode` is read from the PDQ sheet by anchoring on the **"Project Code"** label and reading the value cell to its right (cell **B3**, merged cells resolved) — **not** a drawing-layer text box. A blank/absent value yields `"0"` (so both `PROJECT_NUMBER`s become `"0"`).
+**Project blocks.** `CFG_PROJECT_AEB` and `CFG_PROJECT_COM` each carry `BLOCK_EXISTS` (string `"true"`/`"false"`) and `PROJECT_NUMBER` (identical across both). This replaces the former top-level `blockExistsForProjectCode`. *Frozen Ver14:* both are derived from the CQ-IR `PROJECT_NUMBER` row (Sl. No. 44) — Response `YES` → `BLOCK_EXISTS:"true"` with `PROJECT_NUMBER` read from that row's **Remarks** column (blank Remarks → `"0"`); Response `NO` → `"false"` and the Remarks cell must be empty (else `PDQ_INVALID`). The earlier source — PDQ row 1.08 System Redundancy (`Single`/`Dual`) — was removed in Ver14. The top-level `projectCode` is still read from the PDQ sheet by anchoring on the **"Project Code"** label and reading the value cell to its right (merged cells resolved); blank/absent → `"0"`.
 
 **Version-aware group.** PDQ row 1.09 (AEB Equipment Version) governs the keys `TYPE_AUX1/TYPE_AUX2` (CFG_SECTION_OUT), `TYPE_IN1/TYPE_IN2/TYPE_IN3` (CFG_AXCNT), and `SUPERVIS_COUNT_LMT` (CFG_ZP): omitted entirely for GS05-and-below; included with property-file defaults for GS06-and-above (no PDQ input). GS05-omit is the common case for most Indian deployments.
 
-**Keys not emitted by the PDQ parser.** `RESET_OUT` (CFG_SECTION) and `BEHAV_INPUT3` (CFG_AXCNT) are derived from the control table at validate time. `RSR_TYPE` and `TYPE_PRTCT_CODE` are sourced from the tpf (`/api/upload/translate`) response, not PDQ — their CQ-IR rows are meta rows. `CFG_IP_SWITCH` is FCT-derived at preprocessing (§4.1), not a PDQ output.
+**Keys not emitted by the PDQ parser.** `RESET_OUT` (CFG_SECTION) and `BEHAV_INPUT3` (CFG_AXCNT) are derived from the control table at validate time. `TYPE_PRTCT_CODE` is sourced from the tpf (`/api/upload/translate`) response, not PDQ — its CQ-IR row is a meta row. `CFG_IP_SWITCH` is FCT-derived at preprocessing (§4.1), not a PDQ output. *(Frozen Ver14: `RSR_TYPE` is now PDQ-sourced and emitted as the `CFG_RSR_TYPE` block — no longer in this list.)*
 
 ### 6.5 Control table parsing
 
@@ -587,7 +588,7 @@ Tracked in two pools — items needing AE coordination, and items needing backen
 | B11 | Counting-head-output IoExb rejection — exact error code mapping | FCT upload error contract finalisation (§5.7) | **Open**. |
 | B12 | Control table `fadcAutoReset` parsing decision — raw string vs structured logic tree | (§6.5) | **Resolved** — structured logic tree. |
 | B13 | DT sheet `SAFE_OUT_FDBCK_QUAD` JSON shape — boolean vs numeric | (§6.6) | **Resolved** — numeric `0`/`1`. |
-| B14 | Validate-time cross-correlation rules — project-block consistency, dual-FMA consistency, `CFG_IP_SWITCH` derivation from `redundantComPresent` | Specified §4.1; implementation tied to BE cluster work | **Open** — specified, not yet implemented. |
+| B14 | Validate-time cross-correlation rules — project-block consistency, dual-FMA consistency, `CFG_IP_SWITCH` derivation from `redundantComPresent`, `CFG_RSR_TYPE` PDQ↔tpf consistency (Ver14) | Specified §4.1; implementation tied to BE cluster work | **Open** — specified, not yet implemented. |
 
 ---
 
