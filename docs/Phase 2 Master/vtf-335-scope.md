@@ -21,7 +21,7 @@ Replace `StubExpectationsPreprocessor` (returns empty) with the real `Expectatio
 
 | # | Deliverable | Key files | Verification |
 |---|---|---|---|
-| **M1** | **Carrier reshape + widen seam.** `Expectation` gains a scalar variant (`block/entry/value`) and an instanced variant (`fileID` numeric + composite `linkedID = (ID, SECTION)` + `block/key/value`); `Expectations` holds `scalarExpectations: Map<String,Map<String,Object>>` + `instancedExpectations: List<…>`. Stub + `ConfigValidationV2Service` updated to compile and stay green. | `Expectation`, `Expectations`, `ExpectationsPreprocessor`, `ConfigValidationV2Service`, `StubExpectationsPreprocessor` | compile; existing v2 controller/BDD tests stay green |
+| **M1** ✅ | **Carrier reshape + widen seam** (as-built — §6.2). `Expectations` = `scalarExpectations: Map<String,Map<String,Object>>` + `instancedExpectations: List<InstancedExpectation>`; new `InstancedExpectation` record + `MatchMode` enum; old flat `Expectation` removed; seam widened to `preprocess(ValidationInputV2)`. Stub + `ConfigValidationV2Service` updated. | `Expectations`, `InstancedExpectation`, `MatchMode`, `ExpectationsPreprocessor`, `StubExpectationsPreprocessor`, `ConfigValidationV2Service` | full suite green; no test referenced the carrier symbols |
 | **M2** | **Input gate (§3)** — track reconciliation (Control Table ↔ FCT track universe, NOT-FOUND + EXTRA), RSR_TYPE dual-source cross-check, build-time gate checks. New codes `PHASE2_CONTROL_TABLE_MISSING`, `PHASE2_TRACK_RECONCILIATION_FAILED` (carries `notFoundTracks[]`+`extraTracks[]`), `PHASE2_BASELINE_INCONSISTENT`; each a concrete `ConfigValidationException` subclass **+ `@ExceptionHandler`** (else falls through to 500). `PHASE2_INPUTS_INCOMPLETE` kept for missing-artifact only. | new exception classes, `GlobalExceptionHandler`, `ApiErrorResponse` (encode lists in `message` or add `details`), preprocessor gate | unit test per gate path (400 + message) |
 | **M3** | **Scalar bucket (§4)** — emit `scalarExpectations` from `cqIrParameters` + scalar cross-rules (RSR, project AEB/COM, dual-FMA RESET_TYPE/DELAY, CFG_SWITCH, CFG_IP_SWITCH_TIME). Name alignment `IDENTIFICATION`→`ID`. | preprocessor scalar assembly | assert emitted scalar map vs fixture |
 | **M4** | **Registry edits (§4/§7.5)** — add `CFG_SWITCH` {SWITCH_GE, SWITCH_GSF, PRERESET_ACT_TIME} + `CFG_IP_SWITCH_TIME` {IP_SWITCH_TIME} InputMatch; add `CFG_PROJECT_COM` ProjectBlockCheck (COMDETAILS — first consumer of that marker); add 4 dual-FMA InputMatch rules; **supersede** `CFG_AXCNT.BEHAV_INPUT3`. Config-only; takes effect when BE-06 consumes. | `ValidationConfiguration.json` (+ COMDETAILS consumer if needed) | startup config-validator + registry-count test |
@@ -90,6 +90,25 @@ M1→M2→M3 form the spine; M5 is the bulk.
 | `CFG_FWRD_ACD` | `CAN_TX_ID`, `INT_ID_DEST` | `{CAN_TX_ID, INT_ID_DEST}` (socket→COM) | BY_IDENTITY |
 
 **Structural (no expectation):** `ID.ID` DuplicateCheck — uniqueness, no baseline value (currently inert; confirm separately). **Parked:** `CFG_DATA_SAFETY_LEVEL` / `CFG_DATA_OUT` (DT).
+
+### 6.2 Carrier shape (M1, as-built)
+
+```
+Expectations (record)
+ ├─ scalarExpectations    : Map<String, Map<String,Object>>   // block → entry → value (Phase-1 engine)
+ └─ instancedExpectations : List<InstancedExpectation>
+
+InstancedExpectation (record)            // factories: single() / byIdentity() / positional()
+ ├─ fileId        : int                  // numeric ADC [IDENTIFICATION] ID (DP/COM id) — the join key
+ ├─ block         : String
+ ├─ matchMode     : MatchMode            // SINGLE | BY_IDENTITY | POSITIONAL
+ ├─ linkedId      : Map<String,String>   // identity map; BY_IDENTITY only ({ID,SECTION}, {CAN_TX_ID,INT_ID_DEST}); else empty
+ ├─ position      : Integer              // POSITIONAL only (ACO slot); else null
+ ├─ key           : String               // validated entry (DIR_INV, SLCT_TIMEOUT, ID, SECTION, …)
+ └─ expectedValue : String
+```
+
+The three variants live as nullable selector fields on one record (not a sealed hierarchy) — simpler, and `MatchMode` already discriminates. Seam: `ExpectationsPreprocessor.preprocess(ValidationInputV2)` (gives the preprocessor `fctData` + `pdqData` + `tpfSections`). For POSITIONAL/ACO the `ID` and `SECTION` are emitted as `key` rows at the slot, so a re-sequenced config fails. Buckets are emission-only in BE-05; BE-06 consumes them.
 
 ## 7. Verification approach
 Every milestone asserts the **emitted `Expectations`** for known FCT+PDQ fixtures (via `PdqFixtures`/`FctFixtures`). No end-to-end validate until BE-06. Keep the full suite green at each commit.
