@@ -35,11 +35,60 @@ M1→M2→M3 form the spine; M5 is the bulk.
 - **RangeCheck:** out — shipped in VTF-350.
 - **`UIInputRequired` flip:** NOT done (see `v2-expectations-contract.md` §4 fix 2) — the `ID` rule stays `No`.
 
-## 6. Open items still to resolve (per milestone)
-1. **List-membership carrier** (blocks M5 CHC + FWRD_ACD): `MultipleBlockMultipleInputMatch`-style vs a dedicated `membershipSets` structure for set-valued instanced expectations.
-2. **Full per-(block, entry) scalar-vs-instance enumeration** (sharpens M3/M5): sweep every validated ADC block to fix the scalar/instanced split.
-3. **DT** (`CFG_DATA_*`): parked, AE input.
-4. **`ApiErrorResponse` list shape** (M2): encode the track lists in `message` vs add a structured `details` field — decide when wiring `PHASE2_TRACK_RECONCILIATION_FAILED`.
+## 6. Resolved design decisions (2026-06-23)
+
+**#1 — list-membership carrier → `matchMode` on flat rows (no separate bucket).** `instancedExpectations` stays one flat list; each `Expectation` carries a `matchMode` the BE-06 engine reads to select the ADC occurrence(s):
+
+| `matchMode` | Blocks | Occurrence selection |
+|---|---|---|
+| `BY_FILE` | `CFG_AXCNT.BEHAV_INPUT3`, `CFG_IP_SWITCH.IP_SWITCH` | the one file picked by `fileID` |
+| `BY_LINKED_ID` | `CFG_ZP_FMA*`, `CFG_SUPERVIS_FMA*` | occurrence whose identity == `linkedID` |
+| `POSITIONAL` | `CFG_SECTION_OUT` (ACO) | i-th occurrence (card/slot order) |
+| `SET_MEMBERSHIP` | `CFG_CONTROL`, `CFG_FWRD_ACD` | all occurrences vs the expected set (set-equality) |
+
+The existing `MultipleBlockMultipleInputMatchRule` only checks `actual ⊆ expected`; the `SET_MEMBERSHIP` **set-equality** comparison (missing expected → fail, extra actual → flag) is a new BE-06 rule. The carrier just emits N rows under a shared `(fileID, block)` tagged `SET_MEMBERSHIP`.
+
+**#3 — track-reconciliation error → verbose `message` (`ApiErrorResponse` stays flat).** `PHASE2_TRACK_RECONCILIATION_FAILED` must **name the offending tracks** in the message (which are NOT-FOUND in the FCT, which are EXTRA), accumulating all within the gate per §3.1. **Direction — no fail-fast:** a *later* story will add an **error array** to `ApiErrorResponse` listing every error found during preprocessing; until then VTF-335 keeps the flat shape (one verbose message per failing gate) and cross-gate accumulation lands with that later change.
+
+**#2 — scalar/instanced split → enumerated in §6.1 (resolved).** Completeness (no unlisted entries in the instanced blocks) to be confirmed against real ADC block dumps during M5.
+
+**DT** (`CFG_DATA_*`) — still **PARKED**, AE input.
+
+### 6.1 Per-(block, entry) scalar vs instanced
+
+**SCALAR** (expected from cqIR / tpf / project; every-occurrence `allMatch`):
+
+| Block | Entries |
+|---|---|
+| `ID` | `ID` (RangeCheck ← IDENTIFICATION) |
+| `CFG_BEHAV_TGGL` | `BEHAV_RESET`, `BEHAV_SIMUL` |
+| `CFG_SECTION` | `COMM_FAIL`, `BEHAV_GE`, `CLR_TRACK`, `RESET_IN`, `RESET_OUT` |
+| `CFG_AXCNT` | `BEHAV_INPUT1`, `BEHAV_INPUT2`, `TYPE_IN1/2/3`, `BEHAV_IOEXB` |
+| `CFG_SECTION_OUT` | `CLR_OCC`, `TYPE_AUX1/2`, `AUX1_OUT`, `AUX2_OUT`, `AUX1_NO_NC`, `AUX2_NO_NC` (aux) |
+| `CFG_OCC` | `OCC_DELAY`, `OCC_EXT` |
+| `CFG_RESET` | `RESET_LD_TIME`, `RESET_OP_TIME` |
+| `CFG_ZP` | `INTERVAL`, `SUPERVIS_COUNT`, `SYSTEM_COUNT`, `PARTIAL_COUNT`, `SUPERVIS_COUNT_LMT` |
+| `CFG_TIMEOUT` | `TIMEOUT_VALUE` (array) |
+| `CFG_PROJECT_AEB` / `CFG_PROJECT_COM` | `BLOCK_EXISTS` + `PROJECT_NUMBER` |
+| `CFG_SUPERVIS_FMA1/2` | `RESET_TYPE`, `RESET_DELAY` (scalar half) |
+| `CFG_SWITCH` | `SWITCH_GE`, `SWITCH_GSF`, `PRERESET_ACT_TIME` |
+| `CFG_IP_SWITCH_TIME` | `IP_SWITCH_TIME` |
+| `CFG_RSR_TYPE` | `RSR_TYPE` (also the §3.2 gate cross-check) |
+| `CFG_TROLLEY_SUPP`, `CFG_PARAM_TROLLEY_SUPP`, `CFG_TYPE_PRTCT` | tpf fields |
+
+**INSTANCED** (per-entity from FCT / Control Table):
+
+| Block | Entries | Identity | `matchMode` |
+|---|---|---|---|
+| `CFG_ZP_FMA1/2` | `DIR_INV`, `SLCT_TIMEOUT` | `linkedID` = head DP | BY_LINKED_ID |
+| `CFG_SUPERVIS_FMA1/2` | `LOGIC_TYPE`, `SLCT_TIMEOUT` | `linkedID` = (ID, SECTION) | BY_LINKED_ID |
+| `CFG_SECTION_OUT` | `ID` (=aco_fmaId), `SECTION`, `SLCT_TIMEOUT` | positional | POSITIONAL |
+| `CFG_AXCNT` | `BEHAV_INPUT3` (derived 6/7) | `fileID` = DP | BY_FILE *(supersedes registry rule)* |
+| `CFG_IP_SWITCH` | `IP_SWITCH` | `fileID` = COM | BY_FILE |
+| `CFG_CONTROL` | `SLCT_TIMEOUT` | `linkedID` = (ID, SECTION) ×2 | SET_MEMBERSHIP |
+| `CFG_FWRD_ACD` | `CAN_TX_ID`, `INT_ID_DEST` | per (source DP, dest COM) | SET_MEMBERSHIP |
+
+**Structural (no expectation):** `ID.ID` DuplicateCheck — uniqueness, no baseline value (currently inert; confirm separately). **Parked:** `CFG_DATA_SAFETY_LEVEL` / `CFG_DATA_OUT` (DT).
 
 ## 7. Verification approach
 Every milestone asserts the **emitted `Expectations`** for known FCT+PDQ fixtures (via `PdqFixtures`/`FctFixtures`). No end-to-end validate until BE-06. Keep the full suite green at each commit.

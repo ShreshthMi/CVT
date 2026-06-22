@@ -143,7 +143,7 @@ Deferred 2026-06-20 — scenarios unclear, needs AE input. Known: two ADC block 
 3. **Error codes + exception wiring** (all `HTTP 400`; `PHASE2_INPUTS_INCOMPLETE` kept for missing-artifact only):
    - Codes: `PHASE2_CONTROL_TABLE_MISSING`, `PHASE2_TRACK_RECONCILIATION_FAILED` (carries `notFoundTracks[]`+`extraTracks[]`), `PHASE2_BASELINE_INCONSISTENT` (RSR mismatch, RSR both-absent, duplicate PDQ track name, `CFG_CONTROL` >2-tracks, `CFG_FWRD_ACD` dest-IP-no-COM / missing-NW2).
    - **Each new code needs a concrete `ConfigValidationException` subclass AND `@ExceptionHandler` registration** — `GlobalExceptionHandler` maps by concrete class and the base `ConfigValidationException` is abstract with no handler, so an unregistered subclass falls through to the catch-all → `UNEXPECTED_ERROR` / HTTP 500. (Either one handler per subclass, or a single `@ExceptionHandler(ConfigValidationException.class)` base handler mapping to 400 with `ex.getErrorCode()`.)
-   - `ApiErrorResponse` is flat (`errorCode`/`message`/`timestamp`) — encode lists in `message` or add a structured `details`.
+   - **Decided 2026-06-23:** `ApiErrorResponse` stays **flat** for VTF-335; the track lists are encoded in a **verbose `message`** that names which tracks are NOT-FOUND vs EXTRA. **No fail-fast (direction):** a *later* story adds an error **array** to `ApiErrorResponse` collecting every preprocessing error; until then each failing gate throws one verbose message.
 4. **`RangeCheck`** — the IDENTIFICATION-via-PDQ path (String-vs-Number cast + `UIInputRequired:No` gate, §4) **and** the both-absent NPE guard.
 5. **Registry edits** — add `CFG_SWITCH` / `CFG_IP_SWITCH_TIME` `InputMatch`; add `CFG_PROJECT_COM` `ProjectBlockCheck` (COMDETAILS); add dual-FMA rules; **supersede** the `CFG_AXCNT.BEHAV_INPUT3` entry (§5.4).
 
@@ -161,7 +161,9 @@ Deferred 2026-06-20 — scenarios unclear, needs AE input. Known: two ADC block 
 - **`DIR_INV` missing-dpTable** → every counting-head DP is guaranteed a `dpTable` row; a head absent from the `dpTable` is a malformed PDQ (`PHASE2_BASELINE_INCONSISTENT`) (§5.1).
 - **`id-to-id` parse** → all ids are numeric-valued Strings (names like `DP166A`/`1AXT2` are never parsed as ids); `Integer.parseInt` is safe (§2).
 
+**Resolved 2026-06-23 (VTF-335 scoping — detail in `vtf-335-scope.md`):**
+- **List-membership carrier** → a `matchMode` enum on flat instanced rows (`BY_FILE` / `BY_LINKED_ID` / `POSITIONAL` / `SET_MEMBERSHIP`); **no** separate `membershipSets` bucket. Set blocks (`CFG_CONTROL`, `CFG_FWRD_ACD`) emit N rows under a shared `(fileID, block)` tagged `SET_MEMBERSHIP`; the set-equality compare (missing→fail, extra→flag) is a new BE-06 rule (the stock `MultipleBlockMultipleInputMatch` only does `actual ⊆ expected`).
+- **Full per-`(block, entry)` scalar-vs-instance enumeration** → done (`vtf-335-scope.md` §6.1); completeness vs unlisted instanced-block entries to confirm against ADC dumps in M5.
+
 **Still open / parked:**
 - **DT** (`CFG_DATA_*`) — PARKED, AE input (§5.7).
-- **List-membership carrier** — `MultipleBlockMultipleInputMatch` vs a dedicated `membershipSets` structure (counting-head sets, forwarding sets).
-- **Full per-`(block, entry)` scalar-vs-instance enumeration** — sweep every validated ADC block.
