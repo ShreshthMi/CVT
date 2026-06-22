@@ -37,16 +37,17 @@ M1→M2→M3 form the spine; M5 is the bulk.
 
 ## 6. Resolved design decisions (2026-06-23)
 
-**#1 — list-membership carrier → `matchMode` on flat rows (no separate bucket).** `instancedExpectations` stays one flat list; each `Expectation` carries a `matchMode` the BE-06 engine reads to select the ADC occurrence(s):
+**#1 — list-membership carrier → 3-mode `matchMode` on flat rows (no separate bucket); grounded in real ADCs (C0351 / C0358 / C0391).** `instancedExpectations` stays one flat list; each `Expectation` carries a `matchMode` + a selector (an identity-map `linkedID`, or a position ordinal) the BE-06 engine reads to select the ADC occurrence(s):
 
-| `matchMode` | Blocks | Occurrence selection |
-|---|---|---|
-| `BY_FILE` | `CFG_AXCNT.BEHAV_INPUT3`, `CFG_IP_SWITCH.IP_SWITCH` | the one file picked by `fileID` |
-| `BY_LINKED_ID` | `CFG_ZP_FMA*`, `CFG_SUPERVIS_FMA*` | occurrence whose identity == `linkedID` |
-| `POSITIONAL` | `CFG_SECTION_OUT` (ACO) | i-th occurrence (card/slot order) |
-| `SET_MEMBERSHIP` | `CFG_CONTROL`, `CFG_FWRD_ACD` | all occurrences vs the expected set (set-equality) |
+| `matchMode` | Blocks | Selection | Comparison |
+|---|---|---|---|
+| `SINGLE` | `CFG_AXCNT.BEHAV_INPUT3`, `CFG_IP_SWITCH` | the one file picked by `fileID` | value equality |
+| `BY_IDENTITY` | `CFG_ZP_FMA*`, `CFG_SUPERVIS_FMA*`, `CFG_CONTROL`, `CFG_FWRD_ACD` | occurrence(s) whose identity entries == `linkedID` (a map, e.g. `{ID:351,SECTION:0}`, `{CAN_TX_ID:351,INT_ID_DEST:1}`) | **strict set-equality** — missing → FAIL, extra → FLAG; order-independent; per-member value check |
+| `POSITIONAL` | `CFG_SECTION_OUT` (ACO) | i-th occurrence | **ordered** — at slot i the ADC's `(ID,SECTION)` must equal the baseline's slot-i pair (+`SLCT_TIMEOUT`); count/order/identity mismatch → FAIL |
 
-The existing `MultipleBlockMultipleInputMatchRule` only checks `actual ⊆ expected`; the `SET_MEMBERSHIP` **set-equality** comparison (missing expected → fail, extra actual → flag) is a new BE-06 rule. The carrier just emits N rows under a shared `(fileID, block)` tagged `SET_MEMBERSHIP`.
+**`POSITIONAL` is mandatory for ACO and only ACO:** pairs of `CFG_SECTION_OUT` blocks map *by position* to physical IO-EXB cards at runtime, so a correct-but-re-sequenced config would pass identity-matching yet drive the wrong cards. Hence `(ID,SECTION)` is a *checked value at the slot*, not a lookup key. No other block's order is physically meaningful (confirmed 2026-06-23).
+
+**`BY_IDENTITY` is strict set-equality** (not subset): an ADC occurrence the baseline never listed — a stray / duplicated / leftover head, supervisor, or forwarding entry — is a defect and is flagged. The stock `MultipleBlockMultipleInputMatchRule` only does `actual ⊆ expected`, so the set-equality compare is a **new BE-06 rule**; BE-05 just emits every expected member as a row under the shared `(fileID, block)`.
 
 **#3 — track-reconciliation error → verbose `message` (`ApiErrorResponse` stays flat).** `PHASE2_TRACK_RECONCILIATION_FAILED` must **name the offending tracks** in the message (which are NOT-FOUND in the FCT, which are EXTRA), accumulating all within the gate per §3.1. **Direction — no fail-fast:** a *later* story will add an **error array** to `ApiErrorResponse` listing every error found during preprocessing; until then VTF-335 keeps the flat shape (one verbose message per failing gate) and cross-gate accumulation lands with that later change.
 
@@ -78,15 +79,15 @@ The existing `MultipleBlockMultipleInputMatchRule` only checks `actual ⊆ expec
 
 **INSTANCED** (per-entity from FCT / Control Table):
 
-| Block | Entries | Identity | `matchMode` |
+| Block | Entries | Identity / selector | `matchMode` |
 |---|---|---|---|
-| `CFG_ZP_FMA1/2` | `DIR_INV`, `SLCT_TIMEOUT` | `linkedID` = head DP | BY_LINKED_ID |
-| `CFG_SUPERVIS_FMA1/2` | `LOGIC_TYPE`, `SLCT_TIMEOUT` | `linkedID` = (ID, SECTION) | BY_LINKED_ID |
-| `CFG_SECTION_OUT` | `ID` (=aco_fmaId), `SECTION`, `SLCT_TIMEOUT` | positional | POSITIONAL |
-| `CFG_AXCNT` | `BEHAV_INPUT3` (derived 6/7) | `fileID` = DP | BY_FILE *(supersedes registry rule)* |
-| `CFG_IP_SWITCH` | `IP_SWITCH` | `fileID` = COM | BY_FILE |
-| `CFG_CONTROL` | `SLCT_TIMEOUT` | `linkedID` = (ID, SECTION) ×2 | SET_MEMBERSHIP |
-| `CFG_FWRD_ACD` | `CAN_TX_ID`, `INT_ID_DEST` | per (source DP, dest COM) | SET_MEMBERSHIP |
+| `CFG_ZP_FMA1/2` | `DIR_INV`, `SLCT_TIMEOUT` | `{ID}` = head DP (FMA = block-name suffix) | BY_IDENTITY |
+| `CFG_SUPERVIS_FMA1/2` | `LOGIC_TYPE`, `SLCT_TIMEOUT` | `{ID, SECTION}` | BY_IDENTITY |
+| `CFG_SECTION_OUT` | `ID` (=aco_fmaId), `SECTION`, `SLCT_TIMEOUT` | position ordinal; `(ID,SECTION)` checked per slot | POSITIONAL |
+| `CFG_AXCNT` | `BEHAV_INPUT3` (derived 6/7) | `fileID` = DP (single) | SINGLE *(supersedes registry rule)* |
+| `CFG_IP_SWITCH` | `IP_SWITCH` | `fileID` = COM (single) | SINGLE |
+| `CFG_CONTROL` | `SLCT_TIMEOUT` | `{ID, SECTION}` ×2 | BY_IDENTITY |
+| `CFG_FWRD_ACD` | `CAN_TX_ID`, `INT_ID_DEST` | `{CAN_TX_ID, INT_ID_DEST}` (socket→COM) | BY_IDENTITY |
 
 **Structural (no expectation):** `ID.ID` DuplicateCheck — uniqueness, no baseline value (currently inert; confirm separately). **Parked:** `CFG_DATA_SAFETY_LEVEL` / `CFG_DATA_OUT` (DT).
 
