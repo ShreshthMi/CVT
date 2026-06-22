@@ -31,9 +31,9 @@ public class ConfigValidationV2Service {
 
     public ValidationSummary validate(List<ParsedConfigFile> parsedConfigFiles, ValidationInputV2 userInput) {
 
-        Expectations expectations =
-                expectationsPreprocessor.preprocess(userInput.getFctData(), userInput.getPdqData());
-        log.debug("v2 validate: preprocessor produced {} expectation(s)", expectations.entries().size());
+        Expectations expectations = expectationsPreprocessor.preprocess(userInput);
+        log.debug("v2 validate: preprocessor produced {} scalar + {} instanced expectation(s)",
+                expectations.scalarExpectations().size(), expectations.instancedExpectations().size());
 
         // TODO(VTF-336): evaluate parsedConfigFiles against `expectations` to produce v2 ValidationResults.
         List<ValidationResult> results = List.of();

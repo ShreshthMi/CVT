@@ -2,19 +2,18 @@ package com.frauscher.ConfigurationValidationService.service.preprocessor;
 
 import org.springframework.stereotype.Service;
 
-import com.frauscher.ConfigurationValidationService.dto.fct.ComAebMap;
-import com.frauscher.ConfigurationValidationService.dto.pdq.PdqUploadResponse;
+import com.frauscher.ConfigurationValidationService.dto.ValidationInputV2;
 
 /**
- * Placeholder {@link ExpectationsPreprocessor} for BE-04: returns no expectations. VTF-335 (BE-05)
- * replaces this with the real cross-correlation (project-block consistency, dual-FMA consistency,
- * CFG_IP_SWITCH derivation from {@code redundantComPresent}).
+ * Placeholder {@link ExpectationsPreprocessor}: returns no expectations. The real derivations — the
+ * input gate, the scalar bucket and the instanced bucket — land across VTF-335 (BE-05) milestones
+ * M2–M5.
  */
 @Service
 public class StubExpectationsPreprocessor implements ExpectationsPreprocessor {
 
     @Override
-    public Expectations preprocess(ComAebMap fctData, PdqUploadResponse pdqData) {
+    public Expectations preprocess(ValidationInputV2 userInput) {
         return Expectations.empty();
     }
 }
