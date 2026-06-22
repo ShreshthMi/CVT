@@ -2,6 +2,8 @@
 PHASE 2 VALIDATION — SYNC NOTES
 ═══════════════════════════════════════════════════════════════════
 
+*** SUPERSEDED (2026-06-20): the validate-time flow + expectations model below are superseded by docs/Phase 2 Master/v2-expectations-contract.md (two-bucket flatten; the "composite-key (file,block,instance,entry)" output, the "Virtual-pair scaffold (channels)" output, and "engine lookup mechanism open" notes are stale). PDQ-parsing notes mostly current — see the contract for numeric IDENTIFICATION, trackType-not-trusted (CHC), and CQ-IR Config-Key-column row identification. ***
+
 THREE ENDPOINTS
 
 1. /upload/fct (new)

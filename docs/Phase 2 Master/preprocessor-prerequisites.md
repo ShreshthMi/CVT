@@ -1,5 +1,7 @@
 # Preprocessor Prerequisites (BE-05 / VTF-335)
 
+> ⚠️ **SUPERSEDED (2026-06-20).** P1–P4 and Q1–Q5 here are all **resolved**, and the "pivot" / identifier-keyed-lookup model is superseded. Authoritative: [`v2-expectations-contract.md`](v2-expectations-contract.md). Retained for history.
+
 *Captured 2026-06-16. Basis: a code + docs investigation across the FCT, PDQ, preprocessor, and SummaryService subsystems (against the `VTF-334` tip), plus the decisions taken since. This is the "settle these before you plan the preprocessor" checklist.*
 
 ---

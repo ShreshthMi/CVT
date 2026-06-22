@@ -1,5 +1,7 @@
 # FCVT — Phase 2 Design
 
+> ⚠️ **The v2 expectations/preprocessor design here (esp. §4.1, §4.2, §7 clusters, §8 Check A/B) is SUPERSEDED by [`v2-expectations-contract.md`](v2-expectations-contract.md) (2026-06-20)** — the two-bucket flatten model (`scalarExpectations` + `instancedExpectations`), id-to-id join, per-block derivations, and the gate + error codes. The FCT/PDQ-parsing sections (§5/§6) remain current **except**: `IDENTIFICATION` min/max are now **numeric**; CHC main-vs-combination does **not** trust `trackType` (signed sensor-set algorithm instead). The contract wins on any conflict.
+
 In-flight Phase 2 architecture. Companion to `fcvt-codebase.md` (Phase 1 reference) and `fcvt-phase1-history.md` (the path that got us here). Updated as design progresses; current state reflects the early-Phase-2 design freeze around May 2026.
 
 Decisions are captured in narrative form. Where a decision was reached in a sync meeting, the meeting itself lives in `fcvt-meeting-and-strategy.md`; this document carries the resulting design intent.
@@ -342,7 +344,7 @@ The Remarks column is never read by the parser. Verbose labels and notes remain 
 
 **Special-case values.**
 
-- **`IDENTIFICATION`** — value `1 to 4095` is split on `to`, trimmed, emitted as a **top-level** `cqIrParameters` block `{ min, max }` with both bounds as **strings** (e.g. `{"min":"1","max":"4095"}`). Matches the Phase 1 `RangeCheck` userInput shape; feeds the same engine path. Only `to`-separated, min/max-shaped value.
+- **`IDENTIFICATION`** — value `1 to 4095` is split on `to`, trimmed, emitted as a **top-level** `cqIrParameters` block `{ min, max }` with both bounds as **integers** (e.g. `{"min":1,"max":4095}`). Matches the Phase 1 `RangeCheck` userInput shape (numeric `min`/`max`); feeds the same engine path. Only `to`-separated, min/max-shaped value.
 - **`CFG_TIMEOUT` / `TIMEOUT_VALUE`** — multi-value response split on ` & `, step-divided, then **padded to a fixed width of 8** with `0`. Example: `340 & 610` → `["34","61","0","0","0","0","0","0"]`. Always nested under the `CFG_TIMEOUT` block. The allowed value set on the cell is governed by a project-appropriate Excel validation list (Indian standard `340 & 610`); this is a template concern, not a parser constant.
 
 **Project blocks.** `CFG_PROJECT_AEB` and `CFG_PROJECT_COM` each carry `BLOCK_EXISTS` (string `"true"`/`"false"`) and `PROJECT_NUMBER` (identical across both). This replaces the former top-level `blockExistsForProjectCode`. *Frozen Ver14:* both are derived from the CQ-IR `PROJECT_NUMBER` row (Sl. No. 44) — Response `YES` → `BLOCK_EXISTS:"true"` with `PROJECT_NUMBER` read from that row's **Remarks** column (blank Remarks → `"0"`); Response `NO` → `"false"` and the Remarks cell must be empty (else `PDQ_INVALID`). The earlier source — PDQ row 1.08 System Redundancy (`Single`/`Dual`) — was removed in Ver14. The top-level `projectCode` is still read from the PDQ sheet by anchoring on the **"Project Code"** label and reading the value cell to its right (merged cells resolved); blank/absent → `"0"`.

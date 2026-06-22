@@ -1,5 +1,7 @@
 # FCVT Phase 2 — Open Questions (Preprocessor / Validate Engine)
 
+> ⚠️ **SUPERSEDED (2026-06-20).** Q1–Q5, the cross-correlation-rule questions, and B8/B9/B14 are **resolved** in [`v2-expectations-contract.md`](v2-expectations-contract.md). Only DT (Cluster 6 / B10) remains parked pending AE. Retained for history.
+
 > Working doc for decisions to resolve before/while implementing **BE-05 (VTF-335 preprocessor)** and the
 > adjacent **BE-06 (VTF-336 engine composite-key lookup)**. Created 2026-06-08.
 > Status tags: **OPEN** (needs a decision) / **DECIDED** / **MINOR**.

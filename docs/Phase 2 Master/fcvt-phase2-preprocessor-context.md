@@ -1,5 +1,7 @@
 # FCVT Phase 2 — Preprocessor Design Session (Context Capture)
 
+> ⚠️ **SUPERSEDED (2026-06-20).** This is the original 2026-06-09 session proposing the *"expectations mirror the 8 detail tables"* model — that model was **reversed**. The authoritative locked design is [`v2-expectations-contract.md`](v2-expectations-contract.md) (two-bucket flatten: `scalarExpectations` + `instancedExpectations`; no `SummaryLookupService`; summary stays display-only). Retained for history only.
+
 > Captured **2026-06-09**. Working notes from the design conversation on building the validate-time
 > `ExpectationsPreprocessor` (**BE-05 / VTF-335**). Complements — does not replace —
 > `fcvt-phase2-design.md` §4.1 and `fcvt-phase2-open-questions.md`.

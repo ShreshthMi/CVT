@@ -1,5 +1,9 @@
 h1. Validate Endpoint v2 — Response Contract
 
+{warning}
+*SUPERSEDED (2026-06-20) for the expectations model:* the Phase-2 Expectations are NOT a mirror of the 8 detail tables. The authoritative locked design is *v2-expectations-contract.md* (two-bucket flatten: scalarExpectations + instancedExpectations). The verdict ruleTypes are the existing Phase-1 names (InputMatch / OptionalInputMatchOrBlockNotFound / RangeCheck / ProjectBlockCheck / MultipleBlockMultipleInputMatch), not bespoke "cluster" ruleTypes. The validation_results[] surfacing itself is unaffected.
+{warning}
+
 {info}
 *Status:* Locked (response side)
 *Audience:* Frontend integration

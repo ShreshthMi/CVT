@@ -1,5 +1,9 @@
 h1. Validate Endpoint v2 — Request Contract
 
+{warning}
+*Updated 2026-06-20:* the v2 gate adds error codes beyond PHASE2_INPUTS_INCOMPLETE (now narrowed to missing-artifact only — fctData/pdqData null): PHASE2_CONTROL_TABLE_MISSING, PHASE2_TRACK_RECONCILIATION_FAILED (carries notFoundTracks[]+extraTracks[]), PHASE2_BASELINE_INCONSISTENT (RSR_TYPE mismatch/both-absent, duplicate track name, and other baseline inconsistencies). See *v2-expectations-contract.md* §3/§7 for the authoritative gate + error contract.
+{warning}
+
 {info}
 *Status:* Locked (request side, pending version-aware group decision)
 *Audience:* Frontend integration

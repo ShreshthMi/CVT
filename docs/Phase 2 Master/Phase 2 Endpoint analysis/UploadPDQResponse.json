@@ -3,7 +3,7 @@
   "aebEquipmentVersion": "GS06 and above",
 
   "cqIrParameters": {
-    "IDENTIFICATION":{"min":"1","max":"1"},
+    "IDENTIFICATION":{"min":1,"max":1},
     "CFG_SECTION": {
       "COMM_FAIL": "0",
       "BEHAV_GE": "1",
