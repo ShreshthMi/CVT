@@ -49,7 +49,7 @@ public class PdqUploadSteps {
     public void cqIrParametersBlockHasEntry(String block, String key, String expected) {
         Map<String, Object> blockMap = response.getCqIrParameters().get(block);
         assertNotNull(blockMap, "missing block " + block);
-        assertEquals(expected, blockMap.get(key));
+        assertEquals(expected, String.valueOf(blockMap.get(key)));
     }
 
     @Then("cqIrParameters block {string} does not contain {string}")

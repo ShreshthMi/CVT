@@ -108,19 +108,15 @@ public class CqIrValueNormalizer {
         return out;
     }
 
-    private Map<String, String> range(String configWord, String raw) {
+    private Map<String, Integer> range(String configWord, String raw) {
         String[] parts = RANGE_SEPARATOR.split(raw);
         if (parts.length != 2) {
             throw new PdqInvalidException(PdqInvalidReason.RANGE_INVALID,
                     "'" + configWord + "' is not a 'min to max' range: " + raw);
         }
-        String min = parts[0].strip();
-        String max = parts[1].strip();
-        parseInt(configWord, min); // validate numeric; emit as String to match the cqIrParameters sample shape
-        parseInt(configWord, max);
-        Map<String, String> bounds = new LinkedHashMap<>();
-        bounds.put("min", min);
-        bounds.put("max", max);
+        Map<String, Integer> bounds = new LinkedHashMap<>();
+        bounds.put("min", parseInt(configWord, parts[0].strip()));
+        bounds.put("max", parseInt(configWord, parts[1].strip()));
         return bounds;
     }
 

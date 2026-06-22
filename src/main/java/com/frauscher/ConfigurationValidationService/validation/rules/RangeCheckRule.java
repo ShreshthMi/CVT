@@ -35,6 +35,16 @@ public class RangeCheckRule implements ValidationRule {
             max = ((Number) map.get("max")).intValue();
         }
 
+        if (min == null || max == null) {
+            return List.of(create(
+                    context.fileContext().file(),
+                    context.rule(),
+                    ValidationConstants.RANGE_NOT_CONFIGURED,
+                    ValidationConstants.RANGE_NOT_CONFIGURED,
+                    ValidationStatus.FAIL
+            ));
+        }
+
         List<String> values =
                 context.fileContext()
                         .values(

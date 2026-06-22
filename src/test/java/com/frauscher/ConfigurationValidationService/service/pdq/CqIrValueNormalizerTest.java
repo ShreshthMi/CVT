@@ -63,9 +63,9 @@ class CqIrValueNormalizerTest {
     }
 
     @Test
-    void buildsIdentificationRangeAsStrings() {
+    void buildsIdentificationRangeAsIntegers() {
         Object result = normalizer.normalize("IDENTIFICATION", "1 to 4095");
-        assertEquals(Map.of("min", "1", "max", "4095"), result);
+        assertEquals(Map.of("min", 1, "max", 4095), result);
     }
 
     @Test

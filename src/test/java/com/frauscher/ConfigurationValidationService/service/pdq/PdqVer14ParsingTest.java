@@ -57,7 +57,7 @@ class PdqVer14ParsingTest {
         assertEquals("0", cqir.get("CFG_ZP").get("SUPERVIS_COUNT_LMT"));
 
         // A few CQ-IR scalars normalised from Ver14 values.
-        assertEquals(Map.of("min", "1", "max", "4095"), cqir.get("IDENTIFICATION"));
+        assertEquals(Map.of("min", 1, "max", 4095), cqir.get("IDENTIFICATION"));
         assertEquals("0", cqir.get("CFG_OCC").get("OCC_EXT"));        // Ver14 OCC_EXT = 0
         assertEquals("2", cqir.get("CFG_ZP").get("INTERVAL"));        // 80 -> 2
         assertEquals(List.of("34", "61", "0", "0", "0", "0", "0", "0"),

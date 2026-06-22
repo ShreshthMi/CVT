@@ -34,8 +34,8 @@ class CqIrSheetParserTest {
             Sheet sheet = wb.getSheet("CQ-IR");
             Map<String, Map<String, Object>> r = parser.parse(sheet, /* gs06Plus = */ false);
 
-            // IDENTIFICATION is a top-level block carrying the {min,max} map (strings).
-            assertEquals(Map.of("min", "1", "max", "4095"), r.get("IDENTIFICATION"));
+            // IDENTIFICATION is a top-level block carrying the {min,max} map (integers).
+            assertEquals(Map.of("min", 1, "max", 4095), r.get("IDENTIFICATION"));
 
             // Scalar blocks (values normalized: colon-split, step-divided, INTERVAL-mapped).
             assertEquals(Map.of("COMM_FAIL", "0", "BEHAV_GE", "1", "CLR_TRACK", "0", "RESET_IN", "5"),
