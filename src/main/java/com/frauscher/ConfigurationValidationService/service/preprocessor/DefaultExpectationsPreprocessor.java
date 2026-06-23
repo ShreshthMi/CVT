@@ -26,6 +26,7 @@ public class DefaultExpectationsPreprocessor implements ExpectationsPreprocessor
     private final ScalarExpectationsBuilder scalarExpectationsBuilder;
     private final CountingHeadExpectationsBuilder countingHeadExpectationsBuilder;
     private final SupervisorExpectationsBuilder supervisorExpectationsBuilder;
+    private final AcoExpectationsBuilder acoExpectationsBuilder;
 
     @Override
     public Expectations preprocess(ValidationInputV2 userInput) {
@@ -40,7 +41,8 @@ public class DefaultExpectationsPreprocessor implements ExpectationsPreprocessor
         List<InstancedExpectation> instancedExpectations = new ArrayList<>();
         instancedExpectations.addAll(countingHeadExpectationsBuilder.build(fct, controlTable));
         instancedExpectations.addAll(supervisorExpectationsBuilder.build(fct, controlTable));
-        // TODO(VTF-335 M5): ACO, CHC, IP_SWITCH, forwarding derivations.
+        instancedExpectations.addAll(acoExpectationsBuilder.build(fct));
+        // TODO(VTF-335 M5): CHC, IP_SWITCH, forwarding derivations.
 
         return new Expectations(scalarExpectations, instancedExpectations);
     }
