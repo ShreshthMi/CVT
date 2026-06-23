@@ -1,5 +1,8 @@
 package com.frauscher.ConfigurationValidationService.service.preprocessor;
 
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.stereotype.Service;
 
 import com.frauscher.ConfigurationValidationService.dto.ValidationInputV2;
@@ -17,12 +20,16 @@ import lombok.RequiredArgsConstructor;
 public class DefaultExpectationsPreprocessor implements ExpectationsPreprocessor {
 
     private final BaselineGate baselineGate;
+    private final ScalarExpectationsBuilder scalarExpectationsBuilder;
 
     @Override
     public Expectations preprocess(ValidationInputV2 userInput) {
         baselineGate.check(userInput);
 
-        // TODO(VTF-335 M3): scalarExpectations. TODO(VTF-335 M5): instancedExpectations.
-        return Expectations.empty();
+        Map<String, Map<String, Object>> scalarExpectations =
+                scalarExpectationsBuilder.build(userInput);
+
+        // TODO(VTF-335 M5): instancedExpectations.
+        return new Expectations(scalarExpectations, List.of());
     }
 }
