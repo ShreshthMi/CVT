@@ -69,6 +69,8 @@ PDQ **Control Table** track list = authoritative. Iterate its track names; liter
   3. **both-absent (no config + no PDQ) currently NPEs** (`actual >= null`) → add an explicit "missing range" validation error. (Independent fix.)
 
 ### Cross-rules that dissolve into the scalar bucket
+
+> **Registry edits DEFERRED to BE-06 (2026-06-24):** the new/modified `ValidationConfiguration.json` rules below are *not* added in VTF-335 — see §7 item 5. VTF-335 M3 already emits the scalar **values**; the rules that *consume* them land with the engine in BE-06.
 - **Project-block** → two file-scoped `ProjectBlockCheck`s: `CFG_PROJECT_AEB` (`SkipComFile:true`) + a **new** `CFG_PROJECT_COM` (`ValidateOnlyInFilesWith: COMDETAILS` — the first COMDETAILS consumer), both fed the single PDQ `BLOCK_EXISTS`+`PROJECT_NUMBER`.
 - **Dual-FMA** → four `InputMatch` rules: `CFG_SUPERVIS_FMA1`/`FMA2` × {`RESET_TYPE`,`RESET_DELAY`} (`ValidateOnlyInFilesWith: TRACKSECTIONDETAILS`, `SkipComFile:true`, `DefaultValue:1`).
 - **New `InputMatch` rules to add:** `CFG_SWITCH` {`SWITCH_GE`,`SWITCH_GSF`,`PRERESET_ACT_TIME`}, `CFG_IP_SWITCH_TIME` {`IP_SWITCH_TIME`}.
@@ -149,7 +151,7 @@ Deferred 2026-06-20 — scenarios unclear, needs AE input. Known: two ADC block 
    - **Each new code needs a concrete `ConfigValidationException` subclass AND `@ExceptionHandler` registration** — `GlobalExceptionHandler` maps by concrete class and the base `ConfigValidationException` is abstract with no handler, so an unregistered subclass falls through to the catch-all → `UNEXPECTED_ERROR` / HTTP 500. (Either one handler per subclass, or a single `@ExceptionHandler(ConfigValidationException.class)` base handler mapping to 400 with `ex.getErrorCode()`.)
    - **Decided 2026-06-23:** `ApiErrorResponse` stays **flat** for VTF-335; the track lists are encoded in a **verbose `message`** that names which tracks are NOT-FOUND vs EXTRA. **No fail-fast (direction):** a *later* story adds an error **array** to `ApiErrorResponse` collecting every preprocessing error; until then each failing gate throws one verbose message.
 4. **`RangeCheck`** — the IDENTIFICATION-via-PDQ path (String-vs-Number cast + `UIInputRequired:No` gate, §4) **and** the both-absent NPE guard.
-5. **Registry edits** — add `CFG_SWITCH` / `CFG_IP_SWITCH_TIME` `InputMatch`; add `CFG_PROJECT_COM` `ProjectBlockCheck` (COMDETAILS); add dual-FMA rules; **supersede** the `CFG_AXCNT.BEHAV_INPUT3` entry (§5.4).
+5. **Registry edits — DEFERRED to BE-06 (VTF-336), decided 2026-06-24.** Add `CFG_SWITCH` / `CFG_IP_SWITCH_TIME`; add `CFG_PROJECT_COM` `ProjectBlockCheck` (COMDETAILS); add the dual-FMA rules; **supersede** the `CFG_AXCNT.BEHAV_INPUT3` entry (§5.4). Moved to BE-06 because the **rule type** (`InputMatch` vs `InputMatchOrBlockNotFound` — real ADCs show these blocks are optional), the **`DefaultValue`s**, and the **file-scope** are domain decisions best made when the engine actually consumes the scalar bucket. The shared `ValidationConfiguration.json` stays untouched through VTF-335 (M5 emits instanced values regardless of registry rules).
 
 ---
 
