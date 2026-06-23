@@ -32,6 +32,8 @@ The only structural difference is `fileID`. (An FCT-tree intermediate may be use
 
 Runs after the coupled-artifacts gate (`fctData`/`pdqData` non-null, else `PHASE2_INPUTS_INCOMPLETE` — a **kept** code for *missing artifact* only).
 
+> **Implemented in `BaselineGate` (VTF-335 M2):** §3.1 + §3.2, called first from `DefaultExpectationsPreprocessor.preprocess`. The 3 codes are concrete `ConfigValidationException` subclasses with explicit `@ExceptionHandler`→400. §3.3 build-time checks land with the instanced blocks (M5).
+
 ### 3.1 Track reconciliation
 PDQ **Control Table** track list = authoritative. Iterate its track names; literal-match each against the FCT track universe (flattened `EvaluatedFma.fmaName` over all chains/AEBs — **ACO output names excluded**), first-found.
 - Match = literal, **case-sensitive**, after a defensive trim; internal whitespace **not** collapsed.
