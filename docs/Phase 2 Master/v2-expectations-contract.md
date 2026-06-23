@@ -58,6 +58,8 @@ PDQ **Control Table** track list = authoritative. Iterate its track names; liter
 
 `scalarExpectations` is emitted as a **`Map<String, Map<String, Object>>`** (block → entry → value, the exact shape of `ConfigValidationService.validateParsedFiles(...)`'s second arg and `UserValidationInputCriteria.getSections()`), populated from PDQ `cqIrParameters` (+ scalar cross-rule values). The **existing** rule registry does the comparison; the preprocessor only supplies values.
 
+> **Implemented in `ScalarExpectationsBuilder` (VTF-335 M3):** copy `cqIrParameters` (already includes the parser-appended `CFG_PROJECT_AEB/COM`), rewrite the block-level `IDENTIFICATION` `{min,max}` into `ID → ID → {min,max}`, then merge the tpf blocks (PDQ wins on overlap). The registry rules that *consume* these values land in M4.
+
 - **Semantics are per-rule:** `InputMatch` / `InputMatchOrBlockNotFound` / `OptionalInputMatch…` (most cqIR words), `MultipleBlockMultipleInputMatch` (`CFG_TIMEOUT.TIMEOUT_VALUE`), `RangeCheck` (`ID` ← IDENTIFICATION).
 - **File targeting** is in the rule config (`SkipComFile`, `ValidateOnlyInFilesWith`). The marker mechanism is engine-supported for `TRACKSECTIONDETAILS`, `ACOIOEXBDETAILS`, **and `COMDETAILS`** — but only the first two are *currently used by any rule*; `COMDETAILS` has **no** consumer until the new `CFG_PROJECT_COM` rule (below) is added. So scalar expectations need no `fileScope` of their own.
 - **Name alignment:** cqIR `IDENTIFICATION` → rule block `ID` (preprocessor maps it); other cqIR block names match directly.
