@@ -1,5 +1,6 @@
 package com.frauscher.ConfigurationValidationService.service.preprocessor;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -21,6 +22,7 @@ public class DefaultExpectationsPreprocessor implements ExpectationsPreprocessor
 
     private final BaselineGate baselineGate;
     private final ScalarExpectationsBuilder scalarExpectationsBuilder;
+    private final CountingHeadExpectationsBuilder countingHeadExpectationsBuilder;
 
     @Override
     public Expectations preprocess(ValidationInputV2 userInput) {
@@ -29,7 +31,11 @@ public class DefaultExpectationsPreprocessor implements ExpectationsPreprocessor
         Map<String, Map<String, Object>> scalarExpectations =
                 scalarExpectationsBuilder.build(userInput);
 
-        // TODO(VTF-335 M5): instancedExpectations.
-        return new Expectations(scalarExpectations, List.of());
+        List<InstancedExpectation> instancedExpectations = new ArrayList<>();
+        instancedExpectations.addAll(countingHeadExpectationsBuilder.build(
+                userInput.getFctData(), userInput.getPdqData().getControlTable()));
+        // TODO(VTF-335 M5): supervisor, ACO, CHC, IP_SWITCH, forwarding derivations.
+
+        return new Expectations(scalarExpectations, instancedExpectations);
     }
 }
