@@ -58,6 +58,33 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(error(ex));
     }
 
+    @ExceptionHandler(ControlTableMissingException.class)
+    public ResponseEntity<ApiErrorResponse> handleControlTableMissing(
+            ControlTableMissingException ex) {
+
+        // Phase 2 baseline gate (§3.1): Control Table absent / empty.
+        log.warn("v2 baseline gate rejected [{}]", ex.getErrorCode());
+        return ResponseEntity.badRequest().body(error(ex));
+    }
+
+    @ExceptionHandler(TrackReconciliationFailedException.class)
+    public ResponseEntity<ApiErrorResponse> handleTrackReconciliation(
+            TrackReconciliationFailedException ex) {
+
+        // Phase 2 baseline gate (§3.1): NOT-FOUND / EXTRA tracks (named in the message).
+        log.warn("v2 baseline gate rejected [{}]", ex.getErrorCode());
+        return ResponseEntity.badRequest().body(error(ex));
+    }
+
+    @ExceptionHandler(BaselineInconsistentException.class)
+    public ResponseEntity<ApiErrorResponse> handleBaselineInconsistent(
+            BaselineInconsistentException ex) {
+
+        // Phase 2 baseline gate (§3): RSR_TYPE mismatch / duplicate track / build-time inconsistency.
+        log.warn("v2 baseline gate rejected [{}]", ex.getErrorCode());
+        return ResponseEntity.badRequest().body(error(ex));
+    }
+
     @ExceptionHandler(MissingServletRequestPartException.class)
     public ResponseEntity<ApiErrorResponse> handleMissingMultipartPart(
             MissingServletRequestPartException ex) {
