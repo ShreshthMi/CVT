@@ -7,6 +7,8 @@ import java.util.Map;
 import org.springframework.stereotype.Service;
 
 import com.frauscher.ConfigurationValidationService.dto.ValidationInputV2;
+import com.frauscher.ConfigurationValidationService.dto.fct.ComAebMap;
+import com.frauscher.ConfigurationValidationService.dto.pdq.ControlTable;
 
 import lombok.RequiredArgsConstructor;
 
@@ -23,6 +25,7 @@ public class DefaultExpectationsPreprocessor implements ExpectationsPreprocessor
     private final BaselineGate baselineGate;
     private final ScalarExpectationsBuilder scalarExpectationsBuilder;
     private final CountingHeadExpectationsBuilder countingHeadExpectationsBuilder;
+    private final SupervisorExpectationsBuilder supervisorExpectationsBuilder;
 
     @Override
     public Expectations preprocess(ValidationInputV2 userInput) {
@@ -31,10 +34,13 @@ public class DefaultExpectationsPreprocessor implements ExpectationsPreprocessor
         Map<String, Map<String, Object>> scalarExpectations =
                 scalarExpectationsBuilder.build(userInput);
 
+        ComAebMap fct = userInput.getFctData();
+        ControlTable controlTable = userInput.getPdqData().getControlTable();
+
         List<InstancedExpectation> instancedExpectations = new ArrayList<>();
-        instancedExpectations.addAll(countingHeadExpectationsBuilder.build(
-                userInput.getFctData(), userInput.getPdqData().getControlTable()));
-        // TODO(VTF-335 M5): supervisor, ACO, CHC, IP_SWITCH, forwarding derivations.
+        instancedExpectations.addAll(countingHeadExpectationsBuilder.build(fct, controlTable));
+        instancedExpectations.addAll(supervisorExpectationsBuilder.build(fct, controlTable));
+        // TODO(VTF-335 M5): ACO, CHC, IP_SWITCH, forwarding derivations.
 
         return new Expectations(scalarExpectations, instancedExpectations);
     }
