@@ -24,7 +24,8 @@ import com.frauscher.ConfigurationValidationService.service.preprocessor.Instanc
  */
 class InstancedExpectationEvaluatorTest {
 
-    private final InstancedExpectationEvaluator evaluator = new InstancedExpectationEvaluator();
+    private final InstancedExpectationEvaluator evaluator =
+            new InstancedExpectationEvaluator(new ForwardingDestinationResolver());
 
     // ---------- SINGLE ----------
 
@@ -222,17 +223,6 @@ class InstancedExpectationEvaluatorTest {
 
         List<ValidationResult> results = evaluator.evaluate(List.of(other),
                 List.of(InstancedExpectation.single(999, "CFG_AXCNT", "BEHAV_INPUT3", "6")));
-
-        assertTrue(results.isEmpty());
-    }
-
-    @Test
-    void forwardingBlockIsNotValidatedHere() {
-        ParsedConfigFile com = file(100, true, block("CFG_FWRD_ACD", 0, entry("CAN_TX_ID", "351")));
-
-        List<ValidationResult> results = evaluator.evaluate(List.of(com),
-                List.of(InstancedExpectation.byIdentity(
-                        100, "CFG_FWRD_ACD", Map.of("CAN_TX_ID", "351", "DEST_COM", "200"), "DEST_COM", "200")));
 
         assertTrue(results.isEmpty());
     }

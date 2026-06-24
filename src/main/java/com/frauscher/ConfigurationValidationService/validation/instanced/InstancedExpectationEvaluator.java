@@ -4,11 +4,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
+
+import com.frauscher.ConfigurationValidationService.validation.instanced.ForwardingDestinationResolver.ForwardMember;
 
 import org.springframework.stereotype.Component;
 
@@ -52,13 +56,21 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class InstancedExpectationEvaluator {
 
-    /** {@code CFG_FWRD_ACD} needs socket→COM/IP resolution (§5.6) — handled outside this generic path. */
+    /** {@code CFG_FWRD_ACD} is BY_IDENTITY but its dest COM is socket-derived (§5.6) — its own path. */
     static final String FORWARDING_BLOCK = "CFG_FWRD_ACD";
 
     private static final String RULE_INPUT_MATCH = "InputMatch";
     private static final String RULE_OPTIONAL = "OptionalInputMatchOrBlockNotFound";
     private static final String RULE_IDENTITY = "IdentitySetMatch";
     private static final String RULE_POSITIONAL = "PositionalMatch";
+    private static final String DEST_COM = "DEST_COM";
+    private static final String CAN_TX_ID = "CAN_TX_ID";
+
+    private final ForwardingDestinationResolver forwardingResolver;
+
+    public InstancedExpectationEvaluator(ForwardingDestinationResolver forwardingResolver) {
+        this.forwardingResolver = forwardingResolver;
+    }
 
     public List<ValidationResult> evaluate(
             List<ParsedConfigFile> parsedFiles, List<InstancedExpectation> expectations) {
@@ -84,10 +96,6 @@ public class InstancedExpectationEvaluator {
         for (Map.Entry<GroupKey, List<InstancedExpectation>> group : groups.entrySet()) {
             GroupKey key = group.getKey();
 
-            if (FORWARDING_BLOCK.equals(key.block())) {
-                continue; // §5.6 socket→COM resolution — separate path (reads the COM ADC targets).
-            }
-
             ParsedConfigFile file = filesById.get(key.fileId());
             if (file == null) {
                 log.debug("v2 instanced: no uploaded ADC with id {} for block {}", key.fileId(), key.block());
@@ -97,7 +105,13 @@ public class InstancedExpectationEvaluator {
             List<InstancedExpectation> rows = group.getValue();
             switch (rows.get(0).matchMode()) {
                 case SINGLE -> evaluateSingle(results, file, rows);
-                case BY_IDENTITY -> evaluateByIdentity(results, file, key.block(), rows);
+                case BY_IDENTITY -> {
+                    if (FORWARDING_BLOCK.equals(key.block())) {
+                        evaluateForwarding(results, parsedFiles, file, rows);
+                    } else {
+                        evaluateByIdentity(results, file, key.block(), rows);
+                    }
+                }
                 case POSITIONAL -> evaluatePositional(results, file, key.block(), rows);
             }
         }
@@ -223,6 +237,52 @@ public class InstancedExpectationEvaluator {
             results.add(result(file, RULE_POSITIONAL, block, "[pos=" + i + "]",
                     ValidationConstants.UNEXPECTED_OCCURRENCE, ValidationConstants.UNEXPECTED_OCCURRENCE, false));
         }
+    }
+
+    // ---- CFG_FWRD_ACD (§5.6): set-equality over socket→COM-resolved actual forwards ----
+
+    private void evaluateForwarding(
+            List<ValidationResult> results, List<ParsedConfigFile> allFiles, ParsedConfigFile homeCom,
+            List<InstancedExpectation> rows) {
+
+        // Expected members: one per distinct (CAN_TX_ID, DEST_COM), in emission order.
+        Map<String, Map<String, String>> expected = new LinkedHashMap<>();
+        for (InstancedExpectation e : rows) {
+            expected.putIfAbsent(memberKey(e.linkedId()), e.linkedId());
+        }
+
+        // Actual members: each CFG_FWRD_ACD entry's socket resolved to a present COM (may raise §3.3 → 400).
+        Map<String, ForwardMember> actual = new LinkedHashMap<>();
+        for (ForwardMember m : forwardingResolver.resolveActualForwards(homeCom, allFiles)) {
+            actual.putIfAbsent(m.canTxId() + "|" + m.destCom(), m);
+        }
+
+        for (Map.Entry<String, Map<String, String>> member : expected.entrySet()) {
+            Map<String, String> linkedId = member.getValue();
+            String label = identityLabel(linkedId);
+            if (actual.containsKey(member.getKey())) {
+                results.add(result(homeCom, RULE_IDENTITY, FORWARDING_BLOCK, DEST_COM + "[" + label + "]",
+                        linkedId.get(DEST_COM), linkedId.get(DEST_COM), true));
+            } else {
+                results.add(result(homeCom, RULE_IDENTITY, FORWARDING_BLOCK, label,
+                        DEST_COM + "=" + linkedId.get(DEST_COM),
+                        ValidationConstants.EXPECTED_OCCURRENCE_NOT_FOUND, false));
+            }
+        }
+
+        Set<String> expectedKeys = expected.keySet();
+        for (Map.Entry<String, ForwardMember> a : actual.entrySet()) {
+            if (!expectedKeys.contains(a.getKey())) {
+                ForwardMember m = a.getValue();
+                results.add(result(homeCom, RULE_IDENTITY, FORWARDING_BLOCK,
+                        CAN_TX_ID + "=" + m.canTxId() + "," + DEST_COM + "=" + m.destCom(),
+                        ValidationConstants.UNEXPECTED_OCCURRENCE, ValidationConstants.UNEXPECTED_OCCURRENCE, false));
+            }
+        }
+    }
+
+    private String memberKey(Map<String, String> linkedId) {
+        return linkedId.get(CAN_TX_ID) + "|" + linkedId.get(DEST_COM);
     }
 
     // ---- occurrence / entry access ----
