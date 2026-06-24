@@ -129,6 +129,7 @@ First block needing a real preprocessor **algorithm** over the Control Table:
   - The expected tuple's consuming COM = `comId` (FCT chain); compare to the IP-resolved COM.
 - **Network-consistency principle:** Phase 2 supplies **no external IP baseline** (all design §11's "COM IP out of scope" meant). IPs are used to **resolve** which COM a socket points to and as an **internal consistency** check — every forwarding dest IP must match the self-IP of a COM file **present in the validation set**; no match → error.
 - **Comparison** = set-equality: missing expected → fail; extra actual → flag.
+- **As-built (VTF-335 M5 #6, `ForwardingExpectationsBuilder`):** one `BY_IDENTITY` row per deduped `(home COM, source DP, dest COM)`, `fileId = home COM id`, `linkedId = {CAN_TX_ID: source DP id, DEST_COM: dest COM id}`, `key/expectedValue = DEST_COM/dest COM id`. Both `linkedId` fields identify the member (a DP forwards to several COMs → distinct members). The emitted identity carries the **resolved** `DEST_COM`, not the ADC `INT_ID_DEST` socket — BE-06 resolves each actual entry's socket→COM (per the rules above) before the set-equality compare. BE-05 emits only the FCT-derived expected set; socket/IP resolution + the new set-equality rule are BE-06.
 
 ### 5.7 DT (`CFG_DATA_SAFETY_LEVEL` / `CFG_DATA_OUT`) — **PARKED (AE)**
 Deferred 2026-06-20 — scenarios unclear, needs AE input. Known: two ADC block types; PDQ `DataTransmission` (`dataSafetyLevels` by `dpName`, `outputDataTransmission` by `sourceDpName`, cross-DP); `FctAeb.dtIoExbCount` = card count.
