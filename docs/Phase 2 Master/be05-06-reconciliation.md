@@ -91,3 +91,12 @@ The as-built code that realizes cluster *intent* — to re-attribute the BE-05/B
 5. **BE-15 PDF** — stretch, last.
 
 **Bug-fix backlog (independent of stories):** the M4 spurious-FAIL (finding #2) and the duplicate-identity validation gap (finding #6).
+
+## 6. Decisions (locked 2026-06-24)
+
+- **D1 — M4 spurious-FAIL (finding #2): DEFERRED (conscious).** Not fixed now (not even the quick guard). v2 therefore currently over-reports FAILs for absent *optional* scalar blocks (`CFG_SWITCH`, `CFG_SUPERVIS_FMA*` RESET, `CFG_IP_SWITCH_TIME`, `CFG_PROJECT_COM`). Tracked by the existing M4 follow-up chip; land the proper registry rules (with confirmed firmware defaults) there.
+- **D2 — Named verdicts (finding #1): PHASED to BE-08.** Keep `PASS`/`FAIL` + structural sentinels for now. Introduce `ORPHANED` / `FILE NOT FOUND` / `INVALID SCOPE` / `INVALID VALUE` when **Cluster 1 (BE-08)** is built, where they are actually consumed. BE-07 does **not** add them up front.
+- **D3 — `_expected` detail-cell annotation (BE-07): DEFERRED pending a cost/complexity analysis.** The frontend expects a contract for it, so the backend will likely need it — but the verdict→detail-cell join is the hardest piece, so an effort/complexity cost analysis must precede committing. (Follow-up task raised.)
+- **D4 — CHC count ↔ BEHAV_INPUT3 (BE-11): independent checking ACCEPTED.** The spec's "derive count from BEHAV_INPUT3" phrasing is treated as descriptive; the as-built dual baseline-assertion catches the same defects. The literal coupled cross-consistency verdict is **not** required. BE-11 is functionally complete on this point.
+
+**Consequence:** BE-07's two real deliverables are both parked (registry → D1/M4; `_expected` → D3 cost analysis), and named verdicts moved to BE-08 (D2). So the next *active* backend work is **Cluster 1 (BE-08)**, not BE-07.
