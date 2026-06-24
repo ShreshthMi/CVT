@@ -14,9 +14,9 @@ import lombok.RequiredArgsConstructor;
 
 /**
  * The real {@link ExpectationsPreprocessor}. Runs the {@link BaselineGate} (hard HTTP 400 admission
- * control, v2-expectations-contract.md §3) and then builds the {@link Expectations} buckets. The
- * scalar bucket (§4) lands in M3 and the instanced bucket (§5) in M5; until then the gate runs and an
- * empty {@link Expectations} is returned (emission-only — BE-06 consumes).
+ * control, v2-expectations-contract.md §3) and then builds the {@link Expectations} buckets: the scalar
+ * bucket (§4) and the full instanced bucket (§5 — counting heads, supervisors, ACO, control, IP switch,
+ * forwarding). Emission-only — BE-06 consumes the expectations against the actual ADC values.
  */
 @Service
 @RequiredArgsConstructor
@@ -29,6 +29,7 @@ public class DefaultExpectationsPreprocessor implements ExpectationsPreprocessor
     private final AcoExpectationsBuilder acoExpectationsBuilder;
     private final ControlExpectationsBuilder controlExpectationsBuilder;
     private final IpSwitchExpectationsBuilder ipSwitchExpectationsBuilder;
+    private final ForwardingExpectationsBuilder forwardingExpectationsBuilder;
 
     @Override
     public Expectations preprocess(ValidationInputV2 userInput) {
@@ -46,7 +47,7 @@ public class DefaultExpectationsPreprocessor implements ExpectationsPreprocessor
         instancedExpectations.addAll(acoExpectationsBuilder.build(fct));
         instancedExpectations.addAll(controlExpectationsBuilder.build(fct, controlTable));
         instancedExpectations.addAll(ipSwitchExpectationsBuilder.build(fct));
-        // TODO(VTF-335 M5): forwarding (CFG_FWRD_ACD) derivation.
+        instancedExpectations.addAll(forwardingExpectationsBuilder.build(fct, controlTable));
 
         return new Expectations(scalarExpectations, instancedExpectations);
     }
