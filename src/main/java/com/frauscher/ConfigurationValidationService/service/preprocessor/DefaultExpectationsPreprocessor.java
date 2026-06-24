@@ -28,6 +28,7 @@ public class DefaultExpectationsPreprocessor implements ExpectationsPreprocessor
     private final SupervisorExpectationsBuilder supervisorExpectationsBuilder;
     private final AcoExpectationsBuilder acoExpectationsBuilder;
     private final ControlExpectationsBuilder controlExpectationsBuilder;
+    private final IpSwitchExpectationsBuilder ipSwitchExpectationsBuilder;
 
     @Override
     public Expectations preprocess(ValidationInputV2 userInput) {
@@ -44,7 +45,8 @@ public class DefaultExpectationsPreprocessor implements ExpectationsPreprocessor
         instancedExpectations.addAll(supervisorExpectationsBuilder.build(fct, controlTable));
         instancedExpectations.addAll(acoExpectationsBuilder.build(fct));
         instancedExpectations.addAll(controlExpectationsBuilder.build(fct, controlTable));
-        // TODO(VTF-335 M5): IP_SWITCH, forwarding derivations.
+        instancedExpectations.addAll(ipSwitchExpectationsBuilder.build(fct));
+        // TODO(VTF-335 M5): forwarding (CFG_FWRD_ACD) derivation.
 
         return new Expectations(scalarExpectations, instancedExpectations);
     }
