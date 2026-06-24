@@ -1,5 +1,6 @@
 package com.frauscher.ConfigurationValidationService.cucumber.stepdefs;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -73,9 +74,14 @@ public class ConfigValidationV2Steps {
         summary = configValidationV2Service.validate(parsedConfigFiles, userInput);
     }
 
-    @Then("a validation summary is returned with empty results")
+    @Then("a validation summary is returned with validation results")
     public void aValidationSummaryIsReturned() {
         assertNotNull(summary);
-        assertTrue(summary.getResults().isEmpty());
+        // BE-06 now consumes the expectations: the scalar bucket is validated by the reused Phase 1
+        // engine, so the v2 path produces real results (no longer an empty list).
+        assertFalse(summary.getResults().isEmpty(),
+                "v2 validate must now produce real validation results");
+        assertTrue(summary.getResults().stream().anyMatch(r -> "ID".equals(r.getBlockName())),
+                "expected the scalar engine to evaluate the ID block of the parsed config file");
     }
 }

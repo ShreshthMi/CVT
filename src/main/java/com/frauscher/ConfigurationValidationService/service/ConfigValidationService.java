@@ -65,6 +65,28 @@ public class ConfigValidationService {
         ResolvedPayloadContext resolvedPayloadContext =
                 payloadValidator.validate(userInput, rulesByKey);
 
+        return runRules(parsedFiles, userInput, resolvedPayloadContext);
+    }
+
+    /**
+     * v2 entry point (v2-expectations-contract.md §6): runs the same rule dispatch over a caller-supplied
+     * {@link ResolvedPayloadContext} so the v2 path can use lenient payload <i>resolution</i> (no
+     * UI-input enforcement) — its expectations come from the PDQ/FCT baseline, not user UI inputs, so a
+     * value the baseline omits leaves its rule dormant rather than being rejected as a missing input.
+     */
+    public List<ValidationResult> validateParsedFiles(
+            List<ParsedConfigFile> parsedFiles,
+            Map<String, Map<String, Object>> userInput,
+            ResolvedPayloadContext resolvedPayloadContext) {
+
+        return runRules(parsedFiles, userInput, resolvedPayloadContext);
+    }
+
+    private List<ValidationResult> runRules(
+            List<ParsedConfigFile> parsedFiles,
+            Map<String, Map<String, Object>> userInput,
+            ResolvedPayloadContext resolvedPayloadContext) {
+
         duplicateRegistry.clear();
 
         List<ValidationResult> results = new ArrayList<>();

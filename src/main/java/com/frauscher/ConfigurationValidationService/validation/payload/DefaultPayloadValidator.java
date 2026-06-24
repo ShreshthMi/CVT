@@ -21,29 +21,7 @@ public class DefaultPayloadValidator implements PayloadValidator {
             Map<String, Map<String, Object>> payload,
             Map<ValidationKey, List<RuleConfig>> rulesByKey) {
 
-        Map<ValidationKey, ResolvedPayload> resolvedPayloads = new HashMap<>();
-
-        // ------------------------------------------------
-        // Resolve ALL payload inputs (rule-independent)
-        // ------------------------------------------------
-        if (payload != null) {
-            for (Map.Entry<String, Map<String, Object>> blockEntry : payload.entrySet()) {
-
-                String block = blockEntry.getKey();
-                Map<String, Object> entries = blockEntry.getValue();
-
-                if (entries == null) continue;
-
-                for (Map.Entry<String, Object> entry : entries.entrySet()) {
-                    if (entry.getValue() != null) {
-                        resolvedPayloads.put(
-                                new ValidationKey(block, entry.getKey()),
-                                ResolvedPayload.present(entry.getValue())
-                        );
-                    }
-                }
-            }
-        }
+        Map<ValidationKey, ResolvedPayload> resolvedPayloads = resolvePayloads(payload);
 
         // ------------------------------------------------
         // Validate payload ONLY for configured rules
@@ -66,6 +44,41 @@ public class DefaultPayloadValidator implements PayloadValidator {
         }
 
         return new ResolvedPayloadContext(resolvedPayloads);
+    }
+
+    @Override
+    public ResolvedPayloadContext resolve(Map<String, Map<String, Object>> payload) {
+        return new ResolvedPayloadContext(resolvePayloads(payload));
+    }
+
+    // ------------------------------------------------
+    // Resolve ALL payload inputs (rule-independent)
+    // ------------------------------------------------
+    private Map<ValidationKey, ResolvedPayload> resolvePayloads(
+            Map<String, Map<String, Object>> payload) {
+
+        Map<ValidationKey, ResolvedPayload> resolvedPayloads = new HashMap<>();
+
+        if (payload != null) {
+            for (Map.Entry<String, Map<String, Object>> blockEntry : payload.entrySet()) {
+
+                String block = blockEntry.getKey();
+                Map<String, Object> entries = blockEntry.getValue();
+
+                if (entries == null) continue;
+
+                for (Map.Entry<String, Object> entry : entries.entrySet()) {
+                    if (entry.getValue() != null) {
+                        resolvedPayloads.put(
+                                new ValidationKey(block, entry.getKey()),
+                                ResolvedPayload.present(entry.getValue())
+                        );
+                    }
+                }
+            }
+        }
+
+        return resolvedPayloads;
     }
 
     // ------------------------------------------------

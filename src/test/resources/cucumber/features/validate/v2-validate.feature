@@ -7,4 +7,4 @@ Feature: v2 validate endpoint (coupled-artifacts gate)
   Scenario: With both FCT and PDQ present, the v2 path returns a validation summary
     Given a v2 validation input built from the sample FCT and PDQ
     When the v2 validation runs over a parsed config file
-    Then a validation summary is returned with empty results
+    Then a validation summary is returned with validation results
