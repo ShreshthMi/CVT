@@ -10,10 +10,10 @@
 |---|---|---|---|
 | **BE-07** VTF-337 | Rule Registry + `ruleType` finalisation + `_expected` wiring | **PARTIAL** | results-row shape done; the two distinguishing deliverables (registry finalisation, `_expected` cell annotation) not done |
 | **BE-08** VTF-338 | Cluster 1: CAN Segment | **PARTIAL** | Check B (forwarding) real; Check A named verdicts + ComAebMap ID lookup + physical/virtual classification absent |
-| **BE-09** VTF-339 | Cluster 2: IOEXB ACO | **PARTIAL** | ID/SECTION positional done; rack-position, count-vs-ComAebMap, ≤16 bound absent |
+| **BE-09** VTF-339 | Cluster 2: IOEXB ACO | **MOSTLY** | ID/SECTION + card count + ≤16 covered by positional matching; only rack-position residual (if required) |
 | **BE-10** VTF-340 | Cluster 3: Track Section | **MOSTLY** | sub-checks 1/2/3 = ADC-vs-baseline (existing builders); only ACO bounds (sub-4) + DT remain |
 | **BE-11** VTF-341 | Cluster 4a: CHC | **MOSTLY** | count + BEHAV_INPUT3 validated; literal "count←BEHAV_INPUT3" coupling not built |
-| **BE-12** VTF-342 | Cluster 4b: External CHC | **MOSTLY** | per-sensor control check done; explicit ≤2-per-ADC bound only emergent |
+| **BE-12** VTF-342 | Cluster 4b: External CHC | **MOSTLY** | per-sensor control check done; ≤2-per-ADC covered by set-equality + the >2-mains gate |
 | **BE-13** VTF-343 | Cluster 5: Supervisor | **PARTIAL** | instanced LOGIC_TYPE/SLCT_TIMEOUT done; RESET fields hit the M4 bug; dual-FMA consistency absent |
 | **BE-14** VTF-344 | Cluster 6: Data Transmission | **NOT_DONE** | parked; only a non-validating display extractor |
 | **BE-15** VTF-345 | PDF report (stretch) | **NOT_DONE** | not started |
@@ -23,9 +23,9 @@
 1. **Verdict-vocabulary gap.** `ValidationStatus = {PASS, FAIL, INVALID}` and the sentinels are structural (`CONFIG_BLOCK_OR_PARAM_NOT_FOUND`, `CONFIG_BLOCK_NOT_FOUND`, `EXPECTED_OCCURRENCE_NOT_FOUND`, `UNEXPECTED_OCCURRENCE`, `RANGE_NOT_CONFIGURED`, project/dup sentinels). The cluster specs' **named verdicts — `ORPHANED`, `FILE NOT FOUND`, `INVALID SCOPE` (actual 2–7), `INVALID VALUE` — do not exist.** This blocks BE-08's Check A and is really BE-07's (registry/verdict-finalisation) job. Until it lands, every "validated" cluster value is a generic PASS/FAIL.
 2. **M4 default-executor — a LIVE correctness bug, not just deferred scope.** Scalar entries the PDQ carries but `ValidationConfiguration.json` has **no rule** for (`CFG_PROJECT_COM`, `CFG_SWITCH`, `CFG_IP_SWITCH_TIME`, `CFG_SUPERVIS_FMA1/2` `RESET_TYPE`/`RESET_DELAY`) fall to `DefaultRuleExecutor` → a **mandatory** default `InputMatch` (`SkipComFile=true`). On a non-COM file where such an **optional** block is legitimately absent, this emits a **spurious FAIL** (`CONFIG_BLOCK_OR_PARAM_NOT_FOUND`). Confirmed via the scalar-m4gap probe. This taints BE-07 (scalar verdicts) and BE-13 (supervisor RESET). The spawned M4 follow-up should be treated as a **bug fix**, not just a registry addition.
 3. **The engine checks "ADC matches the builder-derived expectation," not "the assignment is correct."** Consumption is set-membership + per-entry value-equality over preprocessor-derived expectations; the *semantic* derivation (which head/sensor/track, adjacency, physical/virtual) is decided at **build time in the BE-05 builders**. Consequence for the rejig: the cluster *intent* mostly lives in the BE-05 builders; BE-06 is the generic substrate. None of the sub-checks independently cross-validate the layout semantics the specs ultimately want.
-4. **No range/bound facility for instanced checks.** `≤16` (BE-09), `≤2 per ADC` (BE-12), `POSITION ∈ [0,31]` (BE-14), and the `INVALID SCOPE` 2–7 band (BE-08) all need a bound/range mechanism the instanced engine lacks. `RANGE_NOT_CONFIGURED` exists but is not wired for these; cardinality is only *emergent* from set-equality (and for ACO it's inflated by the filler-duplicate, so it isn't even a true count).
+4. **Count bounds are subsumed by set-equality — not a separate gap (revised 2026-06-24).** The `≤16` (BE-09 ACO) and `≤2 per ADC` (BE-12 CHC) limits do **not** need a new range facility: POSITIONAL and BY_IDENTITY both flag *extra* occurrences, so an ADC can never exceed the baseline's count; and an *absolute* cap is only breached if the **baseline itself** exceeds it — baseline-self-validation, **out of scope** (the same principle that dropped B7; CHC additionally has the `>2 mains → 400` build gate, so its baseline can never expect >2). One edge: on BY_IDENTITY blocks a *same-identity* duplicate can slip the count via the duplicate-identity blind spot (finding #6) — consciously deferred (tampering-only). What genuinely remains is **not** a count bound: the `POSITION ∈ [0,31]` **domain** check (BE-14/DT, parked) and the `INVALID SCOPE` 2–7 **band** (BE-08), a verdict-vocabulary item (finding #1).
 5. **No per-ADC ORPHANED / referenced-id resolution.** `BaselineGate` reconciles **PDQ Control-Table tracks ↔ FCT track universe** (baseline internal consistency) and cross-checks RSR_TYPE — it is *not* the Cluster-1 "read each AEB ADC's `[IDENTIFICATION] ID`, look it up in the ComAebMap → ORPHANED / referenced-AEB-id → FILE NOT FOUND" check. (The first reconcile pass mis-credited the HTTP-400 gate as a partial FILE-NOT-FOUND; the adversarial pass corrected it — different referent.)
-6. **Duplicate-identity blind spot.** `evaluateByIdentity` marks all occurrences sharing a `linkedId` as matched but validates only the **first**. Latent; bites only on degenerate duplicate `(ID[,SECTION])` ADC occurrences.
+6. **Duplicate-identity blind spot — consciously deferred (2026-06-24).** `evaluateByIdentity` marks all occurrences sharing a `linkedId` as matched but validates only the **first**, so the "extra" sweep does **not** flag a duplicate occurrence carrying an *expected* identity. This can only arise from a **hand-edited ADC**, and FCVT accepts only technically-correct ADC files — so it is a **non-issue for valid inputs** and is intentionally not fixed now. **Recorded so it is not forgotten:** the day FCVT must defend against tampered ADCs, fix `evaluateByIdentity` to flag an identity whose matched-occurrence count exceeds its expected count. (That same fix is what would make strict set-equality fully enforce the `≤16`/`≤2` count bounds on BY_IDENTITY blocks — see finding #4.)
 
 ## 3. Per-story detail
 
@@ -39,7 +39,8 @@
 
 ### BE-09 (PARTIAL) — Cluster 2 IOEXB ACO
 - **Done:** ID + SECTION ownership on `CFG_SECTION_OUT` via POSITIONAL per-slot validation; re-sequenced config correctly FAILs (slot-order is load-bearing, tested).
-- **Not done:** IoExb **rack position** (not emitted/checked; the POSITIONAL `position` is a slot ordinal, not a physical rack value — and the *source* field is unidentified); **count vs ComAebMap** (only incidental set-cardinality, and inflated by the filler-duplicate, so not a true count from the right input); **≤16** block bound (finding #4).
+- **Covered (revised 2026-06-24):** **card count** and the **≤16 bound** are enforced by POSITIONAL matching — the expected sequence is the FCT-derived 2×cards, so an ADC with the wrong number of `CFG_SECTION_OUT` blocks fails (missing slot or `UNEXPECTED_OCCURRENCE`); >16 can only arise if the FCT itself specifies >8 cards (baseline-self-validation, out of scope — finding #4).
+- **Not done:** IoExb **rack position** — the only genuine residual, and only if it is actually a required check; the POSITIONAL `position` is a slot ordinal, not a physical rack value, and the *source* field is unidentified.
 
 ### BE-10 (MOSTLY) — Cluster 3 Track Section
 > **"Station layout" dropped (2026-06-24):** the baseline (PDQ + FCT) is the **sole source of truth**, so all four sub-checks are **ADC-vs-baseline** — no external input. "Correct sensors per track section" = ADC vs Control Table `dpIn`/`dpOut`; "supervisory track config" = ADC vs `fadcAutoReset`. (Validating the baseline against physical reality would need an external source, but that is out of scope.)
@@ -53,7 +54,8 @@
 
 ### BE-12 (MOSTLY) — Cluster 4b External CHC
 - **Done:** per-sensor-point control check on `CFG_CONTROL` (BY_IDENTITY {ID,SECTION} from CFG_ZP adjacency), BEHAV_INPUT3, `>2 mains → 400`.
-- **Gap:** explicit **≤2-per-ADC** cardinality bound (only emergent from set-equality, finding #4); no systematic CHC-DP-in-FCT existence pre-check; thin SLCT_TIMEOUT diff-chain test coverage.
+- **≤2-per-ADC bound: covered (revised 2026-06-24)** — set-equality flags extras and the `>2 mains → 400` build gate stops the baseline ever expecting >2, so the limit holds without a range facility (finding #4); the only escape is a same-identity duplicate via the duplicate-identity blind spot (finding #6, tampering-only, consciously deferred).
+- **Gap:** no systematic CHC-DP-in-FCT existence pre-check; thin SLCT_TIMEOUT diff-chain test coverage.
 
 ### BE-13 (PARTIAL) — Cluster 5 Supervisor
 - **Done:** instanced per-`fadcAutoReset`-operand `LOGIC_TYPE` + `SLCT_TIMEOUT` (BY_IDENTITY {ID,SECTION} set-equality) — real composite-key path.
@@ -86,7 +88,7 @@ The as-built code that realizes cluster *intent* — to re-attribute the BE-05/B
 ## 5. Residual backlog + recommended sequence
 
 1. **BE-07 first** — it unblocks everything: (a) add the named-verdict vocabulary (`ORPHANED`/`FILE_NOT_FOUND`/`INVALID_SCOPE`/`INVALID_VALUE`); (b) finalise the registry **and fix the M4 default-executor bug** (finding #2 — optional scalars must use `OptionalInputMatchOrBlockNotFound`, or change the default factory); (c) the `_expected` detail-cell join (verdict→cell), the hardest piece.
-2. **Cluster residuals** on top of the existing builders/evaluator: BE-08 (ComAebMap ID lookup + ORPHANED/FILE-NOT-FOUND + segment classification + INVALID SCOPE band + `CFG_DATA_OUT`); BE-09 (rack position + count + ≤16); BE-12 (explicit ≤2); BE-13 (dual-FMA consistency + RESET optionality).
+2. **Cluster residuals** on top of the existing builders/evaluator: BE-08 (ComAebMap ID lookup + ORPHANED/FILE-NOT-FOUND + segment classification + INVALID SCOPE band + `CFG_DATA_OUT`); BE-09 (rack position, only if required); BE-13 (dual-FMA consistency + RESET optionality). *(BE-12 `≤2` and BE-09 count/`≤16` are already covered by set-equality — finding #4.)*
 3. **BE-10** — sub-checks 1/2/3 already covered (ADC-vs-baseline); finish sub-check 4's ACO bounds (with BE-09) and the DT half (with BE-14).
 4. **BE-14 DT** — unpark with AE (semantics) + build the range mechanism.
 5. **BE-15 PDF** — stretch, last.
