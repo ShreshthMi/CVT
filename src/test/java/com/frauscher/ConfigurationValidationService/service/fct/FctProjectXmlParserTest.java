@@ -1,0 +1,109 @@
+package com.frauscher.ConfigurationValidationService.service.fct;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.io.File;
+import java.io.InputStream;
+
+import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.frauscher.ConfigurationValidationService.dto.fct.AcoIoExb;
+import com.frauscher.ConfigurationValidationService.dto.fct.Chain;
+import com.frauscher.ConfigurationValidationService.dto.fct.ComAebMap;
+import com.frauscher.ConfigurationValidationService.dto.fct.FctAeb;
+import com.frauscher.ConfigurationValidationService.exception.FctInvalidException;
+import com.frauscher.ConfigurationValidationService.exception.FctInvalidReason;
+import com.frauscher.ConfigurationValidationService.testsupport.FctFixtures;
+
+/**
+ * Parses each FCT fixture's {@code Project.xml} into a ComAebMap: the ACO case (segments, AEBs,
+ * evaluated FMAs, OutputFma cross-resolution), MASTER/SLAVE redundancy collapse, DT-IoExb counting,
+ * and the duplicate-AEB-Id rejection.
+ */
+class FctProjectXmlParserTest {
+
+    private final FctProjectXmlParser parser = new FctProjectXmlParser();
+
+    @Test
+    void parsesAcoFixture() throws Exception {
+        ComAebMap map = parse(FctFixtures.openAcoProjectXml());
+
+        assertEquals(2, map.chains().size());
+
+        Chain com100 = chainByComName(map, "COM100");
+        assertEquals("100", com100.com().comId());
+        assertFalse(com100.redundantComPresent());
+        assertEquals(5, com100.aebs().size()); // DP2A, DP3A, DP4, DP5, DP1A
+
+        FctAeb dp1a = aebByDpName(com100, "DP1A");
+        assertEquals("5", dp1a.dpId());
+        assertEquals(2, dp1a.evaluatedFmas().size()); // 1AXT1, SUP1-AXT1
+        assertEquals(0, dp1a.dtIoExbCount());
+        assertEquals(2, dp1a.acoIoExbs().size());
+
+        // First ACO: single-track, OutputFma1 = 1AXT1 (fmaId 0) on DP1A (dpId 5); no OutputFma2.
+        AcoIoExb first = dp1a.acoIoExbs().get(0);
+        assertEquals("ACO", first.label());
+        assertEquals("1AXT1", first.outputFma1Name());
+        assertEquals("0", first.outputFma1Id());
+        assertEquals("5", first.outputFma1DpId());
+        assertNull(first.outputFma2Name());
+
+        // Second ACO: dual-track, outputs reference FMAs on *other* AEBs (DP3A=2, DP2A=1).
+        AcoIoExb second = dp1a.acoIoExbs().get(1);
+        assertEquals("201AXT", second.outputFma1Name());
+        assertEquals("2", second.outputFma1DpId());
+        assertEquals("2AXT1", second.outputFma2Name());
+        assertEquals("1", second.outputFma2DpId());
+
+        assertEquals(3, chainByComName(map, "COM200").aebs().size()); // DP2B, DP3B, DP1B
+    }
+
+    @Test
+    void collapsesMasterSlaveRedundancy() throws Exception {
+        ComAebMap map = parse(FctFixtures.openRedundantProjectXml());
+        dump(map, "build/fct-redundant.json");
+        assertTrue(map.chains().stream().anyMatch(Chain::redundantComPresent),
+                "expected at least one chain collapsed from a MASTER/SLAVE pair");
+    }
+
+    @Test
+    void countsDtIoExbs() throws Exception {
+        ComAebMap map = parse(FctFixtures.openDtProjectXml());
+        dump(map, "build/fct-dt.json");
+        boolean anyDt = map.chains().stream()
+                .flatMap(c -> c.aebs().stream())
+                .anyMatch(a -> a.dtIoExbCount() > 0);
+        assertTrue(anyDt, "expected at least one AEB with DT-mode IoExbs");
+    }
+
+    @Test
+    void rejectsDuplicateAebId() {
+        FctInvalidException ex = assertThrows(FctInvalidException.class,
+                () -> parse(FctFixtures.openDuplicateIdProjectXml()));
+        assertEquals(FctInvalidReason.DUPLICATE_ENTITY_ID, ex.getReason());
+    }
+
+    private ComAebMap parse(InputStream in) throws Exception {
+        try (in) {
+            return parser.parse(in);
+        }
+    }
+
+    private static void dump(ComAebMap map, String path) throws Exception {
+        new ObjectMapper().writerWithDefaultPrettyPrinter().writeValue(new File(path), map);
+    }
+
+    private static Chain chainByComName(ComAebMap map, String comName) {
+        return map.chains().stream().filter(c -> comName.equals(c.com().comName())).findFirst().orElseThrow();
+    }
+
+    private static FctAeb aebByDpName(Chain chain, String dpName) {
+        return chain.aebs().stream().filter(a -> dpName.equals(a.dpName())).findFirst().orElseThrow();
+    }
+}

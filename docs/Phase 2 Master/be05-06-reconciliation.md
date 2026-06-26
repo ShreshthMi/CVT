@@ -11,7 +11,7 @@
 | **BE-07** VTF-337 | Rule Registry + `ruleType` finalisation + `_expected` wiring | **PARTIAL** | results-row shape done; the two distinguishing deliverables (registry finalisation, `_expected` cell annotation) not done |
 | **BE-08** VTF-338 | Cluster 1: CAN Segment | **PARTIAL** | Check B (forwarding) real; Check A named verdicts + ComAebMap ID lookup + physical/virtual classification absent |
 | **BE-09** VTF-339 | Cluster 2: IOEXB ACO | **PARTIAL** | ID/SECTION positional done; rack-position, count-vs-ComAebMap, ≤16 bound absent |
-| **BE-10** VTF-340 | Cluster 3: Track Section | **PARTIAL** | sub-check 1 done; 2 & 3 blocked on B7 station-layout; DT half absent |
+| **BE-10** VTF-340 | Cluster 3: Track Section | **MOSTLY** | sub-checks 1/2/3 = ADC-vs-baseline (existing builders); only ACO bounds (sub-4) + DT remain |
 | **BE-11** VTF-341 | Cluster 4a: CHC | **MOSTLY** | count + BEHAV_INPUT3 validated; literal "count←BEHAV_INPUT3" coupling not built |
 | **BE-12** VTF-342 | Cluster 4b: External CHC | **MOSTLY** | per-sensor control check done; explicit ≤2-per-ADC bound only emergent |
 | **BE-13** VTF-343 | Cluster 5: Supervisor | **PARTIAL** | instanced LOGIC_TYPE/SLCT_TIMEOUT done; RESET fields hit the M4 bug; dual-FMA consistency absent |
@@ -41,10 +41,11 @@
 - **Done:** ID + SECTION ownership on `CFG_SECTION_OUT` via POSITIONAL per-slot validation; re-sequenced config correctly FAILs (slot-order is load-bearing, tested).
 - **Not done:** IoExb **rack position** (not emitted/checked; the POSITIONAL `position` is a slot ordinal, not a physical rack value — and the *source* field is unidentified); **count vs ComAebMap** (only incidental set-cardinality, and inflated by the filler-duplicate, so not a true count from the right input); **≤16** block bound (finding #4).
 
-### BE-10 (PARTIAL) — Cluster 3 Track Section
-- **Done:** sub-check 1 (CHC counting-head assignment) wired end-to-end (CountingHead + Control builders → evaluator), though "assignment correctness" is builder-derived (finding #3).
-- **Partial:** sub-check 3 (supervisor instanced slice built; **layout dimension blocked**; RESET scalars hit finding #2); sub-check 4 ACO (built, but no rack-position/count; **DT half has no builder**).
-- **Not done / blocked:** sub-check 2 (sensors-per-section) — **B7 station-layout** input unavailable; this is the dominant residual.
+### BE-10 (MOSTLY) — Cluster 3 Track Section
+> **"Station layout" dropped (2026-06-24):** the baseline (PDQ + FCT) is the **sole source of truth**, so all four sub-checks are **ADC-vs-baseline** — no external input. "Correct sensors per track section" = ADC vs Control Table `dpIn`/`dpOut`; "supervisory track config" = ADC vs `fadcAutoReset`. (Validating the baseline against physical reality would need an external source, but that is out of scope.)
+- **Done:** sub-check 1 (CHC counting-head assignment) — CountingHead + Control builders → evaluator. Sub-check 2 (sensors-per-section) is the **same baseline data** (Control Table `dpIn`/`dpOut`) the counting-head engine already validates. Sub-check 3 (supervisory) — `SupervisorExpectationsBuilder` over `fadcAutoReset`, consumed by set-equality.
+- **Partial:** sub-check 3's scalar RESET fields hit finding #2 (M4); sub-check 4 ACO (built, but no rack-position / no count bound — see BE-09; **DT half has no builder**).
+- **Caveat (finding #3):** "assignment correctness" is builder-derived — the evaluator checks the ADC matches the baseline-derived expectation, which is exactly the intended ADC-vs-baseline validation.
 
 ### BE-11 (MOSTLY) — Cluster 4a CHC
 - **Done:** adjacency from the CCT Track table; `CFG_CONTROL` count enforced via set-equality cardinality; `BEHAV_INPUT3` via SINGLE equality; `>2 mains → 400`. **Not contaminated** by the M4 bug (instanced path).
@@ -80,13 +81,13 @@ The as-built code that realizes cluster *intent* — to re-attribute the BE-05/B
 | `ScalarExpectationsBuilder` + lenient `PayloadValidator.resolve` + `validateParsedFiles` overload | BE-07 scalar verdict wiring / cross-cutting (carries the finding-#2 bug) |
 | `ValidationResult` / `ValidationStatus` / `SummaryService` | BE-07 (results-row shape done; `_expected` NOT done) |
 
-**Implication:** BE-05's six builders + BE-06's evaluator already realize the per-block *value* validation of BE-08/09/11/12/13 and BE-10 sub-checks 1/3/4. The residuals are verdict vocabulary, bounds/ranges, station-layout, DT, dual-FMA consistency, and the `_expected` wiring — i.e. genuinely *new* work, not re-derivation.
+**Implication:** BE-05's six builders + BE-06's evaluator already realize the per-block *value* validation of BE-08/09/11/12/13 and BE-10 sub-checks 1/3/4. The residuals are verdict vocabulary, bounds/ranges, DT, dual-FMA consistency, and the `_expected` wiring — i.e. genuinely *new* work, not re-derivation.
 
 ## 5. Residual backlog + recommended sequence
 
 1. **BE-07 first** — it unblocks everything: (a) add the named-verdict vocabulary (`ORPHANED`/`FILE_NOT_FOUND`/`INVALID_SCOPE`/`INVALID_VALUE`); (b) finalise the registry **and fix the M4 default-executor bug** (finding #2 — optional scalars must use `OptionalInputMatchOrBlockNotFound`, or change the default factory); (c) the `_expected` detail-cell join (verdict→cell), the hardest piece.
 2. **Cluster residuals** on top of the existing builders/evaluator: BE-08 (ComAebMap ID lookup + ORPHANED/FILE-NOT-FOUND + segment classification + INVALID SCOPE band + `CFG_DATA_OUT`); BE-09 (rack position + count + ≤16); BE-12 (explicit ≤2); BE-13 (dual-FMA consistency + RESET optionality).
-3. **BE-10 sub-checks 2 & 3** — escalate **B7 station-layout** input strategy (hard blocker).
+3. **BE-10** — sub-checks 1/2/3 already covered (ADC-vs-baseline); finish sub-check 4's ACO bounds (with BE-09) and the DT half (with BE-14).
 4. **BE-14 DT** — unpark with AE (semantics) + build the range mechanism.
 5. **BE-15 PDF** — stretch, last.
 

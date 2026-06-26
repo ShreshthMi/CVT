@@ -50,9 +50,9 @@ Source: FCT ComAebMap (acoIoExbs). Report sheet: IOEXB ACO Details.
 Depends on: BE-06.
 Tests: Cucumber coverage."
 "[BE-10] Cluster 3: Track Section Validation","Story","VTF-304","Medium","phase2-backend cluster","Four sub-checks: (1) CHC counting-head assignment per sensor/ADC, (2) correct sensors per track section, (3) supervisory track config, (4) ACO/DT IO assignment.
-Sub-checks 1 and 4 can be ADC-only; 2 and 3 require station layout as external input.
+All four sub-checks validate the ADC against the baseline (PDQ Control Table + FCT); no external input — the baseline is the sole source of truth.
 Source: PDQ CCT. Report sheet: Track Section Details.
-Blocked on: blocks/keys + station-layout input strategy (B7). Depends on: BE-06.
+Depends on: BE-06.
 Tests: Cucumber coverage."
 "[BE-11] Cluster 4a: CHC Validation","Story","VTF-304","Medium","phase2-backend cluster","Count-driven check: cross-check BEHAV_IN3 against CFG_CONTROL block count (BEHAV_IN3 = 7 -> 1 block; = 6 -> 2 blocks); flag mismatches.
 Adjacency derived from the CCT Track table.

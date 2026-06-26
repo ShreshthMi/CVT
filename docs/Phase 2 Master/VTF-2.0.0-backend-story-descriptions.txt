@@ -297,20 +297,20 @@ Validate track-section configuration via four sub-checks against the PDQ Config 
 
 *Scope*
  - Sub-check 1: CHC counting-head assignment per sensor/ADC (ADC-only feasible).
- - Sub-check 2: correct sensors per track section (requires station layout).
- - Sub-check 3: supervisory track config (requires station layout).
+ - Sub-check 2: correct sensors per track section (ADC vs the PDQ Control Table dpIn/dpOut).
+ - Sub-check 3: supervisory track config (ADC vs the Control Table fadcAutoReset).
  - Sub-check 4: ACO/DT IO assignment (ADC-only feasible).
 
 *Dependencies & blockers*
  - Depends on VTF-336.
- - Blocked: blocks/keys + station-layout input strategy (B7). Sub-checks 1 and 4 can proceed ahead of the station-layout decision.
+ - No external input needed: all four sub-checks validate the ADC against the baseline (PDQ Control Table + FCT), the sole source of truth. (An earlier "station layout" assumption is dropped.)
 
 *References*
 Contract VTF-330. Report sheet: Track Section Details.
 
 *Acceptance criteria*
- - *Given* finalised blocks/keys and a station-layout input, *When* the four sub-checks run, *Then* each emits its verdict against the CCT-derived expectation.
- - (Full ACs to be completed once B7 closes.)
+ - *Given* the parsed ADC and the PDQ/FCT baseline, *When* the four sub-checks run, *Then* each emits its verdict against the CCT-derived expectation.
+ - (Full ACs to be completed once the per-sub-check blocks/keys are confirmed.)
 
 *Test/BDD*
 Cucumber per sub-check; the ADC-only sub-checks (1, 4) can be covered first.

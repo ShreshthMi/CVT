@@ -446,7 +446,7 @@ Detailed block and key specifics for each cluster:
 - Blocks: **[TBD from Confluence requirements doc]**
 - Keys: **[TBD from Confluence requirements doc]**
 - Source: PDQ CCT
-- Known structure: 4 sub-checks — (1) CHC counting head assignment per sensor/ADC, (2) correct sensors per track section, (3) supervisory track config, (4) ACO/DT IO assignment. Sub-checks 1 and 4 can be ADC-only. Sub-checks 2 and 3 require station layout as external input. **[TBD: station layout input strategy — file upload vs inline UI vs ADC-only scope. The same decision covers parallel sub-clusters elsewhere.]**
+- Known structure: 4 sub-checks — (1) CHC counting head assignment per sensor/ADC, (2) correct sensors per track section, (3) supervisory track config, (4) ACO/DT IO assignment. **All four validate the ADC against the baseline** — sub-check 2 against the Control Table `dpIn`/`dpOut`, sub-check 3 against `fadcAutoReset`. The baseline (PDQ + FCT) is the sole source of truth, so **no external input is required** (an earlier "station layout" assumption is dropped — validating the baseline against physical reality is out of scope).
 
 **Cluster 4 — CHC / External CHC**
 - Combined cluster; same block, different validation approaches per sub-cluster.
@@ -534,7 +534,7 @@ Note again the Cluster 1/2 ownership rule (§7.1): Cluster 2 owns `ID` and `SECT
 
 Clusters 3 through 6 have a known shape but most block/key specifics are pending against the Confluence requirements document. Inline TBDs are marked here; summary is in §12.
 
-**Cluster 3 — Track Section.** 4 sub-checks (CHC counting head assignment, sensors-per-track, supervisory track config, ACO/DT IO assignment). Sub-checks 1 and 4 are ADC-only; sub-checks 2 and 3 require station layout as an external input — input strategy is open. **[TBD: blocks, keys, station-layout input strategy]**
+**Cluster 3 — Track Section.** 4 sub-checks (CHC counting head assignment, sensors-per-track, supervisory track config, ACO/DT IO assignment). **All validate the ADC against the baseline** (Control Table `dpIn`/`dpOut` + `fadcAutoReset`); the baseline (PDQ + FCT) is the sole source of truth, so **no external input is required** (earlier "station layout" assumption dropped).
 
 **Cluster 4 — CHC / External CHC.** Combined cluster spanning the standard CHC and the External CHC sub-cluster. CHC count derivation is locked: `BEHAV_IN3 = 7 → 1 CFG_CONTROL block`; `BEHAV_IN3 = 6 → 2 CFG_CONTROL blocks`. Adjacency from ConfigControlTable Track table. External CHC scope: `CFG_CONTROL` ≤ 2 per ADC. **[TBD: full blocks, keys list, sub-cluster split]**
 
@@ -583,7 +583,6 @@ Tracked in two pools — items needing AE coordination, and items needing backen
 | B4 | Spring Boot 4.0.2 multipart default override behaviour — verify | FCT and PDQ upload pipelines | **Open**. |
 | B5 | MappingProperties file updates for the missing keys listed in A4 | PDQ parser unit conversion (§6.3) | **Resolved** — step values locked. |
 | B6 | `CFG_TIMEOUT` alias resolution against `TIMEOUT_VALUE` | PDQ special-case row (§6.4) | **Resolved** — `TIMEOUT_VALUE` always nests under the `CFG_TIMEOUT` block (hardcoded special case). |
-| B7 | Cluster 3 blocks and keys (Track Section); station-layout input strategy | BE-06 (Track Section) | **Open**. |
 | B8 | Cluster 4 full blocks/keys (CHC / External CHC), sub-cluster split | BE-07 / BE-08 | **Open**. |
 | B9 | Cluster 5 blocks and keys (Supervisor); 3B FMA Supervisor re-confirmation | BE-09 | **Open**. |
 | B10 | Cluster 6 full keys list and rule semantics | BE-11 | **Open**. |

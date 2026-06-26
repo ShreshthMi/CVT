@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 import com.frauscher.ConfigurationValidationService.dto.ApiErrorResponse;
@@ -28,6 +29,24 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(error(ex));
     }
 
+    @ExceptionHandler(PdqInvalidException.class)
+    public ResponseEntity<ApiErrorResponse> handlePdqInvalid(
+            PdqInvalidException ex) {
+
+        // External response carries only the PDQ_INVALID code; the reason is for logs.
+        log.warn("PDQ upload rejected [{}]", ex.getReason());
+        return ResponseEntity.badRequest().body(error(ex));
+    }
+
+    @ExceptionHandler(FctInvalidException.class)
+    public ResponseEntity<ApiErrorResponse> handleFctInvalid(
+            FctInvalidException ex) {
+
+        // External response carries one of the two FCT codes; the reason is for logs.
+        log.warn("FCT upload rejected [{}]", ex.getReason());
+        return ResponseEntity.badRequest().body(error(ex));
+    }
+
 
 
     @ExceptionHandler(MissingServletRequestPartException.class)
@@ -45,6 +64,19 @@ public class GlobalExceptionHandler {
                 .build();
 
         return ResponseEntity.badRequest().body(response);
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<ApiErrorResponse> handleMaxUpload(
+            MaxUploadSizeExceededException ex) {
+
+        ApiErrorResponse response = ApiErrorResponse.builder()
+                .errorCode("PAYLOAD_TOO_LARGE")
+                .message("Uploaded file exceeds the maximum allowed size")
+                .timestamp(Instant.now())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).body(response);
     }
 
     // -----------------------------

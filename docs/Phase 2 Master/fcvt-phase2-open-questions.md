@@ -104,6 +104,7 @@ a validation-result row).
 
 ## Related (pre-existing design blockers — for awareness, not BE-05-specific)
 
-- **B7** station-layout input (Cluster 3), **B8** CHC keys (Cluster 4a/4b), **B9** Supervisor keys
-  (Cluster 5), **B10** DT keys (Cluster 6), **B14** cross-correlation rule implementation. Tracked in the
-  design doc; listed here so they're not forgotten when the cluster stories start.
+- **B8** CHC keys (Cluster 4a/4b), **B9** Supervisor keys (Cluster 5), **B10** DT keys (Cluster 6),
+  **B14** cross-correlation rule implementation. Tracked in the design doc; listed here so they're not
+  forgotten when the cluster stories start. *(Cluster 3 needs no external input — its sub-checks validate
+  the ADC against the baseline, the sole source of truth.)*
