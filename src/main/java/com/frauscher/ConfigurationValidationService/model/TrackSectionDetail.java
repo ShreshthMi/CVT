@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
@@ -90,4 +91,9 @@ public class TrackSectionDetail {
      */
     @JsonProperty("i_ch_slct_timeout")
     private List<String> iChSlctTimeout;
+
+    /** v2 per-cell mismatch annotations (omitted when none); see {@link MismatchAnnotation}. */
+    @JsonProperty("_mismatches")
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private List<MismatchAnnotation> mismatches;
 }

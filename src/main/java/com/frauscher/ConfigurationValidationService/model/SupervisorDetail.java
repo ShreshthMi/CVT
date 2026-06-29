@@ -1,5 +1,6 @@
 package com.frauscher.ConfigurationValidationService.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -52,4 +53,9 @@ public class SupervisorDetail {
 
     @JsonProperty("reset_timer")
     private String resetTimer;
+
+    /** v2 per-cell mismatch annotations (omitted when none); see {@link MismatchAnnotation}. */
+    @JsonProperty("_mismatches")
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private List<MismatchAnnotation> mismatches;
 }

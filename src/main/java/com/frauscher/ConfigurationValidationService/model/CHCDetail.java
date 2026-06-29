@@ -1,5 +1,7 @@
 package com.frauscher.ConfigurationValidationService.model;
 
+import java.util.List;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -59,4 +61,9 @@ public class CHCDetail {
 
     @JsonProperty("partial_count")
     private String partialCount;
+
+    /** v2 per-cell mismatch annotations (omitted when none); see {@link MismatchAnnotation}. */
+    @JsonProperty("_mismatches")
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private List<MismatchAnnotation> mismatches;
 }

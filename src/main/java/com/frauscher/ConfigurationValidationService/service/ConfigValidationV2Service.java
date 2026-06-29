@@ -55,6 +55,12 @@ public class ConfigValidationV2Service {
         results.addAll(instancedExpectationEvaluator.evaluate(
                 parsedConfigFiles, expectations.instancedExpectations()));
 
+        // Assign each result a response-scoped opaque id (the cell→log navigation target — response
+        // contract §2/§5). Phase 1 results keep a null id and the field is omitted from that response.
+        for (int i = 0; i < results.size(); i++) {
+            results.get(i).setId("r" + i);
+        }
+
         return summaryService.generateSummary(parsedConfigFiles, results);
     }
 }
