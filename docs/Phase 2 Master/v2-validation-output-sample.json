@@ -1,0 +1,141 @@
+{
+  "validation_results": [
+    { "id": "r1", "fileName": "C0005_00.ADC", "ruleType": "IdentitySetMatch", "blockName": "CFG_ZP_FMA1", "entryKey": "ID=6", "expectedValue": "not in baseline", "actualValue": "DP2B", "status": "FAIL" },
+    { "id": "r2", "fileName": "C0005_00.ADC", "ruleType": "IdentitySetMatch", "blockName": "CFG_ZP_FMA1", "entryKey": "ID=1", "expectedValue": "DP2A", "actualValue": "EXPECTED_OCCURRENCE_NOT_FOUND", "status": "FAIL" },
+    { "id": "r3", "fileName": "C0005_00.ADC", "ruleType": "IdentitySetMatch", "blockName": "CFG_ZP_FMA1", "entryKey": "DIR_INV[ID=5]", "expectedValue": "0", "actualValue": "0", "status": "PASS" },
+    { "id": "r4", "fileName": "C0005_00.ADC", "ruleType": "IdentitySetMatch", "blockName": "CFG_ZP_FMA1", "entryKey": "SLCT_TIMEOUT[ID=5]", "expectedValue": "0", "actualValue": "0", "status": "PASS" },
+    { "id": "r5", "fileName": "C0001_00.ADC", "ruleType": "RangeCheck", "blockName": "ID", "entryKey": "ID", "expectedValue": "1 - 4095", "actualValue": "1", "status": "PASS" },
+    { "id": "r6", "fileName": "C0001_00.ADC", "ruleType": "InputMatch", "blockName": "CFG_SECTION_OUT", "entryKey": "CLR_OCC", "expectedValue": "0", "actualValue": "0", "status": "PASS" },
+    { "id": "r7", "fileName": "C0002_00.ADC", "ruleType": "RangeCheck", "blockName": "ID", "entryKey": "ID", "expectedValue": "1 - 4095", "actualValue": "2", "status": "PASS" },
+    { "id": "r8", "fileName": "C0100_00.ADC", "ruleType": "ProjectBlockCheck", "blockName": "CFG_PROJECT_COM", "entryKey": "PROJECT_NUMBER", "expectedValue": "9898", "actualValue": "9898", "status": "PASS" },
+    { "id": "r9", "fileName": "C0005_00.ADC", "ruleType": "IdentitySetMatch", "blockName": "CFG_SUPERVIS_FMA2", "entryKey": "SLCT_TIMEOUT[ID=1,SECTION=0]", "expectedValue": "1", "actualValue": "1", "status": "PASS" },
+    { "id": "r10", "fileName": "C0001_00.ADC", "ruleType": "InputMatch", "blockName": "CFG_AXCNT", "entryKey": "BEHAV_INPUT3", "expectedValue": "6", "actualValue": "7", "status": "FAIL" },
+    { "id": "r11", "fileName": "C0008_00.ADC", "ruleType": "RangeCheck", "blockName": "ID", "entryKey": "ID", "expectedValue": "1 - 4095", "actualValue": "8", "status": "PASS" },
+    { "id": "r12", "fileName": "C0100_00.ADC", "ruleType": "OptionalInputMatchOrBlockNotFound", "blockName": "CFG_IP_SWITCH", "entryKey": "IP_SWITCH", "expectedValue": "0", "actualValue": "CONFIG_BLOCK_NOT_FOUND", "status": "PASS" },
+    { "id": "r13", "fileName": "C0200_00.ADC", "ruleType": "OptionalInputMatchOrBlockNotFound", "blockName": "CFG_IP_SWITCH", "entryKey": "IP_SWITCH", "expectedValue": "0", "actualValue": "CONFIG_BLOCK_NOT_FOUND", "status": "PASS" },
+    { "id": "r14", "fileName": "C0006_00.ADC", "ruleType": "InputMatch", "blockName": "CFG_AXCNT", "entryKey": "BEHAV_INPUT3", "expectedValue": "6", "actualValue": "6", "status": "PASS" },
+    { "id": "r15", "fileName": "C0001_00.ADC", "ruleType": "IdentitySetMatch", "blockName": "CFG_CONTROL", "entryKey": "SLCT_TIMEOUT[ID=5,SECTION=0]", "expectedValue": "0", "actualValue": "0", "status": "PASS" },
+    { "id": "r20", "fileName": "C0005_00.ADC", "ruleType": "IdentitySetMatch", "blockName": "CFG_SUPERVIS_FMA2", "entryKey": "LOGIC_TYPE[ID=1,SECTION=0]", "expectedValue": "OR", "actualValue": "AND", "status": "FAIL" },
+    { "id": "r30", "fileName": "C0100_00.ADC", "ruleType": "IdentitySetMatch", "blockName": "CFG_FWRD_ACD", "entryKey": "CAN_TX_ID=2,DEST_COM=200", "expectedValue": "not in baseline", "actualValue": "DP3A to COM200", "status": "FAIL" },
+    { "id": "r31", "fileName": "C0100_00.ADC", "ruleType": "IdentitySetMatch", "blockName": "CFG_FWRD_ACD", "entryKey": "CAN_TX_ID=1,DEST_COM=200", "expectedValue": "DP2A to COM200", "actualValue": "EXPECTED_OCCURRENCE_NOT_FOUND", "status": "FAIL" }
+  ],
+
+  "dp_details": [
+    { "dp_can_id": "5", "dp_name": "DP1A", "time_out": ["620", "620"], "comm_fail": "0", "behav_ge": "1", "clr_track": "0", "reset_in": "5", "reset_out": "1", "behav_reset": "4", "behav_simul": "0" },
+    { "dp_can_id": "1", "dp_name": "DP2A", "time_out": ["620"], "comm_fail": "0", "behav_ge": "1", "clr_track": "0", "reset_in": "5", "reset_out": "1", "behav_reset": "4", "behav_simul": "0" },
+    { "dp_can_id": "2", "dp_name": "DP3A", "time_out": ["620"], "comm_fail": "0", "behav_ge": "1", "clr_track": "0", "reset_in": "5", "reset_out": "1", "behav_reset": "4", "behav_simul": "0" },
+    { "dp_can_id": "6", "dp_name": "DP2B", "time_out": ["620"], "comm_fail": "0", "behav_ge": "1", "clr_track": "0", "reset_in": "5", "reset_out": "1", "behav_reset": "4", "behav_simul": "0" },
+    { "dp_can_id": "8", "dp_name": "DP1B", "time_out": ["620"], "comm_fail": "0", "behav_ge": "1", "clr_track": "0", "reset_in": "5", "reset_out": "1", "behav_reset": "4", "behav_simul": "0" }
+  ],
+
+  "track_section_details": [
+    {
+      "ts_name": "1AXT1", "e_dp_id": "5", "e_dp_name": "DP1A", "fma_1_2": "1",
+      "ch_dp_id": ["5", "6"], "ch_dp_name": ["DP1A", "DP2B"], "ch_slct_timeout": ["0", "0"],
+      "i_ch_dp_id": [], "i_ch_dp_name": [], "i_ch_slct_timeout": [],
+      "_mismatches": [
+        { "field": "ch_dp_name", "index": 1, "kind": "UNEXPECTED", "expected": null, "actual": "DP2B", "result_id": "r1" },
+        { "field": "ch_dp_name", "index": null, "kind": "MISSING", "expected": "DP2A", "actual": null, "result_id": "r2" }
+      ]
+    },
+    {
+      "ts_name": "2AXT1", "e_dp_id": "1", "e_dp_name": "DP2A", "fma_1_2": "1",
+      "ch_dp_id": ["1", "2"], "ch_dp_name": ["DP2A", "DP3A"], "ch_slct_timeout": ["0", "0"],
+      "i_ch_dp_id": [], "i_ch_dp_name": [], "i_ch_slct_timeout": []
+    },
+    {
+      "ts_name": "2AXT2", "e_dp_id": "6", "e_dp_name": "DP2B", "fma_1_2": "1",
+      "ch_dp_id": ["6", "7"], "ch_dp_name": ["DP2B", "DP3B"], "ch_slct_timeout": ["0", "0"],
+      "i_ch_dp_id": [], "i_ch_dp_name": [], "i_ch_slct_timeout": []
+    }
+  ],
+
+  "chc_details": [
+    {
+      "dp_id": "1", "dp_name": "DP2A",
+      "ts_name_1": "1AXT1", "timeout_1": "620", "dp_id_1": "5", "dp_name_1": "DP1A", "fma_dtl_1": "1",
+      "ts_name_2": "2AXT1", "timeout_2": "620", "dp_id_2": "1", "dp_name_2": "DP2A", "fma_dtl_2": "1",
+      "interval": "3", "supervis_count": "2", "system_count": "2", "partial_count": "1"
+    }
+  ],
+
+  "supervisor_details": [
+    {
+      "sup_name": "SUP1-AXT1", "dp_id": "5", "dp_name": "DP1A",
+      "sup_by_ts": ["2AXT1"], "sup_by_ts_dp_id": ["1"], "sup_by_ts_dp_name": ["DP2A"], "sup_by_ts_fma": ["1"],
+      "time_out": ["620"], "logic_type": ["AND"],
+      "reset_type": "direct", "reset_delay": "3", "auto_reset_type": "1", "reset_timer": "0",
+      "_mismatches": [
+        { "field": "logic_type", "index": 0, "kind": "VALUE", "expected": "OR", "actual": "AND", "result_id": "r20" }
+      ]
+    },
+    {
+      "sup_name": "SUP1-AXT2", "dp_id": "8", "dp_name": "DP1B",
+      "sup_by_ts": ["2AXT2"], "sup_by_ts_dp_id": ["6"], "sup_by_ts_dp_name": ["DP2B"], "sup_by_ts_fma": ["1"],
+      "time_out": ["620"], "logic_type": ["OR"],
+      "reset_type": "direct", "reset_delay": "3", "auto_reset_type": "1", "reset_timer": "0"
+    }
+  ],
+
+  "ioexb_behaviour_details": [
+    {
+      "dp_id": "1", "dp_name": "DP2A",
+      "behav_input1": "1", "type_in1": "0", "behav_input2": "4", "type_in2": "0",
+      "behav_input3": "7", "type_in3": "0", "behav_ioexb": "1", "type_ioexb": "0",
+      "is_coop_reset": false, "coop_reset_type": "0", "coop_control_type": "0", "reset_timeout": "0",
+      "_mismatches": [
+        { "field": "behav_input3", "index": null, "kind": "VALUE", "expected": "6", "actual": "7", "result_id": "r10" }
+      ]
+    },
+    {
+      "dp_id": "2", "dp_name": "DP3A",
+      "behav_input1": "1", "type_in1": "0", "behav_input2": "4", "type_in2": "0",
+      "behav_input3": "6", "type_in3": "0", "behav_ioexb": "1", "type_ioexb": "0",
+      "is_coop_reset": false, "coop_reset_type": "0", "coop_control_type": "0", "reset_timeout": "0"
+    },
+    {
+      "dp_id": "5", "dp_name": "DP1A",
+      "behav_input1": "1", "type_in1": "0", "behav_input2": "4", "type_in2": "0",
+      "behav_input3": "6", "type_in3": "0", "behav_ioexb": "1", "type_ioexb": "0",
+      "is_coop_reset": false, "coop_reset_type": "0", "coop_control_type": "0", "reset_timeout": "0"
+    }
+  ],
+
+  "ioexb_aco_details": [
+    {
+      "dp_id": "1", "dp_name": "DP2A", "aco_fma1": "2AXT1", "clr_occ": "0",
+      "type_aux1": "0", "type_aux2": "0", "aux1_out": "1", "aux1_no_nc": "0", "aux2_out": "1", "aux2_no_nc": "0",
+      "fma_1_2": "1", "time_out": "620"
+    },
+    {
+      "dp_id": "5", "dp_name": "DP1A", "aco_fma1": "1AXT1", "clr_occ": "0",
+      "type_aux1": "0", "type_aux2": "0", "aux1_out": "1", "aux1_no_nc": "0", "aux2_out": "1", "aux2_no_nc": "0",
+      "fma_1_2": "1", "time_out": "620"
+    }
+  ],
+
+  "data_transmission_details": [],
+
+  "ethernet_details": [
+    {
+      "com": "COM100", "id": "100",
+      "ip_nw_1": "10.1.106.53", "subnet_mask_1": "255.255.255.0",
+      "ip_nw_2": "10.2.106.53", "subnet_mask_2": "255.255.255.0",
+      "dest_ip_nw_1": ["10.1.106.54"], "dest_ip_nw_2": ["10.2.106.54"],
+      "fwrd_acd_to_dp_ids": ["5", "2"], "fwrd_acd_to_dp_dtls": ["DP1A", "DP3A"],
+      "interval": "1",
+      "_mismatches": [
+        { "field": "fwrd_acd_to_dp_dtls", "index": 1, "kind": "UNEXPECTED", "expected": null, "actual": "DP3A", "result_id": "r30" },
+        { "field": "fwrd_acd_to_dp_dtls", "index": null, "kind": "MISSING", "expected": "DP2A", "actual": null, "result_id": "r31" }
+      ]
+    },
+    {
+      "com": "COM200", "id": "200",
+      "ip_nw_1": "10.1.106.54", "subnet_mask_1": "255.255.255.0",
+      "ip_nw_2": "10.2.106.54", "subnet_mask_2": "255.255.255.0",
+      "dest_ip_nw_1": ["10.1.106.53"], "dest_ip_nw_2": ["10.2.106.53"],
+      "fwrd_acd_to_dp_ids": ["6"], "fwrd_acd_to_dp_dtls": ["DP2B"],
+      "interval": "1"
+    }
+  ]
+}

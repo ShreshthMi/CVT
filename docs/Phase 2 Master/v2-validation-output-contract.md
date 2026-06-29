@@ -50,6 +50,9 @@ Each entry:
 | 2.5 highlight associated ADC file row | target entry's `fileName` |
 
 ## 5. Example
+
+> A complete, validated example — all 8 detail tables populated, every `_mismatches` kind exercised, `result_id`s cross-checked (0 dangling) — is in [`v2-validation-output-sample.json`](v2-validation-output-sample.json). Inline snippet:
+
 ```jsonc
 {
   "validation_results": [
