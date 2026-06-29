@@ -111,7 +111,7 @@ userInput (ValidationInputV2):
   <tpf blocks>                       // optional, e.g. CFG_RSR_TYPE
 ```
 
-**Validate response — `ValidationSummary`**: *unchanged from Phase 1* (the same `validation_results[]` + 8 detail tables). Keeping the response shape stable means downstream consumers don't change.
+**Validate response — `ValidationSummary`**: the same `validation_results[]` + 8 detail tables as Phase 1, plus **additive** mismatch metadata for the Phase-2 output screen — an opaque `id` on each result row, and an optional `_mismatches` block on detail rows (per-cell expected/actual + a `result_id` link to the log entry). A zero-mismatch response is byte-identical to Phase 1. Full spec: **FCVT-v2-Validation-Response-Contract.md**.
 
 ---
 
@@ -159,6 +159,6 @@ ValidationRequestV2  (parsedConfigFiles + fctData + pdqData + tpf)
 | **Expected source** | human-typed `userInput` | derived from FCT + PDQ by the preprocessor |
 | **Actual source** | raw ADC block/entry values | raw ADC block/entry values *(unchanged)* |
 | **Engine** | the rule engine | the **same** rule engine for `scalarExpectations`; a new instance-aware pass for `instancedExpectations` |
-| **Response** | `ValidationSummary` | `ValidationSummary` *(unchanged)* |
+| **Response** | `ValidationSummary` | `ValidationSummary` + additive mismatch annotations (`id`, `_mismatches`) for the output screen |
 
 The design intent is **maximum reuse**: the bulk of the work (all the project-wide config words, and the cross-correlation rules that reduce to scalar checks) flows straight through the existing Phase-1 engine. The genuinely new piece is the **preprocessor** (deriving + gating the baseline) and the **instance-aware validation** for per-entity expectations.
