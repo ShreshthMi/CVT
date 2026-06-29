@@ -8,7 +8,7 @@
 
 | Story | Title | Coverage | Net |
 |---|---|---|---|
-| **BE-07** VTF-337 | Rule Registry + `ruleType` finalisation + `_expected` wiring | **PARTIAL** | results-row shape done; the two distinguishing deliverables (registry finalisation, `_expected` cell annotation) not done |
+| **BE-07** VTF-337 | Rule Registry + `ruleType` finalisation + `_expected` wiring | **MOSTLY** (2026-06-29) | `_expected` cell annotation **DONE** (`MismatchAnnotator` + result `id` + `_mismatches`, `origin/VTF-337`); registry finalisation (M4) still parked |
 | **BE-08** VTF-338 | Cluster 1: CAN Segment | **PARTIAL** | Check B (forwarding) real; Check A named verdicts + ComAebMap ID lookup + physical/virtual classification absent |
 | **BE-09** VTF-339 | Cluster 2: IOEXB ACO | **MOSTLY** | ID/SECTION + card count + ≤16 covered by positional matching; only rack-position residual (if required) |
 | **BE-10** VTF-340 | Cluster 3: Track Section | **MOSTLY** | sub-checks 1/2/3 = ADC-vs-baseline (existing builders); only ACO bounds (sub-4) + DT remain |
@@ -29,9 +29,10 @@
 
 ## 3. Per-story detail
 
-### BE-07 (PARTIAL) — Registry + `_expected` wiring
-- **Done:** `ValidationResult` is the 7-field Phase-1 shape; a zero-mismatch v2 response stays Phase-1 byte-compatible (true, but *vacuously* — only because nothing was added).
-- **Not done:** the `<field>_expected` detail-cell annotation on mismatch — **0% present**; detail tables are display-only extractor output, architecturally decoupled from rule execution, so this needs a new **verdict→detail-cell join**. Registry not finalised (M4 deferred; dormant `CFG_AXCNT.BEHAV_INPUT3` kept; optional scalars mis-fail — finding #2).
+### BE-07 (MOSTLY — `_expected` DONE 2026-06-29) — Registry + `_expected` wiring
+- **Done:** `ValidationResult` gains a response-scoped opaque `id` (omitted in Phase 1 via `NON_NULL`); each detail row gains an optional `_mismatches[]` (`NON_EMPTY`). A new `MismatchAnnotator` post-pass performs the **verdict→detail-cell join**: the instanced evaluator now also emits an `InstancedFinding` carrying each result's raw cell coordinate (block / identity / position / checked-entry), so the annotator maps a failing result onto its cell without re-parsing result strings. Coverage: counting heads → `track_section` ch/i_ch arrays with union-array MISSING padding; supervisor → `logic_type`/`time_out` by (ID,SECTION) member index; CHC → `chc` `_1`/`_2` slots; ACO positional → `ioexb_aco` row by reconstructed block-order comment (shared extractor untouched — the chosen "annotator-side reconstruction" for the ACO comment-dedup); BEHAV_INPUT3 single → `ioexb_behaviour`; forwarding → `ethernet` arrays re-resolved by index; scalar `CFG_SECTION_OUT` aux → `ioexb_aco` per-row compare. Per-field raw→display mirrors each extractor (DP id→name, `ValueMappingService`, `SLCT_TIMEOUT`→`CFG_TIMEOUT`×10, `SECTION`+1). Suite 233 green (`origin/VTF-337`).
+- **Results-only (no faithful cell, by design):** counting-head `DIR_INV` (the ch/i_ch split axis, not a column); ACO `ID` (the `aco_fmaId` is not a displayed column); ACO/CHC `MISSING` where the table has no array slot to append to; scalar cross-rules with no detail column (project / RSR / switch). DT has no validation results yet (BE-14).
+- **Not done:** registry finalisation (M4 deferred; dormant `CFG_AXCNT.BEHAV_INPUT3` kept; optional scalars mis-fail — finding #2). Named verdicts are BE-08 (finding #1).
 
 ### BE-08 (PARTIAL) — Cluster 1 CAN Segment
 - **Done:** Check B forwarding — genuine list-membership (`ForwardingExpectationsBuilder` + `ForwardingDestinationResolver` socket→COM via NW1 `+32`/NW2 `+48` → present-COM `CFG_MY_IP`, set-equality). SLCT_TIMEOUT/ID *values* are emitted+consumed across all in-scope blocks.
@@ -99,7 +100,7 @@ The as-built code that realizes cluster *intent* — to re-attribute the BE-05/B
 
 - **D1 — M4 spurious-FAIL (finding #2): DEFERRED (conscious).** Not fixed now (not even the quick guard). v2 therefore currently over-reports FAILs for absent *optional* scalar blocks (`CFG_SWITCH`, `CFG_SUPERVIS_FMA*` RESET, `CFG_IP_SWITCH_TIME`, `CFG_PROJECT_COM`). Tracked by the existing M4 follow-up chip; land the proper registry rules (with confirmed firmware defaults) there.
 - **D2 — Named verdicts (finding #1): PHASED to BE-08.** Keep `PASS`/`FAIL` + structural sentinels for now. Introduce `ORPHANED` / `FILE NOT FOUND` / `INVALID SCOPE` / `INVALID VALUE` when **Cluster 1 (BE-08)** is built, where they are actually consumed. BE-07 does **not** add them up front.
-- **D3 — `_expected` detail-cell annotation (BE-07): DEFERRED pending a cost/complexity analysis.** The frontend expects a contract for it, so the backend will likely need it — but the verdict→detail-cell join is the hardest piece, so an effort/complexity cost analysis must precede committing. (Follow-up task raised.)
+- **D3 — `_expected` detail-cell annotation (BE-07): DONE (2026-06-29).** The cost analysis chose a **hybrid join**: the instanced evaluator (owned code) attaches a structured cell coordinate per result (`InstancedFinding`), while the scalar bucket is mapped by a small registry — so the annotator never re-parses result strings. The ACO comment-dedup conflict was resolved by **annotator-side reconstruction** (the shared `IOEXBAcoExtractorService` is untouched, keeping Phase 1 byte-identical). Built on `VTF-337` (`MismatchAnnotator`); see *vtf-337-scope.md* for the as-built coverage + the results-only gaps. Full coverage delivered (all 8 tables to the extent each has a faithful display cell).
 - **D4 — CHC count ↔ BEHAV_INPUT3 (BE-11): independent checking ACCEPTED.** The spec's "derive count from BEHAV_INPUT3" phrasing is treated as descriptive; the as-built dual baseline-assertion catches the same defects. The literal coupled cross-consistency verdict is **not** required. BE-11 is functionally complete on this point.
 
 **Consequence:** BE-07's two real deliverables are both parked (registry → D1/M4; `_expected` → D3 cost analysis), and named verdicts moved to BE-08 (D2). So the next *active* backend work is **Cluster 1 (BE-08)**, not BE-07.

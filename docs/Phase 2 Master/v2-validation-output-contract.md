@@ -94,13 +94,15 @@ Each entry:
 }
 ```
 
-## 6. Backend implications (the work behind the shape)
-The shape is additive and small; populating it is the engineering — the **verdict→detail-cell join** (reconciliation findings C1/C2):
-1. A **`(block,entry) → (detail table, column)` registry**.
-2. **Lossless join inputs:** drop the ACO comment-dedup; expose per-array-element identity so engine results align to array indices.
-3. **Set-equality → `UNEXPECTED` + `MISSING`** for set columns; **`VALUE`** for scalar/positional.
-4. **Raw→display translation** of `expected` (reuse `ValueMappingService` + FCT id→name).
-5. A **`MismatchAnnotator`** post-pass: after results + detail tables are built, walk results, map each to its cell, emit `_mismatches` with the `result_id`.
+## 6. Backend implications (the work behind the shape) — IMPLEMENTED (BE-07 / VTF-337, 2026-06-29)
+The shape is additive and small; populating it is the engineering — the **verdict→detail-cell join** (reconciliation findings C1/C2). As built (`MismatchAnnotator`, `origin/VTF-337`; see *vtf-337-scope.md*):
+1. The **`(block,entry) → (detail table, column)` registry** lives in the annotator's per-block dispatch (the mapping is not 1:1 — e.g. counting-head DIR_INV selects ch vs i_ch — so it is code, not a data table).
+2. **Lossless join inputs:** rather than dropping the ACO comment-dedup in the *shared* extractor (which would change Phase 1 output), the annotator **reconstructs** the un-deduped block-order ACO view itself. Set columns are aligned to array indices by matching the result's raw identity against the row's parallel raw-id array (e.g. `ch_dp_id`), and the instanced evaluator emits an `InstancedFinding` carrying the raw coordinate so no result-string parsing is needed.
+3. **Set-equality → `UNEXPECTED` + `MISSING`** for set columns (with union-array padding across parallel arrays); **`VALUE`** for scalar/positional.
+4. **Raw→display translation** of `expected`/`actual` mirrors each extractor's per-field transform (`ValueMappingService`, FCT id→name, `SLCT_TIMEOUT`→`CFG_TIMEOUT`×10, `SECTION`+1).
+5. The **`MismatchAnnotator`** post-pass runs after `SummaryService.generateSummary` (v2 only), mutating the summary in place; a clean run adds nothing (Phase-1-shaped).
+
+**Results-only (no faithful cell):** counting-head `DIR_INV`, ACO `ID` (`aco_fmaId` not displayed), ACO/CHC `MISSING` with no array slot, and scalar cross-rules with no detail column (project / RSR / switch). DT has no validation results yet (BE-14).
 
 ## 7. Open items / coverage notes
 - **Not every result maps to a cell.** Scalar results with no detail column (e.g. `CFG_SWITCH`, and the M4-noise FAILs) appear only in `validation_results[]`, not as red cells. That's expected.

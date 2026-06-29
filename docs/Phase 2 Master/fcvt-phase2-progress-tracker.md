@@ -11,7 +11,7 @@
 |---|---|---|
 | Requirement Analysis | **DONE** | Complete. Input model, coupled-artifacts rule, and cluster scope defined. |
 | Planning / Architecture | **DONE** | Complete. Phase 2 design, endpoint contracts, and the PDQ parse model are locked and documented. |
-| Backend | **IN PROGRESS** | Core v2 pipeline built and green end-to-end on a feature branch (both parsers, the v2 endpoint + gate, the preprocessor, and the consuming engine). Cluster polish + the UI mismatch-annotation wiring remain. |
+| Backend | **IN PROGRESS** | Core v2 pipeline built and green end-to-end on a feature branch (both parsers, the v2 endpoint + gate, the preprocessor, the consuming engine, and the per-cell mismatch annotator). Cluster polish (named verdicts, M4 registry, DT) remains. |
 | Frontend | **IN PROGRESS** | Well underway. Output console unblocked — the backend response contract + sample are delivered and shared. |
 
 ## Requirement Analysis — DONE
@@ -26,9 +26,9 @@ The design and the frontend/backend contracts are complete and locked:
 - Four endpoint contracts finalised and published: FCT upload, PDQ upload, validate v2 request, validate v2 response.
 - The PDQ parse model is locked and the PDQ workbook rebuilt to support robust parsing.
 
-## Backend — IN PROGRESS (core engine complete; cluster polish + UI wiring remain)
+## Backend — IN PROGRESS (core engine + mismatch annotator complete; cluster polish remains)
 
-The full v2 pipeline is built and passing end-to-end (on an **unmerged feature branch**, not yet on `main`): both baseline parsers, the v2 endpoint with the coupled-artifacts gate, the validate-time preprocessor that *derives* the expected baseline from FCT + PDQ, and the consuming engine that validates the ADC files against it. A code-grounded reconciliation then showed that the per-block value validation for most clusters is **already realized** by the preprocessor + engine; what genuinely remains is the named-verdict vocabulary, the per-cell mismatch annotation that drives the UI highlight/tooltip, and the parked items.
+The full v2 pipeline is built and passing end-to-end (on an **unmerged feature branch**, not yet on `main`): both baseline parsers, the v2 endpoint with the coupled-artifacts gate, the validate-time preprocessor that *derives* the expected baseline from FCT + PDQ, and the consuming engine that validates the ADC files against it. A code-grounded reconciliation then showed that the per-block value validation for most clusters is **already realized** by the preprocessor + engine; the per-cell mismatch annotation that drives the UI highlight/tooltip is now built too (BE-07). What genuinely remains is the named-verdict vocabulary and the parked items.
 
 | Story | Scope | Status |
 |---|---|---|
@@ -40,7 +40,7 @@ The full v2 pipeline is built and passing end-to-end (on an **unmerged feature b
 | BE-05 (VTF-335) | Validate-time preprocessor (derives + gates the baseline; emits scalar + instanced expectations) | **DONE** |
 | BE-06 (VTF-336) | Consuming engine (validates ADC files against the expectations) | **DONE** |
 | v2 response contract | per-cell mismatch annotation + cell→log navigation; shared with frontend | **DONE** |
-| BE-07 (VTF-337) | Rule registry finalisation + the `_expected` detail-cell annotation (the data behind the UI highlights/tooltips) | **NEXT** — the `_expected` annotator is the key build; registry edits (M4) parked on confirmed defaults |
+| BE-07 (VTF-337) | The `_expected` detail-cell annotation (the data behind the UI highlights/tooltips) | **DONE** — annotator + response-scoped `id` + `_mismatches` built and green (`origin/VTF-337`); registry finalisation (M4) still parked on confirmed defaults |
 | BE-08–BE-13 (clusters 1, 2, 4a, 4b, 5) | per-cluster validation | **largely realized** by BE-05/06; residuals = named verdicts + a few cluster-specific checks (see reconciliation doc) |
 | BE-14 (cluster 6) | Data Transmission | **NOT STARTED** — parked pending AE sign-off on the rules |
 | BE-15 (VTF-345) | PDF report | **NOT STARTED** (stretch) |
