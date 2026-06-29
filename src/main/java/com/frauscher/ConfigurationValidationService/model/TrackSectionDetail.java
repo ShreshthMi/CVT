@@ -31,7 +31,7 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
         "i_ch_dp_name",
         "i_ch_slct_timeout"
 })
-public class TrackSectionDetail {
+public class TrackSectionDetail implements Annotatable {
 
     /**
      * Track section name (e.g., "T1", "T2")

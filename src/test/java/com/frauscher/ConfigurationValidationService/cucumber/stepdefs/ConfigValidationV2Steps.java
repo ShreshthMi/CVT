@@ -1,5 +1,6 @@
 package com.frauscher.ConfigurationValidationService.cucumber.stepdefs;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -83,5 +84,14 @@ public class ConfigValidationV2Steps {
                 "v2 validate must now produce real validation results");
         assertTrue(summary.getResults().stream().anyMatch(r -> "ID".equals(r.getBlockName())),
                 "expected the scalar engine to evaluate the ID block of the parsed config file");
+
+        // BE-07: every result carries a response-scoped opaque id (the cell→log navigation target), unique
+        // within the response. On this clean run no detail row is annotated (additive — Phase-1-shaped).
+        assertTrue(summary.getResults().stream().allMatch(r -> r.getId() != null && r.getId().startsWith("r")),
+                "every v2 validation result must carry an opaque id");
+        long distinctIds = summary.getResults().stream().map(r -> r.getId()).distinct().count();
+        assertEquals(summary.getResults().size(), distinctIds, "result ids must be unique within a response");
+        assertTrue(summary.getTrackSectionDetails().stream().allMatch(r -> r.getMismatches() == null),
+                "a reconciling baseline must leave detail rows unannotated");
     }
 }

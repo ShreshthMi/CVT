@@ -1,0 +1,561 @@
+package com.frauscher.ConfigurationValidationService.validation.annotation;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.stereotype.Component;
+
+import com.frauscher.ConfigurationValidationService.model.Annotatable;
+import com.frauscher.ConfigurationValidationService.model.CHCDetail;
+import com.frauscher.ConfigurationValidationService.model.ConfigBlock;
+import com.frauscher.ConfigurationValidationService.model.ConfigEntry;
+import com.frauscher.ConfigurationValidationService.model.EthernetDetail;
+import com.frauscher.ConfigurationValidationService.model.IOEXBAcoDetail;
+import com.frauscher.ConfigurationValidationService.model.IOEXBBehaviourDetail;
+import com.frauscher.ConfigurationValidationService.model.MismatchAnnotation;
+import com.frauscher.ConfigurationValidationService.model.ParsedConfigFile;
+import com.frauscher.ConfigurationValidationService.model.SupervisorDetail;
+import com.frauscher.ConfigurationValidationService.model.TrackSectionDetail;
+import com.frauscher.ConfigurationValidationService.model.ValidationResult;
+import com.frauscher.ConfigurationValidationService.model.ValidationSummary;
+import com.frauscher.ConfigurationValidationService.service.extractors.ValueMappingService;
+import com.frauscher.ConfigurationValidationService.util.ConfigExtractionUtil;
+import com.frauscher.ConfigurationValidationService.validation.instanced.ForwardingDestinationResolver;
+import com.frauscher.ConfigurationValidationService.validation.instanced.ForwardingDestinationResolver.ForwardMember;
+import com.frauscher.ConfigurationValidationService.validation.instanced.InstancedFinding;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+/**
+ * BE-07 post-pass: maps each failing {@link ValidationResult} onto the detail-table cell it concerns and
+ * attaches a {@link MismatchAnnotation} ({@code _mismatches}) carrying the kind, Expected/Actual (display
+ * form), and the {@code result_id} the FE navigates by (FCVT-v2-Validation-Response-Contract.md §4–§5).
+ * It runs after {@code SummaryService.generateSummary}, mutating the v2 summary in place; a clean run adds
+ * nothing, so the response stays Phase-1-shaped.
+ *
+ * <p>The instanced join is coordinate-driven: each {@link InstancedFinding} carries the raw block /
+ * identity / position the evaluator checked (no result-string re-parsing). The annotator owns the
+ * detail-table layout — which column, which array index, the union-array padding, and the per-field
+ * raw→display translation that mirrors each extractor (DP id→name, {@link ValueMappingService} enums,
+ * {@code SLCT_TIMEOUT}→{@code CFG_TIMEOUT}×10, {@code SECTION+1}). For set columns it matches the result's
+ * raw identity against the row's parallel raw-id array (e.g. {@code ch_dp_id}), so no display round-trip is
+ * needed to locate an element.</p>
+ *
+ * <p>Coverage notes (results-only, no faithful cell — they surface in {@code validation_results} only):
+ * a counting-head {@code DIR_INV} value (the ch/i_ch split axis, not a column); an ACO {@code ID}
+ * (the {@code aco_fmaId} is not a displayed column); an ACO/CHC {@code MISSING} where the table has no
+ * array slot to append to; scalar cross-rules with no detail column (project / RSR / switch). DT has no
+ * validation results yet (BE-14), so nothing to annotate there.</p>
+ */
+@Slf4j
+@Component
+@RequiredArgsConstructor
+public class MismatchAnnotator {
+
+    private static final String FWRD_BLOCK = "CFG_FWRD_ACD";
+    private static final String SECTION_OUT = "CFG_SECTION_OUT";
+    private static final String ID = "ID";
+    private static final String SECTION = "SECTION";
+    private static final String DIR_INV = "DIR_INV";
+    private static final String SLCT_TIMEOUT = "SLCT_TIMEOUT";
+    private static final String LOGIC_TYPE = "LOGIC_TYPE";
+    private static final String CAN_TX_ID = "CAN_TX_ID";
+    private static final String DEST_COM = "DEST_COM";
+
+    /** (block,entry) → ioexb_aco_details column for the scalar CFG_SECTION_OUT aux checks. */
+    private static final Map<String, String> ACO_AUX_FIELD = Map.of(
+            "CLR_OCC", "clr_occ",
+            "TYPE_AUX1", "type_aux1",
+            "TYPE_AUX2", "type_aux2",
+            "AUX1_OUT", "aux1_out",
+            "AUX1_NO_NC", "aux1_no_nc",
+            "AUX2_OUT", "aux2_out",
+            "AUX2_NO_NC", "aux2_no_nc");
+
+    private final ValueMappingService valueMappingService;
+    private final ForwardingDestinationResolver forwardingResolver;
+
+    /**
+     * Annotates the detail tables of {@code summary} in place.
+     *
+     * @param summary      the freshly built v2 summary (results already carry their {@code id})
+     * @param scalarResults the Phase-1-engine results of the scalar bucket (for the few that map to a cell)
+     * @param findings     the instanced findings (raw cell coordinates)
+     * @param parsedFiles  the uploaded ADCs (for id→name resolution and forwarding re-resolution)
+     */
+    public void annotate(ValidationSummary summary, List<ValidationResult> scalarResults,
+            List<InstancedFinding> findings, List<ParsedConfigFile> parsedFiles) {
+
+        Map<Integer, ParsedConfigFile> filesById = new LinkedHashMap<>();
+        if (parsedFiles != null) {
+            for (ParsedConfigFile f : parsedFiles) {
+                filesById.putIfAbsent(f.getId(), f);
+            }
+        }
+
+        // Instanced findings (forwarding handled as a grouped pass below).
+        Map<Integer, List<InstancedFinding>> forwardingByCom = new LinkedHashMap<>();
+        if (findings != null) {
+            for (InstancedFinding f : findings) {
+                if (FWRD_BLOCK.equals(f.block())) {
+                    forwardingByCom.computeIfAbsent(f.fileId(), k -> new ArrayList<>()).add(f);
+                    continue;
+                }
+                if (!f.isAnnotatable()) {
+                    continue;
+                }
+                dispatchInstanced(summary, filesById, f);
+            }
+        }
+        forwardingByCom.forEach((comId, group) -> annotateForwarding(summary, filesById, parsedFiles, comId, group));
+
+        // Scalar bucket: only CFG_SECTION_OUT aux fields have a detail cell; the rest are results-only.
+        if (scalarResults != null) {
+            for (ValidationResult r : scalarResults) {
+                if ("FAIL".equals(r.getStatus()) && SECTION_OUT.equals(r.getBlockName())
+                        && ACO_AUX_FIELD.containsKey(r.getEntryKey())) {
+                    annotateAcoScalar(summary, r);
+                }
+            }
+        }
+    }
+
+    private void dispatchInstanced(ValidationSummary summary, Map<Integer, ParsedConfigFile> filesById,
+            InstancedFinding f) {
+        switch (f.block()) {
+            case "CFG_ZP_FMA1" -> annotateTrackSection(summary, filesById, f, "1");
+            case "CFG_ZP_FMA2" -> annotateTrackSection(summary, filesById, f, "2");
+            case "CFG_SUPERVIS_FMA1", "CFG_SUPERVIS_FMA2" -> annotateSupervisor(summary, filesById, f);
+            case "CFG_CONTROL" -> annotateChc(summary, filesById, f);
+            case SECTION_OUT -> annotateAco(summary, filesById, f);
+            case "CFG_AXCNT" -> annotateIoexbBehaviour(summary, f);
+            default -> { /* CFG_IP_SWITCH and any other instanced block has no detail cell */ }
+        }
+    }
+
+    // ---- Track section (counting heads): CFG_ZP_FMA1/2 → track_section_details ----
+
+    private void annotateTrackSection(ValidationSummary summary, Map<Integer, ParsedConfigFile> filesById,
+            InstancedFinding f, String fma) {
+
+        TrackSectionDetail row = first(summary.getTrackSectionDetails(),
+                r -> eq(f.fileId(), r.getDpId()) && fma.equals(r.getFma()));
+        if (row == null) {
+            return;
+        }
+        ParsedConfigFile file = filesById.get(f.fileId());
+        String rid = f.result().getId();
+
+        switch (f.kind()) {
+            case VALUE -> {
+                if (!SLCT_TIMEOUT.equals(f.entryKey())) {
+                    return; // DIR_INV is the ch/i_ch split axis, not a displayed column → results-only
+                }
+                String headId = f.linkedId().get(ID);
+                int i = idxOf(row.getChDpId(), headId);
+                if (i >= 0) {
+                    add(row, MismatchAnnotation.value("ch_slct_timeout", i,
+                            timeout(file, f.rawExpected()), timeout(file, f.rawActual()), rid));
+                    return;
+                }
+                int j = idxOf(row.getIChDpId(), headId);
+                if (j >= 0) {
+                    add(row, MismatchAnnotation.value("i_ch_slct_timeout", j,
+                            timeout(file, f.rawExpected()), timeout(file, f.rawActual()), rid));
+                }
+            }
+            case UNEXPECTED -> {
+                String headId = f.linkedId().get(ID);
+                int i = idxOf(row.getChDpId(), headId);
+                if (i >= 0) {
+                    add(row, MismatchAnnotation.unexpected("ch_dp_name", i, at(row.getChDpName(), i), rid));
+                    return;
+                }
+                int j = idxOf(row.getIChDpId(), headId);
+                if (j >= 0) {
+                    add(row, MismatchAnnotation.unexpected("i_ch_dp_name", j, at(row.getIChDpName(), j), rid));
+                }
+            }
+            case MISSING -> {
+                boolean inverse = "1".equals(f.memberExpected().get(DIR_INV));
+                String name = dpName(filesById, f.linkedId().get(ID));
+                if (inverse) {
+                    int idx = append(row.getIChDpId(), row::setIChDpId, "");
+                    append(row.getIChSlctTimeout(), row::setIChSlctTimeout, "");
+                    append(row.getIChDpName(), row::setIChDpName, "");
+                    add(row, MismatchAnnotation.missing("i_ch_dp_name", idx, name, rid));
+                } else {
+                    int idx = append(row.getChDpId(), row::setChDpId, "");
+                    append(row.getChSlctTimeout(), row::setChSlctTimeout, "");
+                    append(row.getChDpName(), row::setChDpName, "");
+                    add(row, MismatchAnnotation.missing("ch_dp_name", idx, name, rid));
+                }
+            }
+        }
+    }
+
+    // ---- Supervisor: CFG_SUPERVIS_FMA1/2 → supervisor_details ----
+
+    private void annotateSupervisor(ValidationSummary summary, Map<Integer, ParsedConfigFile> filesById,
+            InstancedFinding f) {
+
+        String rid = f.result().getId();
+        String id = f.linkedId().get(ID);
+        String fmaPlus1 = plus1(f.linkedId().get(SECTION));
+
+        if (f.kind() == MismatchAnnotation.Kind.MISSING) {
+            SupervisorDetail row = first(summary.getSupervisorDetail(), r -> eq(f.fileId(), r.getDpId()));
+            if (row == null) {
+                return;
+            }
+            int idx = append(row.getSupByTsDpId(), row::setSupByTsDpId, "");
+            append(row.getSupByTs(), row::setSupByTs, "");
+            append(row.getSupByTsDpName(), row::setSupByTsDpName, "");
+            append(row.getSupByTsFma(), row::setSupByTsFma, "");
+            append(row.getTimeOut(), row::setTimeOut, "");
+            append(row.getLogicType(), row::setLogicType, "");
+            add(row, MismatchAnnotation.missing("sup_by_ts_dp_name", idx, dpName(filesById, id), rid));
+            return;
+        }
+
+        // VALUE / UNEXPECTED: locate the row + member index by (ID, SECTION) membership (disambiguates FMA1/FMA2).
+        for (SupervisorDetail row : nonNull(summary.getSupervisorDetail())) {
+            if (!eq(f.fileId(), row.getDpId())) {
+                continue;
+            }
+            int i = supMemberIndex(row, id, fmaPlus1);
+            if (i < 0) {
+                continue;
+            }
+            ParsedConfigFile file = filesById.get(f.fileId());
+            if (f.kind() == MismatchAnnotation.Kind.UNEXPECTED) {
+                add(row, MismatchAnnotation.unexpected("sup_by_ts_dp_name", i, at(row.getSupByTsDpName(), i), rid));
+            } else if (LOGIC_TYPE.equals(f.entryKey())) {
+                add(row, MismatchAnnotation.value("logic_type", i,
+                        mapped(LOGIC_TYPE, f.rawExpected()), mapped(LOGIC_TYPE, f.rawActual()), rid));
+            } else if (SLCT_TIMEOUT.equals(f.entryKey())) {
+                add(row, MismatchAnnotation.value("time_out", i,
+                        timeout(file, f.rawExpected()), timeout(file, f.rawActual()), rid));
+            }
+            return;
+        }
+    }
+
+    // ---- CHC (external counting heads): CFG_CONTROL → chc_details (fixed _1/_2 slots) ----
+
+    private void annotateChc(ValidationSummary summary, Map<Integer, ParsedConfigFile> filesById,
+            InstancedFinding f) {
+
+        CHCDetail row = first(summary.getChcDetails(), r -> eq(f.fileId(), r.getDpId()));
+        if (row == null) {
+            return;
+        }
+        ParsedConfigFile file = filesById.get(f.fileId());
+        String rid = f.result().getId();
+        String id = f.linkedId().get(ID);
+        String fmaPlus1 = plus1(f.linkedId().get(SECTION));
+
+        boolean slot1 = eqTrim(row.getDpId1(), id) && eqTrim(row.getFmaDtl1(), fmaPlus1);
+        boolean slot2 = eqTrim(row.getDpId2(), id) && eqTrim(row.getFmaDtl2(), fmaPlus1);
+
+        switch (f.kind()) {
+            case VALUE -> {
+                if (!SLCT_TIMEOUT.equals(f.entryKey())) {
+                    return; // only the timeout column is displayed for a control entry value
+                }
+                if (slot1) {
+                    add(row, MismatchAnnotation.value("timeout_1", null,
+                            timeout(file, f.rawExpected()), timeout(file, f.rawActual()), rid));
+                } else if (slot2) {
+                    add(row, MismatchAnnotation.value("timeout_2", null,
+                            timeout(file, f.rawExpected()), timeout(file, f.rawActual()), rid));
+                }
+            }
+            case UNEXPECTED -> {
+                if (slot1) {
+                    add(row, MismatchAnnotation.unexpected("dp_name_1", null, row.getDpName1(), rid));
+                } else if (slot2) {
+                    add(row, MismatchAnnotation.unexpected("dp_name_2", null, row.getDpName2(), rid));
+                }
+            }
+            case MISSING -> {
+                String name = dpName(filesById, id);
+                if (isBlank(row.getDpId1())) {
+                    add(row, MismatchAnnotation.missing("dp_name_1", null, name, rid));
+                } else if (isBlank(row.getDpId2())) {
+                    add(row, MismatchAnnotation.missing("dp_name_2", null, name, rid));
+                }
+                // both slots filled but identity absent → no slot to render; results-only.
+            }
+        }
+    }
+
+    // ---- ACO (CFG_SECTION_OUT, POSITIONAL) → ioexb_aco_details ----
+
+    private void annotateAco(ValidationSummary summary, Map<Integer, ParsedConfigFile> filesById,
+            InstancedFinding f) {
+
+        ParsedConfigFile file = filesById.get(f.fileId());
+        if (file == null || f.position() == null) {
+            return;
+        }
+        List<ConfigBlock> occ = occurrences(file, SECTION_OUT);
+        if (f.position() >= occ.size()) {
+            return; // MISSING slot beyond the configured blocks → no row to annotate; results-only.
+        }
+        String comment = entryComment(occ.get(f.position()), SECTION_OUT);
+        IOEXBAcoDetail row = first(summary.getIoexbAcoDetails(),
+                r -> eq(f.fileId(), r.getDpId()) && eqTrim(r.getAcoFma1(), comment));
+        if (row == null) {
+            return;
+        }
+        String rid = f.result().getId();
+        switch (f.kind()) {
+            case VALUE -> {
+                if (SECTION.equals(f.entryKey())) {
+                    add(row, MismatchAnnotation.value("fma_1_2", null, plus1(f.rawExpected()), plus1(f.rawActual()), rid));
+                } else if (SLCT_TIMEOUT.equals(f.entryKey())) {
+                    add(row, MismatchAnnotation.value("time_out", null,
+                            timeout(file, f.rawExpected()), timeout(file, f.rawActual()), rid));
+                }
+                // ID (aco_fmaId) is not a displayed column → results-only.
+            }
+            case UNEXPECTED -> add(row, MismatchAnnotation.unexpected("aco_fma1", null, row.getAcoFma1(), rid));
+            case MISSING -> { /* unreachable here (position < occ.size); MISSING handled above */ }
+        }
+    }
+
+    // ---- IOEXB behaviour: CFG_AXCNT BEHAV_INPUT3 (SINGLE) → ioexb_behaviour_details ----
+
+    private void annotateIoexbBehaviour(ValidationSummary summary, InstancedFinding f) {
+        if (f.kind() != MismatchAnnotation.Kind.VALUE || !"BEHAV_INPUT3".equals(f.entryKey())) {
+            return;
+        }
+        IOEXBBehaviourDetail row = first(summary.getIoexbBehaviourDetails(), r -> eq(f.fileId(), r.getDpId()));
+        if (row == null) {
+            return;
+        }
+        add(row, MismatchAnnotation.value("behav_input3", null,
+                mapped("BEHAV_INPUT3", f.rawExpected()), mapped("BEHAV_INPUT3", f.rawActual()), f.result().getId()));
+    }
+
+    // ---- Forwarding: CFG_FWRD_ACD → ethernet_details (set-equality, re-resolved by index) ----
+
+    private void annotateForwarding(ValidationSummary summary, Map<Integer, ParsedConfigFile> filesById,
+            List<ParsedConfigFile> parsedFiles, int comId, List<InstancedFinding> group) {
+
+        EthernetDetail row = first(summary.getEthernetDetails(), r -> eq(comId, r.getId()));
+        ParsedConfigFile com = filesById.get(comId);
+        if (row == null || com == null) {
+            return;
+        }
+
+        java.util.Set<String> expectedKeys = new java.util.HashSet<>();
+        Map<String, String> unexpectedRid = new LinkedHashMap<>();
+        List<InstancedFinding> missing = new ArrayList<>();
+        for (InstancedFinding f : group) {
+            String key = f.linkedId().get(CAN_TX_ID) + "|" + f.linkedId().get(DEST_COM);
+            if (f.kind() == null || f.kind() == MismatchAnnotation.Kind.MISSING) {
+                expectedKeys.add(key); // matched (PASS) + missing members make up the expected set
+            }
+            if (f.kind() == MismatchAnnotation.Kind.MISSING) {
+                missing.add(f);
+            } else if (f.kind() == MismatchAnnotation.Kind.UNEXPECTED) {
+                unexpectedRid.put(key, f.result().getId());
+            }
+        }
+
+        List<String> ids = mutable(row.getFwrdAcdToDpIds());
+        List<String> dtls = mutable(row.getFwrdAcdToDpDtls());
+
+        // UNEXPECTED: re-resolve actual forwards (block order == ethernet array order) and flag the strays.
+        List<ForwardMember> resolved = forwardingResolver.resolveActualForwards(com, parsedFiles);
+        for (int i = 0; i < resolved.size(); i++) {
+            String key = resolved.get(i).canTxId() + "|" + resolved.get(i).destCom();
+            if (!expectedKeys.contains(key) && unexpectedRid.containsKey(key)) {
+                add(row, MismatchAnnotation.unexpected("fwrd_acd_to_dp_dtls", i, at(dtls, i), unexpectedRid.get(key)));
+            }
+        }
+
+        // MISSING: append an empty slot to both parallel arrays at a real index.
+        for (InstancedFinding f : missing) {
+            ids.add("");
+            dtls.add("");
+            add(row, MismatchAnnotation.missing("fwrd_acd_to_dp_dtls", dtls.size() - 1,
+                    dpName(filesById, f.linkedId().get(CAN_TX_ID)), f.result().getId()));
+        }
+        row.setFwrdAcdToDpIds(ids);
+        row.setFwrdAcdToDpDtls(dtls);
+    }
+
+    // ---- Scalar CFG_SECTION_OUT aux: one result, possibly several offending aco rows ----
+
+    private void annotateAcoScalar(ValidationSummary summary, ValidationResult r) {
+        String field = ACO_AUX_FIELD.get(r.getEntryKey());
+        String expectedDisplay = mapped(r.getEntryKey(), r.getExpectedValue());
+        for (IOEXBAcoDetail row : nonNull(summary.getIoexbAcoDetails())) {
+            String actual = acoField(row, field);
+            if (!expectedDisplay.equals(actual)) {
+                add(row, MismatchAnnotation.value(field, null, expectedDisplay, actual, r.getId()));
+            }
+        }
+    }
+
+    private String acoField(IOEXBAcoDetail row, String field) {
+        return switch (field) {
+            case "clr_occ" -> row.getClrOcc();
+            case "type_aux1" -> row.getTypeAux1();
+            case "type_aux2" -> row.getTypeAux2();
+            case "aux1_out" -> row.getAux1Out();
+            case "aux1_no_nc" -> row.getAux1NoNc();
+            case "aux2_out" -> row.getAux2Out();
+            case "aux2_no_nc" -> row.getAux2NoNc();
+            default -> null;
+        };
+    }
+
+    // ---- helpers ----
+
+    private int supMemberIndex(SupervisorDetail row, String id, String fmaPlus1) {
+        List<String> ids = row.getSupByTsDpId();
+        List<String> fmas = row.getSupByTsFma();
+        if (ids == null) {
+            return -1;
+        }
+        for (int i = 0; i < ids.size(); i++) {
+            if (eqTrim(ids.get(i), id) && (fmaPlus1 == null || fmas == null || eqTrim(at(fmas, i), fmaPlus1))) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private List<ConfigBlock> occurrences(ParsedConfigFile file, String block) {
+        return file.getBlocks().stream()
+                .filter(b -> block.equals(b.getName()))
+                .sorted((a, b) -> Integer.compare(a.getBlockIndex(), b.getBlockIndex()))
+                .toList();
+    }
+
+    private String entryComment(ConfigBlock block, String key) {
+        return block.getEntries().stream()
+                .filter(e -> key.equals(e.getKey()))
+                .map(ConfigEntry::getComment)
+                .findFirst()
+                .orElse("");
+    }
+
+    /** DP/COM display name = the file's ID-block comment; falls back to the id itself. */
+    private String dpName(Map<Integer, ParsedConfigFile> filesById, String id) {
+        if (id == null) {
+            return null;
+        }
+        try {
+            ParsedConfigFile file = filesById.get(Integer.parseInt(id.trim()));
+            if (file != null) {
+                String name = file.getBlocks().stream()
+                        .filter(b -> ID.equals(b.getName()))
+                        .flatMap(b -> b.getEntries().stream())
+                        .filter(e -> ID.equals(e.getKey()))
+                        .map(ConfigEntry::getComment)
+                        .findFirst()
+                        .orElse(null);
+                if (name != null && !name.isBlank()) {
+                    return name;
+                }
+            }
+        } catch (NumberFormatException ignored) {
+            // fall through to the raw id
+        }
+        return id;
+    }
+
+    private String mapped(String fieldKey, String raw) {
+        return valueMappingService.mapValue(fieldKey, raw);
+    }
+
+    private String timeout(ParsedConfigFile file, String raw) {
+        if (file == null || raw == null) {
+            return raw;
+        }
+        return ConfigExtractionUtil.extractTimeoutValue(file, raw.trim());
+    }
+
+    private String plus1(String raw) {
+        if (raw == null) {
+            return null;
+        }
+        try {
+            return String.valueOf(Integer.parseInt(raw.trim()) + 1);
+        } catch (NumberFormatException e) {
+            return raw;
+        }
+    }
+
+    private <T extends Annotatable> void add(T row, MismatchAnnotation annotation) {
+        if (row.getMismatches() == null) {
+            row.setMismatches(new ArrayList<>());
+        }
+        row.getMismatches().add(annotation);
+    }
+
+    /** Appends to a (possibly null/immutable) list field via its setter; returns the new element's index. */
+    private int append(List<String> current, java.util.function.Consumer<List<String>> setter, String value) {
+        List<String> list = mutable(current);
+        list.add(value);
+        setter.accept(list);
+        return list.size() - 1;
+    }
+
+    private List<String> mutable(List<String> list) {
+        return list == null ? new ArrayList<>() : new ArrayList<>(list);
+    }
+
+    private int idxOf(List<String> list, String value) {
+        if (list == null || value == null) {
+            return -1;
+        }
+        String v = value.trim();
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i) != null && list.get(i).trim().equals(v)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private String at(List<String> list, int i) {
+        return (list != null && i >= 0 && i < list.size()) ? list.get(i) : null;
+    }
+
+    private boolean eq(int fileId, String rowValue) {
+        return rowValue != null && String.valueOf(fileId).equals(rowValue.trim());
+    }
+
+    private boolean eqTrim(String a, String b) {
+        return a != null && b != null && a.trim().equals(b.trim());
+    }
+
+    private boolean isBlank(String s) {
+        return s == null || s.trim().isEmpty();
+    }
+
+    private <T> List<T> nonNull(List<T> list) {
+        return list == null ? List.of() : list;
+    }
+
+    private <T> T first(List<T> list, java.util.function.Predicate<T> match) {
+        if (list == null) {
+            return null;
+        }
+        for (T t : list) {
+            if (match.test(t)) {
+                return t;
+            }
+        }
+        return null;
+    }
+}

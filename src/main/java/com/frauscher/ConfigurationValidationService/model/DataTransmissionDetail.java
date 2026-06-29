@@ -16,7 +16,7 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class DataTransmissionDetail {
+public class DataTransmissionDetail implements Annotatable {
 
     @JsonProperty("dp_id")
     private String dpId;

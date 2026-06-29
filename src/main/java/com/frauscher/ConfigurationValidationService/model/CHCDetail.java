@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CHCDetail {
+public class CHCDetail implements Annotatable {
 
     @JsonProperty("dp_id")
     private String dpId;

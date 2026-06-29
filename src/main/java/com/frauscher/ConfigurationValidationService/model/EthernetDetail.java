@@ -17,7 +17,7 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class EthernetDetail {
+public class EthernetDetail implements Annotatable {
 
     @JsonProperty("com")
     private String com;

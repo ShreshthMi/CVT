@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 import com.frauscher.ConfigurationValidationService.constants.ValidationConstants;
 import com.frauscher.ConfigurationValidationService.model.ConfigBlock;
 import com.frauscher.ConfigurationValidationService.model.ConfigEntry;
+import com.frauscher.ConfigurationValidationService.model.MismatchAnnotation;
 import com.frauscher.ConfigurationValidationService.model.ParsedConfigFile;
 import com.frauscher.ConfigurationValidationService.model.ValidationResult;
 import com.frauscher.ConfigurationValidationService.service.preprocessor.InstancedExpectation;
@@ -51,6 +52,10 @@ import lombok.extern.slf4j.Slf4j;
  * <p>A {@code fileId} with no uploaded ADC is skipped (the scalar engine likewise validates only the
  * uploaded files). {@code CFG_FWRD_ACD} (BY_IDENTITY with a socket-derived {@code DEST_COM}) is handled
  * separately by the §5.6 resolution path; it is not validated here.</p>
+ *
+ * <p>{@link #evaluateAnnotated} returns each result wrapped in an {@link InstancedFinding} carrying the raw
+ * coordinate (block / identity / position / checked entry) for the BE-07 cell-annotation join; {@link
+ * #evaluate} unwraps to the plain result list and is byte-identical to the BE-06 behaviour.</p>
  */
 @Slf4j
 @Component
@@ -72,7 +77,16 @@ public class InstancedExpectationEvaluator {
         this.forwardingResolver = forwardingResolver;
     }
 
+    /** The plain BE-06 result list (no annotation coordinates). */
     public List<ValidationResult> evaluate(
+            List<ParsedConfigFile> parsedFiles, List<InstancedExpectation> expectations) {
+        return evaluateAnnotated(parsedFiles, expectations).stream()
+                .map(InstancedFinding::result)
+                .toList();
+    }
+
+    /** As {@link #evaluate} but each result is wrapped with its BE-07 cell-annotation coordinate. */
+    public List<InstancedFinding> evaluateAnnotated(
             List<ParsedConfigFile> parsedFiles, List<InstancedExpectation> expectations) {
 
         if (expectations == null || expectations.isEmpty()) {
@@ -92,7 +106,7 @@ public class InstancedExpectationEvaluator {
             groups.computeIfAbsent(new GroupKey(e.fileId(), e.block()), k -> new ArrayList<>()).add(e);
         }
 
-        List<ValidationResult> results = new ArrayList<>();
+        List<InstancedFinding> findings = new ArrayList<>();
         for (Map.Entry<GroupKey, List<InstancedExpectation>> group : groups.entrySet()) {
             GroupKey key = group.getKey();
 
@@ -104,52 +118,55 @@ public class InstancedExpectationEvaluator {
 
             List<InstancedExpectation> rows = group.getValue();
             switch (rows.get(0).matchMode()) {
-                case SINGLE -> evaluateSingle(results, file, rows);
+                case SINGLE -> evaluateSingle(findings, file, rows);
                 case BY_IDENTITY -> {
                     if (FORWARDING_BLOCK.equals(key.block())) {
-                        evaluateForwarding(results, parsedFiles, file, rows);
+                        evaluateForwarding(findings, parsedFiles, file, rows);
                     } else {
-                        evaluateByIdentity(results, file, key.block(), rows);
+                        evaluateByIdentity(findings, file, key.block(), rows);
                     }
                 }
-                case POSITIONAL -> evaluatePositional(results, file, key.block(), rows);
+                case POSITIONAL -> evaluatePositional(findings, file, key.block(), rows);
             }
         }
-        return results;
+        return findings;
     }
 
     // ---- SINGLE: mirrors InputMatch (mandatory) / OptionalInputMatchOrBlockNotFound (optional) ----
 
-    private void evaluateSingle(List<ValidationResult> results, ParsedConfigFile file, List<InstancedExpectation> rows) {
+    private void evaluateSingle(List<InstancedFinding> out, ParsedConfigFile file, List<InstancedExpectation> rows) {
         for (InstancedExpectation e : rows) {
             List<String> actuals = values(file, e.block(), e.key());
             boolean optional = e.defaultValue() != null;
 
             if (optional && !hasBlock(file, e.block())) {
                 boolean pass = e.expectedValue().equals(e.defaultValue());
-                results.add(result(file, RULE_OPTIONAL, e.block(), e.key(), e.expectedValue(),
-                        ValidationConstants.CONFIG_BLOCK_NOT_FOUND, pass));
+                out.add(single(result(file, RULE_OPTIONAL, e.block(), e.key(), e.expectedValue(),
+                        ValidationConstants.CONFIG_BLOCK_NOT_FOUND, pass), e.block(), file.getId(),
+                        pass ? null : MismatchAnnotation.Kind.VALUE, e.key(), e.expectedValue(), null));
                 continue;
             }
 
             if (actuals.isEmpty()) {
-                results.add(result(file, optional ? RULE_OPTIONAL : RULE_INPUT_MATCH, e.block(), e.key(),
-                        e.expectedValue(), ValidationConstants.CONFIG_BLOCK_OR_PARAM_NOT_FOUND, false));
+                out.add(single(result(file, optional ? RULE_OPTIONAL : RULE_INPUT_MATCH, e.block(), e.key(),
+                        e.expectedValue(), ValidationConstants.CONFIG_BLOCK_OR_PARAM_NOT_FOUND, false),
+                        e.block(), file.getId(), MismatchAnnotation.Kind.VALUE, e.key(), e.expectedValue(), null));
                 continue;
             }
 
             boolean pass = optional
                     ? actuals.stream().anyMatch(a -> e.expectedValue().equals(trim(a)))
                     : actuals.stream().allMatch(a -> e.expectedValue().equals(trim(a)));
-            results.add(result(file, optional ? RULE_OPTIONAL : RULE_INPUT_MATCH, e.block(), e.key(),
-                    e.expectedValue(), join(actuals), pass));
+            out.add(single(result(file, optional ? RULE_OPTIONAL : RULE_INPUT_MATCH, e.block(), e.key(),
+                    e.expectedValue(), join(actuals), pass), e.block(), file.getId(),
+                    pass ? null : MismatchAnnotation.Kind.VALUE, e.key(), e.expectedValue(), join(actuals)));
         }
     }
 
     // ---- BY_IDENTITY: strict set-equality over occurrences keyed by their identity entries ----
 
     private void evaluateByIdentity(
-            List<ValidationResult> results, ParsedConfigFile file, String block, List<InstancedExpectation> rows) {
+            List<InstancedFinding> out, ParsedConfigFile file, String block, List<InstancedExpectation> rows) {
 
         // Members: one per distinct linkedId, carrying its (key → expectedValue) checks, in emission order.
         Map<Map<String, String>, List<InstancedExpectation>> members = new LinkedHashMap<>();
@@ -173,9 +190,11 @@ public class InstancedExpectationEvaluator {
             }
 
             if (hits.isEmpty()) {
-                results.add(result(file, RULE_IDENTITY, block, idLabel,
-                        describeExpected(member.getValue()),
-                        ValidationConstants.EXPECTED_OCCURRENCE_NOT_FOUND, false));
+                out.add(new InstancedFinding(
+                        result(file, RULE_IDENTITY, block, idLabel, describeExpected(member.getValue()),
+                                ValidationConstants.EXPECTED_OCCURRENCE_NOT_FOUND, false),
+                        block, file.getId(), MismatchAnnotation.Kind.MISSING, linkedId, null, null, null, null,
+                        memberExpected(member.getValue())));
                 continue;
             }
 
@@ -186,18 +205,22 @@ public class InstancedExpectationEvaluator {
             for (InstancedExpectation e : member.getValue()) {
                 String actual = entryValue(occurrence, e.key());
                 boolean pass = e.expectedValue().equals(trim(actual));
-                results.add(result(file, RULE_IDENTITY, block, e.key() + "[" + idLabel + "]",
-                        e.expectedValue(),
-                        actual == null ? ValidationConstants.CONFIG_BLOCK_OR_PARAM_NOT_FOUND : actual, pass));
+                out.add(new InstancedFinding(
+                        result(file, RULE_IDENTITY, block, e.key() + "[" + idLabel + "]", e.expectedValue(),
+                                actual == null ? ValidationConstants.CONFIG_BLOCK_OR_PARAM_NOT_FOUND : actual, pass),
+                        block, file.getId(), pass ? null : MismatchAnnotation.Kind.VALUE, linkedId, null,
+                        e.key(), e.expectedValue(), actual, memberExpected(member.getValue())));
             }
         }
 
         for (int i = 0; i < occurrences.size(); i++) {
             if (!matched[i]) {
-                results.add(result(file, RULE_IDENTITY, block,
-                        identityLabel(identityOf(occurrences.get(i), idKeys)),
-                        ValidationConstants.UNEXPECTED_OCCURRENCE,
-                        ValidationConstants.UNEXPECTED_OCCURRENCE, false));
+                Map<String, String> id = identityOf(occurrences.get(i), idKeys);
+                out.add(new InstancedFinding(
+                        result(file, RULE_IDENTITY, block, identityLabel(id),
+                                ValidationConstants.UNEXPECTED_OCCURRENCE,
+                                ValidationConstants.UNEXPECTED_OCCURRENCE, false),
+                        block, file.getId(), MismatchAnnotation.Kind.UNEXPECTED, id, null, null, null, null, Map.of()));
             }
         }
     }
@@ -205,7 +228,7 @@ public class InstancedExpectationEvaluator {
     // ---- POSITIONAL: ordered slot match (ACO / CFG_SECTION_OUT) ----
 
     private void evaluatePositional(
-            List<ValidationResult> results, ParsedConfigFile file, String block, List<InstancedExpectation> rows) {
+            List<InstancedFinding> out, ParsedConfigFile file, String block, List<InstancedExpectation> rows) {
 
         Map<Integer, List<InstancedExpectation>> slots = new TreeMap<>();
         for (InstancedExpectation e : rows) {
@@ -218,8 +241,11 @@ public class InstancedExpectationEvaluator {
             int position = slot.getKey();
             if (position >= occurrences.size()) {
                 for (InstancedExpectation e : slot.getValue()) {
-                    results.add(result(file, RULE_POSITIONAL, block, e.key() + "[pos=" + position + "]",
-                            e.expectedValue(), ValidationConstants.EXPECTED_OCCURRENCE_NOT_FOUND, false));
+                    out.add(new InstancedFinding(
+                            result(file, RULE_POSITIONAL, block, e.key() + "[pos=" + position + "]",
+                                    e.expectedValue(), ValidationConstants.EXPECTED_OCCURRENCE_NOT_FOUND, false),
+                            block, file.getId(), MismatchAnnotation.Kind.MISSING, Map.of(), position,
+                            e.key(), e.expectedValue(), null, Map.of()));
                 }
                 continue;
             }
@@ -227,22 +253,26 @@ public class InstancedExpectationEvaluator {
             for (InstancedExpectation e : slot.getValue()) {
                 String actual = entryValue(occurrence, e.key());
                 boolean pass = e.expectedValue().equals(trim(actual));
-                results.add(result(file, RULE_POSITIONAL, block, e.key() + "[pos=" + position + "]",
-                        e.expectedValue(),
-                        actual == null ? ValidationConstants.CONFIG_BLOCK_OR_PARAM_NOT_FOUND : actual, pass));
+                out.add(new InstancedFinding(
+                        result(file, RULE_POSITIONAL, block, e.key() + "[pos=" + position + "]", e.expectedValue(),
+                                actual == null ? ValidationConstants.CONFIG_BLOCK_OR_PARAM_NOT_FOUND : actual, pass),
+                        block, file.getId(), pass ? null : MismatchAnnotation.Kind.VALUE, Map.of(), position,
+                        e.key(), e.expectedValue(), actual, Map.of()));
             }
         }
 
         for (int i = slots.size(); i < occurrences.size(); i++) {
-            results.add(result(file, RULE_POSITIONAL, block, "[pos=" + i + "]",
-                    ValidationConstants.UNEXPECTED_OCCURRENCE, ValidationConstants.UNEXPECTED_OCCURRENCE, false));
+            out.add(new InstancedFinding(
+                    result(file, RULE_POSITIONAL, block, "[pos=" + i + "]",
+                            ValidationConstants.UNEXPECTED_OCCURRENCE, ValidationConstants.UNEXPECTED_OCCURRENCE, false),
+                    block, file.getId(), MismatchAnnotation.Kind.UNEXPECTED, Map.of(), i, null, null, null, Map.of()));
         }
     }
 
     // ---- CFG_FWRD_ACD (§5.6): set-equality over socket→COM-resolved actual forwards ----
 
     private void evaluateForwarding(
-            List<ValidationResult> results, List<ParsedConfigFile> allFiles, ParsedConfigFile homeCom,
+            List<InstancedFinding> out, List<ParsedConfigFile> allFiles, ParsedConfigFile homeCom,
             List<InstancedExpectation> rows) {
 
         // Expected members: one per distinct (CAN_TX_ID, DEST_COM), in emission order.
@@ -261,12 +291,17 @@ public class InstancedExpectationEvaluator {
             Map<String, String> linkedId = member.getValue();
             String label = identityLabel(linkedId);
             if (actual.containsKey(member.getKey())) {
-                results.add(result(homeCom, RULE_IDENTITY, FORWARDING_BLOCK, DEST_COM + "[" + label + "]",
-                        linkedId.get(DEST_COM), linkedId.get(DEST_COM), true));
+                out.add(new InstancedFinding(
+                        result(homeCom, RULE_IDENTITY, FORWARDING_BLOCK, DEST_COM + "[" + label + "]",
+                                linkedId.get(DEST_COM), linkedId.get(DEST_COM), true),
+                        FORWARDING_BLOCK, homeCom.getId(), null, linkedId, null, null, null, null, Map.of()));
             } else {
-                results.add(result(homeCom, RULE_IDENTITY, FORWARDING_BLOCK, label,
-                        DEST_COM + "=" + linkedId.get(DEST_COM),
-                        ValidationConstants.EXPECTED_OCCURRENCE_NOT_FOUND, false));
+                out.add(new InstancedFinding(
+                        result(homeCom, RULE_IDENTITY, FORWARDING_BLOCK, label,
+                                DEST_COM + "=" + linkedId.get(DEST_COM),
+                                ValidationConstants.EXPECTED_OCCURRENCE_NOT_FOUND, false),
+                        FORWARDING_BLOCK, homeCom.getId(), MismatchAnnotation.Kind.MISSING, linkedId, null,
+                        null, null, null, Map.of()));
             }
         }
 
@@ -274,9 +309,15 @@ public class InstancedExpectationEvaluator {
         for (Map.Entry<String, ForwardMember> a : actual.entrySet()) {
             if (!expectedKeys.contains(a.getKey())) {
                 ForwardMember m = a.getValue();
-                results.add(result(homeCom, RULE_IDENTITY, FORWARDING_BLOCK,
-                        CAN_TX_ID + "=" + m.canTxId() + "," + DEST_COM + "=" + m.destCom(),
-                        ValidationConstants.UNEXPECTED_OCCURRENCE, ValidationConstants.UNEXPECTED_OCCURRENCE, false));
+                Map<String, String> id = new LinkedHashMap<>();
+                id.put(CAN_TX_ID, m.canTxId());
+                id.put(DEST_COM, m.destCom());
+                out.add(new InstancedFinding(
+                        result(homeCom, RULE_IDENTITY, FORWARDING_BLOCK,
+                                CAN_TX_ID + "=" + m.canTxId() + "," + DEST_COM + "=" + m.destCom(),
+                                ValidationConstants.UNEXPECTED_OCCURRENCE, ValidationConstants.UNEXPECTED_OCCURRENCE, false),
+                        FORWARDING_BLOCK, homeCom.getId(), MismatchAnnotation.Kind.UNEXPECTED, id, null,
+                        null, null, null, Map.of()));
             }
         }
     }
@@ -345,6 +386,14 @@ public class InstancedExpectationEvaluator {
                 .collect(Collectors.joining(","));
     }
 
+    private Map<String, String> memberExpected(List<InstancedExpectation> member) {
+        Map<String, String> map = new LinkedHashMap<>();
+        for (InstancedExpectation e : member) {
+            map.put(e.key(), e.expectedValue());
+        }
+        return map;
+    }
+
     private String join(List<String> values) {
         return String.join(",", values);
     }
@@ -357,6 +406,13 @@ public class InstancedExpectationEvaluator {
             String expected, String actual, boolean pass) {
         return new ValidationResult(file.getFileName(), ruleType, block, entryKey, expected, actual,
                 (pass ? ValidationStatus.PASS : ValidationStatus.FAIL).name());
+    }
+
+    /** Wraps a SINGLE result with its coordinate (no linkedId / position). */
+    private InstancedFinding single(ValidationResult result, String block, int fileId,
+            MismatchAnnotation.Kind kind, String entryKey, String rawExpected, String rawActual) {
+        return new InstancedFinding(result, block, fileId, kind, Map.of(), null, entryKey,
+                rawExpected, rawActual, Map.of());
     }
 
     /** Grouping key — all expectations for one block of one file are evaluated together. */

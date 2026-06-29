@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class DpDetail {
+public class DpDetail implements Annotatable {
 
     @JsonProperty("dp_can_id")
     private String dpCanId;

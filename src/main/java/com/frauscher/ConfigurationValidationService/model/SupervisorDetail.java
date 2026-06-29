@@ -13,7 +13,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class SupervisorDetail {
+public class SupervisorDetail implements Annotatable {
 
     @JsonProperty("sup_name")
     private String supName;

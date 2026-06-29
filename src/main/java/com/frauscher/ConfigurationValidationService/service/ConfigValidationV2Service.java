@@ -11,7 +11,9 @@ import com.frauscher.ConfigurationValidationService.model.ValidationResult;
 import com.frauscher.ConfigurationValidationService.model.ValidationSummary;
 import com.frauscher.ConfigurationValidationService.service.preprocessor.Expectations;
 import com.frauscher.ConfigurationValidationService.service.preprocessor.ExpectationsPreprocessor;
+import com.frauscher.ConfigurationValidationService.validation.annotation.MismatchAnnotator;
 import com.frauscher.ConfigurationValidationService.validation.instanced.InstancedExpectationEvaluator;
+import com.frauscher.ConfigurationValidationService.validation.instanced.InstancedFinding;
 import com.frauscher.ConfigurationValidationService.validation.payload.PayloadValidator;
 
 import lombok.RequiredArgsConstructor;
@@ -35,6 +37,7 @@ public class ConfigValidationV2Service {
     private final PayloadValidator payloadValidator;
     private final InstancedExpectationEvaluator instancedExpectationEvaluator;
     private final SummaryService summaryService;
+    private final MismatchAnnotator mismatchAnnotator;
 
     public ValidationSummary validate(List<ParsedConfigFile> parsedConfigFiles, ValidationInputV2 userInput) {
 
@@ -42,18 +45,20 @@ public class ConfigValidationV2Service {
         log.debug("v2 validate: preprocessor produced {} scalar + {} instanced expectation(s)",
                 expectations.scalarExpectations().size(), expectations.instancedExpectations().size());
 
-        List<ValidationResult> results = new ArrayList<>();
-
         // Scalar bucket (§6): reuse the Phase 1 engine. The expected values come from the PDQ/FCT
         // baseline, not user UI inputs, so resolve them leniently (no UIInputRequired/type enforcement)
         // and run the same rule dispatch — a value the baseline omits leaves its rule dormant.
         var scalarPayload = payloadValidator.resolve(expectations.scalarExpectations());
-        results.addAll(configValidationService.validateParsedFiles(
-                parsedConfigFiles, expectations.scalarExpectations(), scalarPayload));
+        List<ValidationResult> scalarResults = configValidationService.validateParsedFiles(
+                parsedConfigFiles, expectations.scalarExpectations(), scalarPayload);
 
         // Instanced bucket (§5–§6): per-entity occurrence selection the flattening Phase 1 engine can't do.
-        results.addAll(instancedExpectationEvaluator.evaluate(
-                parsedConfigFiles, expectations.instancedExpectations()));
+        // The annotated form additionally carries the per-result cell coordinate for the BE-07 join.
+        List<InstancedFinding> findings = instancedExpectationEvaluator.evaluateAnnotated(
+                parsedConfigFiles, expectations.instancedExpectations());
+
+        List<ValidationResult> results = new ArrayList<>(scalarResults);
+        findings.forEach(f -> results.add(f.result()));
 
         // Assign each result a response-scoped opaque id (the cell→log navigation target — response
         // contract §2/§5). Phase 1 results keep a null id and the field is omitted from that response.
@@ -61,6 +66,11 @@ public class ConfigValidationV2Service {
             results.get(i).setId("r" + i);
         }
 
-        return summaryService.generateSummary(parsedConfigFiles, results);
+        ValidationSummary summary = summaryService.generateSummary(parsedConfigFiles, results);
+
+        // BE-07: map each failing result onto its detail-table cell (red highlight + Expected/Actual
+        // tooltip + click-to-log-entry). Additive — a clean run adds nothing.
+        mismatchAnnotator.annotate(summary, scalarResults, findings, parsedConfigFiles);
+        return summary;
     }
 }

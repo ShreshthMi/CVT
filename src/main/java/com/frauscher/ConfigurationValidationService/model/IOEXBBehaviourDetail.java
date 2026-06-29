@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class IOEXBBehaviourDetail {
+public class IOEXBBehaviourDetail implements Annotatable {
 
     @JsonProperty("dp_id")
     private String dpId;

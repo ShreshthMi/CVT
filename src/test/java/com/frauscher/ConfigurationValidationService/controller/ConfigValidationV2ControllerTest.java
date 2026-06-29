@@ -76,6 +76,7 @@ class ConfigValidationV2ControllerTest {
         mockMvc.perform(post("/api/config/v2/validate").contentType(MediaType.APPLICATION_JSON).content(body))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.validation_results").isArray())
+                .andExpect(jsonPath("$.validation_results[0].id").exists()) // BE-07 response-scoped result id
                 .andExpect(jsonPath("$.dp_details").exists())
                 .andExpect(jsonPath("$.ethernet_details").exists());
     }
