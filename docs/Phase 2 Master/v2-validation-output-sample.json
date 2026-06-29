@@ -31,11 +31,11 @@
   "track_section_details": [
     {
       "ts_name": "1AXT1", "e_dp_id": "5", "e_dp_name": "DP1A", "fma_1_2": "1",
-      "ch_dp_id": ["5", "6"], "ch_dp_name": ["DP1A", "DP2B"], "ch_slct_timeout": ["0", "0"],
+      "ch_dp_id": ["5", "6", ""], "ch_dp_name": ["DP1A", "DP2B", ""], "ch_slct_timeout": ["0", "0", ""],
       "i_ch_dp_id": [], "i_ch_dp_name": [], "i_ch_slct_timeout": [],
       "_mismatches": [
         { "field": "ch_dp_name", "index": 1, "kind": "UNEXPECTED", "expected": null, "actual": "DP2B", "result_id": "r1" },
-        { "field": "ch_dp_name", "index": null, "kind": "MISSING", "expected": "DP2A", "actual": null, "result_id": "r2" }
+        { "field": "ch_dp_name", "index": 2, "kind": "MISSING", "expected": "DP2A", "actual": null, "result_id": "r2" }
       ]
     },
     {
@@ -122,11 +122,11 @@
       "ip_nw_1": "10.1.106.53", "subnet_mask_1": "255.255.255.0",
       "ip_nw_2": "10.2.106.53", "subnet_mask_2": "255.255.255.0",
       "dest_ip_nw_1": ["10.1.106.54"], "dest_ip_nw_2": ["10.2.106.54"],
-      "fwrd_acd_to_dp_ids": ["5", "2"], "fwrd_acd_to_dp_dtls": ["DP1A", "DP3A"],
+      "fwrd_acd_to_dp_ids": ["5", "2", ""], "fwrd_acd_to_dp_dtls": ["DP1A", "DP3A", ""],
       "interval": "1",
       "_mismatches": [
         { "field": "fwrd_acd_to_dp_dtls", "index": 1, "kind": "UNEXPECTED", "expected": null, "actual": "DP3A", "result_id": "r30" },
-        { "field": "fwrd_acd_to_dp_dtls", "index": null, "kind": "MISSING", "expected": "DP2A", "actual": null, "result_id": "r31" }
+        { "field": "fwrd_acd_to_dp_dtls", "index": 2, "kind": "MISSING", "expected": "DP2A", "actual": null, "result_id": "r31" }
       ]
     },
     {

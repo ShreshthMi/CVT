@@ -4,6 +4,8 @@
 >
 > **What this enables (FE §2):** red-highlight a mismatching cell *inside the detail tables*, show an Expected/Actual tooltip on hover, and on click jump to the **exact** validation-result log entry for that check (and highlight its ADC file).
 
+> **FE-facing contract:** the authoritative wire shape — including the union-array model (`MISSING` is an empty array slot at a real `index`) and the value-check-vs-existence-check semantics — is in [`FCVT-v2-Validation-Response-Contract.md`](FCVT-v2-Validation-Response-Contract.md) (the version shared with the frontend). This document additionally records the backend implications.
+
 ## 1. Principles
 1. **Two surfaces, two jobs.** The **detail tables** are the highlight/tooltip surface; **`validation_results[]`** is the drill-down log + navigation target.
 2. **Additive annotations.** A clean cell is unchanged. Mismatches are carried in a per-row `_mismatches` block; presence of an entry there *is* the red flag (no per-cell status field).
