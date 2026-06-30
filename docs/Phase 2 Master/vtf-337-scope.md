@@ -75,5 +75,7 @@ DP id→name (ID-block comment); `ValueMappingService.mapValue`; `SLCT_TIMEOUT`�
   confirmed firmware defaults (chip `task_d9e07982`).
 - **Named verdicts** (`ORPHANED` / `FILE NOT FOUND` / `INVALID SCOPE` / `INVALID VALUE`) — BE-08; they
   live on the `validation_results` entry, not the cell tooltip.
-- **FE confirmations** (still to chase, not assumed): MISSING rendered as an empty array slot;
-  named-verdict placement on the result log vs cells.
+- **FE confirmations — RESOLVED (2026-07-01):** (a) rendering a MISSING item as an empty array slot is a
+  frontend concern — the backend correctly appends the empty slot + emits the MISSING `_mismatches` entry
+  (with `expected` + `result_id`); no backend change. (b) named-verdict placement is deferred to the next
+  few stories (BE-08+), on the result-log entry, not the cell tooltip.
