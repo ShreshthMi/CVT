@@ -41,8 +41,9 @@ The full v2 pipeline is built and passing end-to-end (on an **unmerged feature b
 | BE-06 (VTF-336) | Consuming engine (validates ADC files against the expectations) | **DONE** |
 | v2 response contract | per-cell mismatch annotation + cell→log navigation; shared with frontend | **DONE** |
 | BE-07 (VTF-337) | The `_expected` detail-cell annotation (the data behind the UI highlights/tooltips) | **DONE** — annotator + response-scoped `id` + `_mismatches` built and green (`origin/VTF-337`); registry finalisation (M4) still parked on confirmed defaults |
-| BE-08–BE-13 (clusters 1, 2, 4a, 4b, 5) | per-cluster validation | **largely realized** by BE-05/06; residuals = named verdicts + a few cluster-specific checks (see reconciliation doc) |
-| BE-14 (cluster 6) | Data Transmission | **NOT STARTED** — parked pending AE sign-off on the rules |
+| BE-08 (VTF-338) | Cluster 1: CAN Segment (Check A named verdicts + CFG_DATA_OUT ID/SLCT_TIMEOUT) | **DONE** — ORPHANED / FILE NOT FOUND / INVALID SCOPE / INVALID VALUE + the DT ID/SLCT slice built and green (`origin/VTF-338`); see *vtf-338-scope.md* |
+| BE-09–BE-13 (clusters 2, 3, 4a, 4b, 5) | per-cluster validation | **largely realized** by BE-05/06; residuals = a few cluster-specific checks (ACO rack position, dual-FMA RESET; see reconciliation doc) |
+| BE-14 (cluster 6) | Data Transmission (payload: safety levels, NMBR_OUT, POSITION) | **NOT STARTED** — parked pending AE sign-off (ID/SLCT_TIMEOUT already done by BE-08) |
 | BE-15 (VTF-345) | PDF report | **NOT STARTED** (stretch) |
 
 Reference docs: cluster coverage is detailed in *be05-06-reconciliation.md*; the response shape in *FCVT-v2-Validation-Response-Contract.md*.

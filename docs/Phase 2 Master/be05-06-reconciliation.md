@@ -9,7 +9,7 @@
 | Story | Title | Coverage | Net |
 |---|---|---|---|
 | **BE-07** VTF-337 | Rule Registry + `ruleType` finalisation + `_expected` wiring | **MOSTLY** (2026-06-29) | `_expected` cell annotation **DONE** (`MismatchAnnotator` + result `id` + `_mismatches`, `origin/VTF-337`); registry finalisation (M4) still parked |
-| **BE-08** VTF-338 | Cluster 1: CAN Segment | **PARTIAL** | Check B (forwarding) real; Check A named verdicts + ComAebMap ID lookup + physical/virtual classification absent |
+| **BE-08** VTF-338 | Cluster 1: CAN Segment | **DONE** (2026-07-01) | Check A named verdicts (ORPHANED / FILE NOT FOUND / INVALID SCOPE / INVALID VALUE) + ComAebMap ID lookup + CFG_DATA_OUT ID/SLCT built (`origin/VTF-338`); Check B (forwarding) already real; classification is segment-based (chain == segment) |
 | **BE-09** VTF-339 | Cluster 2: IOEXB ACO | **MOSTLY** | ID/SECTION + card count + ≤16 covered by positional matching; only rack-position residual (if required) |
 | **BE-10** VTF-340 | Cluster 3: Track Section | **MOSTLY** | sub-checks 1/2/3 = ADC-vs-baseline (existing builders); only ACO bounds (sub-4) + DT remain |
 | **BE-11** VTF-341 | Cluster 4a: CHC | **MOSTLY** | count + BEHAV_INPUT3 validated; literal "count←BEHAV_INPUT3" coupling not built |
@@ -34,9 +34,10 @@
 - **Results-only (no faithful cell, by design):** counting-head `DIR_INV` (the ch/i_ch split axis, not a column); ACO `ID` (the `aco_fmaId` is not a displayed column); ACO/CHC `MISSING` where the table has no array slot to append to; scalar cross-rules with no detail column (project / RSR / switch). DT has no validation results yet (BE-14).
 - **Not done:** registry finalisation (M4 deferred; dormant `CFG_AXCNT.BEHAV_INPUT3` kept; optional scalars mis-fail — finding #2). Named verdicts are BE-08 (finding #1).
 
-### BE-08 (PARTIAL) — Cluster 1 CAN Segment
-- **Done:** Check B forwarding — genuine list-membership (`ForwardingExpectationsBuilder` + `ForwardingDestinationResolver` socket→COM via NW1 `+32`/NW2 `+48` → present-COM `CFG_MY_IP`, set-equality). SLCT_TIMEOUT/ID *values* are emitted+consumed across all in-scope blocks.
-- **Not done:** every Check-A **named verdict** (finding #1); per-ADC `[IDENTIFICATION] ID` → ComAebMap lookup → ORPHANED (finding #5); physical/virtual **segment-membership** classification (the engine uses a same/different-**chain** proxy, not segment membership); `INVALID SCOPE` 2–7 band; `CFG_DATA_OUT` ownership (no builder).
+### BE-08 (DONE — 2026-07-01) — Cluster 1 CAN Segment
+- **Done:** Check B forwarding (BE-06 — `ForwardingExpectationsBuilder` + `ForwardingDestinationResolver` socket→COM via NW1 `+32`/NW2 `+48` → present-COM `CFG_MY_IP`, set-equality). Check A named verdicts (`CanSegmentValidator`, design §8.1): **ORPHANED** (per-AEB-ADC `[IDENTIFICATION] ID` vs the FCT AEB set — finding #5), **FILE NOT FOUND** (an unexpected reference to an unknown AEB id), **INVALID SCOPE** (SLCT_TIMEOUT actual 2–7) / **INVALID VALUE** (else) — carried as sentinels in `expected`/`actual`, status FAIL/**INVALID** (finding #1 closed). `CFG_DATA_OUT` ID/SLCT_TIMEOUT via a new `DataTransmissionExpectationsBuilder` (PDQ DT sub-tables paired by row → BY_IDENTITY on the receiving AEB, SLCT by segment membership).
+- **Classification (finding #3):** the same/different-**chain** proxy *is* segment membership — `ComAebMap` collapses each CAN segment to one chain, so no separate classification was needed.
+- **Residual (documented, minor):** FILE NOT FOUND is applied only to BY_IDENTITY blocks whose identity has an `ID` (not ACO's positional `aco_fmaId` nor forwarding's `CAN_TX_ID`); DT MISSING is results-only (the scalar-row DT table has no array slot). Registry finalisation / M4 still parked. See *vtf-338-scope.md*.
 
 ### BE-09 (PARTIAL) — Cluster 2 IOEXB ACO
 - **Done:** ID + SECTION ownership on `CFG_SECTION_OUT` via POSITIONAL per-slot validation; re-sequenced config correctly FAILs (slot-order is load-bearing, tested).
