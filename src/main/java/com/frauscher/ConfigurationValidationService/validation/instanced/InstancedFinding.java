@@ -36,8 +36,11 @@ public record InstancedFinding(
         String rawActual,
         Map<String, String> memberExpected) {
 
-    /** Whether the wrapped result is a failure that should be annotated onto a cell. */
+    /**
+     * Whether the wrapped result is a non-PASS outcome that should be annotated onto a cell. Includes
+     * {@code INVALID} so a Cluster 1 (BE-08) refined SLCT_TIMEOUT verdict still highlights its cell.
+     */
     public boolean isAnnotatable() {
-        return kind != null && "FAIL".equals(result.getStatus());
+        return kind != null && !"PASS".equals(result.getStatus());
     }
 }

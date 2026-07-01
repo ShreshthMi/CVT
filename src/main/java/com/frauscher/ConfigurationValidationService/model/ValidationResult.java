@@ -25,9 +25,13 @@ public class ValidationResult {
     private String ruleType;
     private String blockName;
     private String entryKey;
+    /** Mutable so the Cluster 1 (BE-08) post-pass can refine a verdict into a named sentinel. */
+    @Setter
     private String expectedValue;
+    @Setter
     private String actualValue;
-    private String status; // PASS / FAIL
+    @Setter
+    private String status; // PASS / FAIL / INVALID
 
     public ValidationResult(String fileName, String ruleType, String blockName, String entryKey,
             String expectedValue, String actualValue, String status) {

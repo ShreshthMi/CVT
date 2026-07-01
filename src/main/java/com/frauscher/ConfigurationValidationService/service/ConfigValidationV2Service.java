@@ -12,6 +12,7 @@ import com.frauscher.ConfigurationValidationService.model.ValidationSummary;
 import com.frauscher.ConfigurationValidationService.service.preprocessor.Expectations;
 import com.frauscher.ConfigurationValidationService.service.preprocessor.ExpectationsPreprocessor;
 import com.frauscher.ConfigurationValidationService.validation.annotation.MismatchAnnotator;
+import com.frauscher.ConfigurationValidationService.validation.cluster.CanSegmentValidator;
 import com.frauscher.ConfigurationValidationService.validation.instanced.InstancedExpectationEvaluator;
 import com.frauscher.ConfigurationValidationService.validation.instanced.InstancedFinding;
 import com.frauscher.ConfigurationValidationService.validation.payload.PayloadValidator;
@@ -38,6 +39,7 @@ public class ConfigValidationV2Service {
     private final InstancedExpectationEvaluator instancedExpectationEvaluator;
     private final SummaryService summaryService;
     private final MismatchAnnotator mismatchAnnotator;
+    private final CanSegmentValidator canSegmentValidator;
 
     public ValidationSummary validate(List<ParsedConfigFile> parsedConfigFiles, ValidationInputV2 userInput) {
 
@@ -57,8 +59,14 @@ public class ConfigValidationV2Service {
         List<InstancedFinding> findings = instancedExpectationEvaluator.evaluateAnnotated(
                 parsedConfigFiles, expectations.instancedExpectations());
 
+        // Cluster 1 (BE-08) Check-A named verdicts: refine SLCT_TIMEOUT / unknown-reference findings in
+        // place and add ORPHANED results for uploaded AEB ADCs absent from the FCT-defined CAN segments.
+        List<ValidationResult> orphaned = canSegmentValidator.apply(
+                findings, userInput.getFctData(), parsedConfigFiles);
+
         List<ValidationResult> results = new ArrayList<>(scalarResults);
         findings.forEach(f -> results.add(f.result()));
+        results.addAll(orphaned);
 
         // Assign each result a response-scoped opaque id (the cell→log navigation target — response
         // contract §2/§5). Phase 1 results keep a null id and the field is omitted from that response.
