@@ -11,6 +11,7 @@ import com.frauscher.ConfigurationValidationService.model.Annotatable;
 import com.frauscher.ConfigurationValidationService.model.CHCDetail;
 import com.frauscher.ConfigurationValidationService.model.ConfigBlock;
 import com.frauscher.ConfigurationValidationService.model.ConfigEntry;
+import com.frauscher.ConfigurationValidationService.model.DataTransmissionDetail;
 import com.frauscher.ConfigurationValidationService.model.EthernetDetail;
 import com.frauscher.ConfigurationValidationService.model.IOEXBAcoDetail;
 import com.frauscher.ConfigurationValidationService.model.IOEXBBehaviourDetail;
@@ -132,6 +133,7 @@ public class MismatchAnnotator {
             case "CFG_CONTROL" -> annotateChc(summary, filesById, f);
             case SECTION_OUT -> annotateAco(summary, filesById, f);
             case "CFG_AXCNT" -> annotateIoexbBehaviour(summary, f);
+            case "CFG_DATA_OUT" -> annotateDataTransmission(summary, filesById, f);
             default -> { /* CFG_IP_SWITCH and any other instanced block has no detail cell */ }
         }
     }
@@ -340,6 +342,31 @@ public class MismatchAnnotator {
         }
         add(row, MismatchAnnotation.value("behav_input3", null,
                 mapped("BEHAV_INPUT3", f.rawExpected()), mapped("BEHAV_INPUT3", f.rawActual()), f.result().getId()));
+    }
+
+    // ---- Data Transmission: CFG_DATA_OUT (BY_IDENTITY on source DP) → data_transmission_details ----
+
+    private void annotateDataTransmission(ValidationSummary summary, Map<Integer, ParsedConfigFile> filesById,
+            InstancedFinding f) {
+
+        String sourceId = f.linkedId().get(ID);
+        DataTransmissionDetail row = first(summary.getDataTransmissionDetail(),
+                r -> eq(f.fileId(), r.getDpId()) && eqTrim(r.getSourceDpId(), sourceId));
+        if (row == null) {
+            return; // MISSING source → no row; the scalar-row table has no slot to append → results-only
+        }
+        String rid = f.result().getId();
+        switch (f.kind()) {
+            case VALUE -> {
+                if (SLCT_TIMEOUT.equals(f.entryKey())) {
+                    add(row, MismatchAnnotation.value("timeout", null,
+                            timeout(filesById.get(f.fileId()), f.rawExpected()),
+                            timeout(filesById.get(f.fileId()), f.rawActual()), rid));
+                }
+            }
+            case UNEXPECTED -> add(row, MismatchAnnotation.unexpected("source_dp_name", null, row.getSourceDpName(), rid));
+            case MISSING -> { /* no row to append; results-only */ }
+        }
     }
 
     // ---- Forwarding: CFG_FWRD_ACD → ethernet_details (set-equality, re-resolved by index) ----

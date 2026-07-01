@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import com.frauscher.ConfigurationValidationService.model.CHCDetail;
 import com.frauscher.ConfigurationValidationService.model.ConfigBlock;
 import com.frauscher.ConfigurationValidationService.model.ConfigEntry;
+import com.frauscher.ConfigurationValidationService.model.DataTransmissionDetail;
 import com.frauscher.ConfigurationValidationService.model.EthernetDetail;
 import com.frauscher.ConfigurationValidationService.model.IOEXBAcoDetail;
 import com.frauscher.ConfigurationValidationService.model.IOEXBBehaviourDetail;
@@ -202,6 +203,32 @@ class MismatchAnnotatorTest {
         assertEquals(Kind.UNEXPECTED, a.getKind());
         assertEquals("DP1A", a.getActual());
         assertEquals("r15", a.getResultId());
+    }
+
+    // ---------- data transmission: CFG_DATA_OUT SLCT_TIMEOUT VALUE → timeout column ----------
+
+    @Test
+    void dataTransmissionSlctTimeoutValue() {
+        DataTransmissionDetail row = DataTransmissionDetail.builder()
+                .dpId("5").dpName("DP1A").sourceDpId("6").sourceDpName("DP2B").timeout("620").build();
+        ValidationSummary summary = new ValidationSummary();
+        summary.setDataTransmissionDetail(list(row));
+
+        ParsedConfigFile file = new ParsedConfigFile("C5", new ArrayList<>(List.of(
+                block("CFG_TIMEOUT", 0, entry("TIMEOUT_VALUE", "62")),
+                block("CFG_TIMEOUT", 1, entry("TIMEOUT_VALUE", "10")))),
+                false, false, true, false, 5);
+
+        InstancedFinding value = new InstancedFinding(vr("r40", "FAIL"), "CFG_DATA_OUT", 5,
+                Kind.VALUE, Map.of("ID", "6"), null, "SLCT_TIMEOUT", "0", "1", Map.of());
+
+        annotator.annotate(summary, List.of(), List.of(value), List.of(file));
+
+        MismatchAnnotation a = byField(row.getMismatches(), "timeout", null);
+        assertEquals(Kind.VALUE, a.getKind());
+        assertEquals("620", a.getExpected()); // CFG_TIMEOUT[0]=62 ×10
+        assertEquals("100", a.getActual());   // CFG_TIMEOUT[1]=10 ×10
+        assertEquals("r40", a.getResultId());
     }
 
     // ---------- forwarding: UNEXPECTED (re-resolved index) + MISSING (appended) ----------

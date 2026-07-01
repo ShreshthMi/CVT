@@ -30,6 +30,7 @@ public class DefaultExpectationsPreprocessor implements ExpectationsPreprocessor
     private final ControlExpectationsBuilder controlExpectationsBuilder;
     private final IpSwitchExpectationsBuilder ipSwitchExpectationsBuilder;
     private final ForwardingExpectationsBuilder forwardingExpectationsBuilder;
+    private final DataTransmissionExpectationsBuilder dataTransmissionExpectationsBuilder;
 
     @Override
     public Expectations preprocess(ValidationInputV2 userInput) {
@@ -48,6 +49,8 @@ public class DefaultExpectationsPreprocessor implements ExpectationsPreprocessor
         instancedExpectations.addAll(controlExpectationsBuilder.build(fct, controlTable));
         instancedExpectations.addAll(ipSwitchExpectationsBuilder.build(fct));
         instancedExpectations.addAll(forwardingExpectationsBuilder.build(fct, controlTable));
+        instancedExpectations.addAll(
+                dataTransmissionExpectationsBuilder.build(fct, userInput.getPdqData().getDataTransmission()));
 
         return new Expectations(scalarExpectations, instancedExpectations);
     }
