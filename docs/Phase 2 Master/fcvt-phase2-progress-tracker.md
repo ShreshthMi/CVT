@@ -42,7 +42,7 @@ The full v2 pipeline is built and passing end-to-end (on an **unmerged feature b
 | v2 response contract | per-cell mismatch annotation + cell→log navigation; shared with frontend | **DONE** |
 | BE-07 (VTF-337) | The `_expected` detail-cell annotation (the data behind the UI highlights/tooltips) | **DONE** — annotator + response-scoped `id` + `_mismatches` built and green (`origin/VTF-337`); registry finalisation (M4) still parked on confirmed defaults |
 | BE-08 (VTF-338) | Cluster 1: CAN Segment (Check A named verdicts + CFG_DATA_OUT ID/SLCT_TIMEOUT) | **DONE** — ORPHANED / FILE NOT FOUND / INVALID SCOPE / INVALID VALUE + the DT ID/SLCT slice built and green (`origin/VTF-338`); see *vtf-338-scope.md* |
-| BE-09–BE-13 (clusters 2, 3, 4a, 4b, 5) | per-cluster validation | **largely realized** by BE-05/06; residuals = a few cluster-specific checks (ACO rack position, dual-FMA RESET; see reconciliation doc) |
+| BE-09–BE-13 (clusters 2, 3, 4a, 4b, 5) | per-cluster validation | **DONE / MOSTLY** — realized by BE-05/06/08; the last two residuals resolved 2026-07-01 (ACO rack position = block order → subsumed; dual-FMA RESET consistency → subsumed by per-FMA baseline). Only cross-cutting residual = the M4 spurious-FAIL fix |
 | BE-14 (cluster 6) | Data Transmission (payload: safety levels, NMBR_OUT, POSITION) | **NOT STARTED** — parked pending AE sign-off (ID/SLCT_TIMEOUT already done by BE-08) |
 | BE-15 (VTF-345) | PDF report | **NOT STARTED** (stretch) |
 

@@ -10,11 +10,11 @@
 |---|---|---|---|
 | **BE-07** VTF-337 | Rule Registry + `ruleType` finalisation + `_expected` wiring | **MOSTLY** (2026-06-29) | `_expected` cell annotation **DONE** (`MismatchAnnotator` + result `id` + `_mismatches`, `origin/VTF-337`); registry finalisation (M4) still parked |
 | **BE-08** VTF-338 | Cluster 1: CAN Segment | **DONE** (2026-07-01) | Check A named verdicts (ORPHANED / FILE NOT FOUND / INVALID SCOPE / INVALID VALUE) + ComAebMap ID lookup + CFG_DATA_OUT ID/SLCT built (`origin/VTF-338`); Check B (forwarding) already real; classification is segment-based (chain == segment) |
-| **BE-09** VTF-339 | Cluster 2: IOEXB ACO | **MOSTLY** | ID/SECTION + card count + ≤16 covered by positional matching; only rack-position residual (if required) |
+| **BE-09** VTF-339 | Cluster 2: IOEXB ACO | **DONE** (2026-07-01) | ID/SECTION + card count + ≤16 covered by positional matching; rack position = block order (user-confirmed, no separate field) → subsumed by positional matching |
 | **BE-10** VTF-340 | Cluster 3: Track Section | **MOSTLY** | sub-checks 1/2/3 = ADC-vs-baseline (existing builders); only ACO bounds (sub-4) + DT remain |
 | **BE-11** VTF-341 | Cluster 4a: CHC | **MOSTLY** | count + BEHAV_INPUT3 validated; literal "count←BEHAV_INPUT3" coupling not built |
 | **BE-12** VTF-342 | Cluster 4b: External CHC | **MOSTLY** | per-sensor control check done; ≤2-per-ADC covered by set-equality + the >2-mains gate |
-| **BE-13** VTF-343 | Cluster 5: Supervisor | **PARTIAL** | instanced LOGIC_TYPE/SLCT_TIMEOUT done; RESET fields hit the M4 bug; dual-FMA consistency absent |
+| **BE-13** VTF-343 | Cluster 5: Supervisor | **MOSTLY** (2026-07-01) | instanced LOGIC_TYPE/SLCT_TIMEOUT done; dual-FMA consistency subsumed by per-FMA baseline validation (user-confirmed); only residual = RESET fields' M4 spurious-FAIL |
 | **BE-14** VTF-344 | Cluster 6: Data Transmission | **NOT_DONE** | parked; only a non-validating display extractor |
 | **BE-15** VTF-345 | PDF report (stretch) | **NOT_DONE** | not started |
 
@@ -39,10 +39,10 @@
 - **Classification (finding #3):** the same/different-**chain** proxy *is* segment membership — `ComAebMap` collapses each CAN segment to one chain, so no separate classification was needed.
 - **Residual (documented, minor):** FILE NOT FOUND is applied only to BY_IDENTITY blocks whose identity has an `ID` (not ACO's positional `aco_fmaId` nor forwarding's `CAN_TX_ID`); DT MISSING is results-only (the scalar-row DT table has no array slot). Registry finalisation / M4 still parked. See *vtf-338-scope.md*.
 
-### BE-09 (PARTIAL) — Cluster 2 IOEXB ACO
+### BE-09 (DONE — 2026-07-01) — Cluster 2 IOEXB ACO
 - **Done:** ID + SECTION ownership on `CFG_SECTION_OUT` via POSITIONAL per-slot validation; re-sequenced config correctly FAILs (slot-order is load-bearing, tested).
 - **Covered (revised 2026-06-24):** **card count** and the **≤16 bound** are enforced by POSITIONAL matching — the expected sequence is the FCT-derived 2×cards, so an ADC with the wrong number of `CFG_SECTION_OUT` blocks fails (missing slot or `UNEXPECTED_OCCURRENCE`); >16 can only arise if the FCT itself specifies >8 cards (baseline-self-validation, out of scope — finding #4).
-- **Not done:** IoExb **rack position** — the only genuine residual, and only if it is actually a required check; the POSITIONAL `position` is a slot ordinal, not a physical rack value, and the *source* field is unidentified.
+- **Rack position — RESOLVED (user-confirmed 2026-07-01): the physical slot order == the `CFG_SECTION_OUT` block order, and there is no separate rack-slot field.** So "IoExb in the wrong rack position" is exactly what the POSITIONAL per-slot matching already catches (the i-th block validated against the i-th expected card). No separate check to build → **Cluster 2 complete.**
 
 ### BE-10 (MOSTLY) — Cluster 3 Track Section
 > **"Station layout" dropped (2026-06-24):** the baseline (PDQ + FCT) is the **sole source of truth**, so all four sub-checks are **ADC-vs-baseline** — no external input. "Correct sensors per track section" = ADC vs Control Table `dpIn`/`dpOut`; "supervisory track config" = ADC vs `fadcAutoReset`. (Validating the baseline against physical reality would need an external source, but that is out of scope.)
@@ -62,7 +62,7 @@
 ### BE-13 (PARTIAL) — Cluster 5 Supervisor
 - **Done:** instanced per-`fadcAutoReset`-operand `LOGIC_TYPE` + `SLCT_TIMEOUT` (BY_IDENTITY {ID,SECTION} set-equality) — real composite-key path.
 - **Partial:** `RESET_TYPE`/`RESET_DELAY` present in the scalar pipeline but **mis-validated** by the mandatory default rule (finding #2) → spurious FAIL on absent optional supervisor blocks.
-- **Not done:** **dual-FMA (FMA1-vs-FMA2) RESET consistency** — not observable in any probe; the story attributes it to VTF-335 but it isn't built. *Confirm its true home (preprocessor vs this story) before scoping.* Also the duplicate-identity blind spot (finding #6).
+- **Dual-FMA (FMA1-vs-FMA2) RESET consistency — SUBSUMED (user-confirmed 2026-07-01), no separate check needed.** FMA1/FMA2 are the two *different* track sections one board evaluates; each FMA's supervisor RESET is validated against its baseline expectation, so any real reset misconfiguration already surfaces as a per-FMA mismatch. A dedicated "force FMA1 == FMA2" cross-check would be redundant (and wrong if the two sections are allowed different resets). **The only genuine residual is the M4 spurious-FAIL** on absent optional RESET blocks (finding #2) — fixing M4 makes the reset validation sound. Duplicate-identity blind spot (finding #6) stays consciously deferred.
 
 ### BE-14 (NOT_DONE) — Cluster 6 Data Transmission
 - Entirely parked: no `CFG_DATA_OUT` / `CFG_DATA_SAFETY_LEVELS` builder or evaluator, no `SAFE_OUT_FDBCK_QUAD ∈ {0,1}`, no `POSITION ∈ [0,31]`. Only a **display-only** `dataTransmissionDetails` extractor (no `ValidationResult` rows). Needs: a `DataTransmissionExpectationsBuilder` + engine wiring + the range mechanism (finding #4) + DT semantics frozen with AE. PDQ DT parsing already exists (BE-01/02); only the validation half is missing.
