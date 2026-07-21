@@ -27,6 +27,11 @@ import com.frauscher.ConfigurationValidationService.dto.pdq.TrackSection;
 class ForwardingExpectationsBuilderTest {
 
     private final ForwardingExpectationsBuilder builder = new ForwardingExpectationsBuilder();
+    private final BaselineInconsistencies problems = new BaselineInconsistencies();
+
+    private List<InstancedExpectation> build(ComAebMap fct, ControlTable ct) {
+        return builder.build(fct, BaselineIndex.build(fct, ct, problems), problems);
+    }
 
     @Test
     void crossComHeadForwardsFromHomeComToConsumingCom() {
@@ -38,7 +43,7 @@ class ForwardingExpectationsBuilderTest {
         ControlTable ct = new ControlTable(
                 List.of(track("TRKB", List.of("DPA"), List.of())), List.of());
 
-        List<InstancedExpectation> out = builder.build(fct, ct);
+        List<InstancedExpectation> out = build(fct, ct);
 
         assertEquals(1, out.size());
         InstancedExpectation e = out.get(0);
@@ -61,7 +66,7 @@ class ForwardingExpectationsBuilderTest {
         ControlTable ct = new ControlTable(
                 List.of(track("TRKB", List.of("DPA"), List.of())), List.of());
 
-        assertTrue(builder.build(fct, ct).isEmpty());
+        assertTrue(build(fct, ct).isEmpty());
     }
 
     @Test
@@ -79,7 +84,7 @@ class ForwardingExpectationsBuilderTest {
                 track("TRKB2", List.of("DPS"), List.of()),
                 track("TRKC", List.of("DPS"), List.of())), List.of());
 
-        List<InstancedExpectation> out = builder.build(fct, ct);
+        List<InstancedExpectation> out = build(fct, ct);
 
         assertEquals(2, out.size(), "duplicate (DPS,COMB) collapsed; (DPS,COMB) and (DPS,COMC) distinct");
         assertTrue(out.stream().allMatch(e -> e.fileId() == 100
@@ -100,7 +105,7 @@ class ForwardingExpectationsBuilderTest {
         ControlTable ct = new ControlTable(
                 List.of(track("TRKB", List.of(), List.of("DPA"))), List.of());
 
-        List<InstancedExpectation> out = builder.build(fct, ct);
+        List<InstancedExpectation> out = build(fct, ct);
 
         assertEquals(1, out.size());
         assertEquals(Map.of("CAN_TX_ID", "10", "DEST_COM", "200"), out.get(0).linkedId());

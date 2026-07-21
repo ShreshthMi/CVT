@@ -18,13 +18,18 @@ import com.frauscher.ConfigurationValidationService.dto.fct.FctCom;
 class IpSwitchExpectationsBuilderTest {
 
     private final IpSwitchExpectationsBuilder builder = new IpSwitchExpectationsBuilder();
+    private final BaselineInconsistencies problems = new BaselineInconsistencies();
+
+    private List<InstancedExpectation> build(ComAebMap fct) {
+        return builder.build(fct, problems);
+    }
 
     @Test
     void redundantComExpectsMandatoryOne() {
         ComAebMap fct = new ComAebMap(List.of(
                 new Chain(new FctCom("100", "COM100"), true, List.of())));
 
-        List<InstancedExpectation> out = builder.build(fct);
+        List<InstancedExpectation> out = build(fct);
 
         assertEquals(1, out.size());
         InstancedExpectation e = out.get(0);
@@ -41,7 +46,7 @@ class IpSwitchExpectationsBuilderTest {
         ComAebMap fct = new ComAebMap(List.of(
                 new Chain(new FctCom("200", "COM200"), false, List.of())));
 
-        List<InstancedExpectation> out = builder.build(fct);
+        List<InstancedExpectation> out = build(fct);
 
         assertEquals(1, out.size());
         InstancedExpectation e = out.get(0);
@@ -56,6 +61,6 @@ class IpSwitchExpectationsBuilderTest {
                 new Chain(new FctCom("100", "COM100"), true, List.of()),
                 new Chain(new FctCom("200", "COM200"), false, List.of())));
 
-        assertEquals(2, builder.build(fct).size());
+        assertEquals(2, build(fct).size());
     }
 }

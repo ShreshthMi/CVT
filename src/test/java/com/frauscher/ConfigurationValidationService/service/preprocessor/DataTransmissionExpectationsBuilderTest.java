@@ -1,7 +1,6 @@
 package com.frauscher.ConfigurationValidationService.service.preprocessor;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
@@ -15,16 +14,21 @@ import com.frauscher.ConfigurationValidationService.dto.fct.FctCom;
 import com.frauscher.ConfigurationValidationService.dto.pdq.DataSafetyLevel;
 import com.frauscher.ConfigurationValidationService.dto.pdq.DataTransmission;
 import com.frauscher.ConfigurationValidationService.dto.pdq.OutputDataTransmission;
-import com.frauscher.ConfigurationValidationService.exception.BaselineInconsistentException;
 
 /**
  * Cluster 1 (VTF-338) CFG_DATA_OUT expectations ({@link DataTransmissionExpectationsBuilder}): each PDQ DT
  * row (receiving DP paired with source DP by index) yields a BY_IDENTITY SLCT_TIMEOUT expectation on the
- * receiving AEB, 0 same-segment / 1 different-segment; misaligned sub-tables or an unresolvable DP → 400.
+ * receiving AEB, 0 same-segment / 1 different-segment; misaligned sub-tables skip the whole slice and an
+ * unresolvable DP skips its row (VTF-360: recorded, not thrown).
  */
 class DataTransmissionExpectationsBuilderTest {
 
     private final DataTransmissionExpectationsBuilder builder = new DataTransmissionExpectationsBuilder();
+    private final BaselineInconsistencies problems = new BaselineInconsistencies();
+
+    private List<InstancedExpectation> build(ComAebMap fct, DataTransmission dt) {
+        return builder.build(dt, BaselineIndex.build(fct, null, problems), problems);
+    }
 
     // segment 0 = {DP1A=5, DP2B=6}; segment 1 = {DP3A=7}
     private final ComAebMap fct = new ComAebMap(List.of(
@@ -40,7 +44,7 @@ class DataTransmissionExpectationsBuilderTest {
                 List.of(level("DP1A"), level("DP1A")),
                 List.of(output("DP2B"), output("DP3A")));
 
-        List<InstancedExpectation> exp = builder.build(fct, dt);
+        List<InstancedExpectation> exp = build(fct, dt);
 
         assertEquals(2, exp.size());
         // DP1A (seg 0) ← DP2B (seg 0) → physical, SLCT_TIMEOUT 0
@@ -55,25 +59,34 @@ class DataTransmissionExpectationsBuilderTest {
     }
 
     @Test
-    void misalignedSubTablesAreRejected() {
+    void misalignedSubTablesSkipTheWholeSlice() {
         DataTransmission dt = new DataTransmission(
                 List.of(level("DP1A"), level("DP1A")),
                 List.of(output("DP2B")));
-        assertThrows(BaselineInconsistentException.class, () -> builder.build(fct, dt));
+
+        assertTrue(build(fct, dt).isEmpty(), "index-pairing misaligned rows would derive wrong expectations");
+        assertEquals(List.of("Data Transmission sub-tables cannot be paired: "
+                + "2 data-safety-level row(s) vs 1 output row(s)"), problems.items());
     }
 
     @Test
-    void unresolvableSourceDpIsRejected() {
+    void unresolvableSourceDpSkipsItsRowOnly() {
         DataTransmission dt = new DataTransmission(
-                List.of(level("DP1A")),
-                List.of(output("DP_UNKNOWN")));
-        assertThrows(BaselineInconsistentException.class, () -> builder.build(fct, dt));
+                List.of(level("DP1A"), level("DP1A")),
+                List.of(output("DP_UNKNOWN"), output("DP2B")));
+
+        List<InstancedExpectation> exp = build(fct, dt);
+
+        assertEquals(List.of("Data Transmission source DP 'DP_UNKNOWN' has no matching DP in the FCT"),
+                problems.items());
+        assertEquals(1, exp.size(), "the healthy row still derives");
+        assertEquals("6", exp.get(0).linkedId().get("ID"));
     }
 
     @Test
     void nullOrEmptyDtYieldsNothing() {
-        assertTrue(builder.build(fct, null).isEmpty());
-        assertTrue(builder.build(fct, new DataTransmission(List.of(), List.of())).isEmpty());
+        assertTrue(build(fct, null).isEmpty());
+        assertTrue(build(fct, new DataTransmission(List.of(), List.of())).isEmpty());
     }
 
     private InstancedExpectation find(List<InstancedExpectation> exp, String sourceId) {

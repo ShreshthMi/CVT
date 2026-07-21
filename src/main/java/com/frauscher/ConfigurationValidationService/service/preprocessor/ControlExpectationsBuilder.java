@@ -11,12 +11,9 @@ import java.util.Set;
 
 import org.springframework.stereotype.Component;
 
-import com.frauscher.ConfigurationValidationService.dto.fct.ComAebMap;
 import com.frauscher.ConfigurationValidationService.dto.fct.EvaluatedFma;
 import com.frauscher.ConfigurationValidationService.dto.pdq.ControlTable;
-import com.frauscher.ConfigurationValidationService.dto.pdq.DpTableRow;
 import com.frauscher.ConfigurationValidationService.dto.pdq.TrackSection;
-import com.frauscher.ConfigurationValidationService.exception.BaselineInconsistentException;
 
 /**
  * Derives the {@code CFG_CONTROL} (CHC) instanced expectations + the derived
@@ -26,7 +23,7 @@ import com.frauscher.ConfigurationValidationService.exception.BaselineInconsiste
  * <p>Algorithm:</p>
  * <ol>
  *   <li>Signed sensor vector per track: {@code +1} per {@code dpIn} name, {@code −1} per {@code dpOut}
- *       (names → ids deferred to emission; classification works in names).</li>
+ *       (names → ids deferred to emission; classification works in trim-normalized names).</li>
  *   <li><b>Main vs combination</b> by signed-set arithmetic ({@code trackType} is NOT trusted): a track
  *       is a combination iff its vector equals the cancellation-sum of a subset (≥2) of the other
  *       tracks' vectors (non-negative {0,1} sums — a linear span would misclassify mains). Combination
@@ -40,8 +37,12 @@ import com.frauscher.ConfigurationValidationService.exception.BaselineInconsiste
  *       derived {@code CFG_AXCNT.BEHAV_INPUT3} = {@code "7"} iff boundary+{@code eChc=YES}, else
  *       {@code "6"}.</li>
  * </ol>
- * A middle DP shared by &gt;2 mains, an unresolved DP/track, or an {@code eChc=YES} boundary not on
- * exactly one main → {@code PHASE2_BASELINE_INCONSISTENT} (§3.3 build-time gate).
+ *
+ * <p>Unresolvable/unclassifiable DPs (VTF-360) are recorded in the {@link BaselineInconsistencies} and
+ * skipped per DP (their CFG_CONTROL + BEHAV_INPUT3 emissions); an unresolvable adjacent track skips
+ * just that one block. The same-sign junction case (an {@code eChc=YES} boundary DP on ≥2 main tracks
+ * — real ABS topology) is transitional: VTF-361 replaces the skip with real per-owning-track
+ * derivation.</p>
  */
 @Component
 public class ControlExpectationsBuilder {
@@ -55,17 +56,13 @@ public class ControlExpectationsBuilder {
     /** Generous bound on a combination's constituent count (real combinations are 2–3 mains). */
     private static final int MAX_COMBINATION_SIZE = 8;
 
-    public List<InstancedExpectation> build(ComAebMap fct, ControlTable controlTable) {
-        if (fct == null || fct.chains() == null
-                || controlTable == null || controlTable.trackSections() == null) {
+    public List<InstancedExpectation> build(
+            ControlTable controlTable, BaselineIndex index, BaselineInconsistencies problems) {
+        if (controlTable == null || controlTable.trackSections() == null) {
             return List.of();
         }
 
         List<TrackSection> tracks = controlTable.trackSections();
-        Map<String, Integer> idByDpName = idByDpName(fct);
-        Map<Integer, Integer> chainByDpId = chainByDpId(fct);
-        Map<String, EvaluatedFma> fmaByName = fmaByName(fct);
-        Map<String, Boolean> eChcByDpName = eChcByDpName(controlTable);
 
         List<Map<String, Integer>> vectors = new ArrayList<>(tracks.size());
         for (TrackSection t : tracks) {
@@ -97,7 +94,7 @@ public class ControlExpectationsBuilder {
 
         List<InstancedExpectation> out = new ArrayList<>();
         for (String dpName : dpNames) {
-            addForDp(out, dpName, plusByDp, minusByDp, tracks, idByDpName, chainByDpId, fmaByName, eChcByDpName);
+            addForDp(out, dpName, plusByDp, minusByDp, tracks, index, problems);
         }
         return out;
     }
@@ -108,43 +105,43 @@ public class ControlExpectationsBuilder {
             Map<String, List<Integer>> plusByDp,
             Map<String, List<Integer>> minusByDp,
             List<TrackSection> tracks,
-            Map<String, Integer> idByDpName,
-            Map<Integer, Integer> chainByDpId,
-            Map<String, EvaluatedFma> fmaByName,
-            Map<String, Boolean> eChcByDpName) {
+            BaselineIndex index,
+            BaselineInconsistencies problems) {
 
         List<Integer> plus = plusByDp.getOrDefault(dpName, List.of());
         List<Integer> minus = minusByDp.getOrDefault(dpName, List.of());
 
-        Integer fileId = idByDpName.get(dpName);
+        Integer fileId = index.idOfDp(dpName);
         if (fileId == null) {
-            throw new BaselineInconsistentException(
-                    "Counting-head DP '" + dpName + "' has no matching DP in the FCT");
+            problems.add("Counting-head DP '" + dpName + "' has no matching DP in the FCT");
+            return;
         }
-        Integer thisChain = chainByDpId.get(fileId);
+        Integer thisChain = index.chainOfDpId(fileId);
 
         boolean middle = !plus.isEmpty() && !minus.isEmpty();
         if (middle) {
             if (plus.size() + minus.size() > 2) {
-                throw new BaselineInconsistentException(
-                        "Middle counting-head DP '" + dpName + "' is shared by more than 2 main tracks");
+                problems.add("Middle counting-head DP '" + dpName + "' is shared by more than 2 main tracks");
+                return;
             }
             // exactly one + and one − main track → the 2 adjacent tracks.
-            addControlBlock(out, fileId, thisChain, tracks.get(plus.get(0)), fmaByName, chainByDpId);
-            addControlBlock(out, fileId, thisChain, tracks.get(minus.get(0)), fmaByName, chainByDpId);
+            addControlBlock(out, fileId, thisChain, tracks.get(plus.get(0)), index, problems);
+            addControlBlock(out, fileId, thisChain, tracks.get(minus.get(0)), index, problems);
             out.add(InstancedExpectation.single(fileId, AXCNT, BEHAV_INPUT3, "6"));
             return;
         }
 
         // boundary (single sign)
         List<Integer> owners = plus.isEmpty() ? minus : plus;
-        boolean eChcYes = Boolean.TRUE.equals(eChcByDpName.get(dpName));
+        boolean eChcYes = Boolean.TRUE.equals(index.eChcOfDp(dpName));
         if (eChcYes) {
             if (owners.size() != 1) {
-                throw new BaselineInconsistentException(
-                        "Boundary counting-head DP '" + dpName + "' (eChc=YES) is not on exactly one main track");
+                // Transitional (VTF-361 derives the junction case): record + skip this DP.
+                problems.add("Boundary counting-head DP '" + dpName
+                        + "' (eChc=YES) is not on exactly one main track");
+                return;
             }
-            addControlBlock(out, fileId, thisChain, tracks.get(owners.get(0)), fmaByName, chainByDpId);
+            addControlBlock(out, fileId, thisChain, tracks.get(owners.get(0)), index, problems);
             out.add(InstancedExpectation.single(fileId, AXCNT, BEHAV_INPUT3, "7"));
         } else {
             out.add(InstancedExpectation.single(fileId, AXCNT, BEHAV_INPUT3, "6"));
@@ -156,17 +153,20 @@ public class ControlExpectationsBuilder {
             int fileId,
             Integer thisChain,
             TrackSection refTrack,
-            Map<String, EvaluatedFma> fmaByName,
-            Map<Integer, Integer> chainByDpId) {
+            BaselineIndex index,
+            BaselineInconsistencies problems) {
 
-        EvaluatedFma ref = fmaByName.get(refTrack.name());
+        EvaluatedFma ref = index.fmaByName(refTrack.name());
         if (ref == null) {
-            throw new BaselineInconsistentException(
-                    "Adjacent track '" + refTrack.name() + "' has no matching FCT FMA");
+            problems.add("Adjacent track '" + refTrack.name() + "' has no matching FCT FMA");
+            return;
         }
-        int refDpId = parseId(ref.dpId(), "evaluating DP of track " + refTrack.name());
+        Integer refDpId = BaselineIndex.parseId(ref.dpId(), "evaluating DP of track " + refTrack.name(), problems);
+        if (refDpId == null) {
+            return; // skip just this block; the malformed id is already recorded.
+        }
         String section = ref.fmaId() == null ? "" : ref.fmaId().trim();
-        int slctTimeout = Objects.equals(thisChain, chainByDpId.get(refDpId)) ? 0 : 1;
+        int slctTimeout = Objects.equals(thisChain, index.chainOfDpId(refDpId)) ? 0 : 1;
 
         Map<String, String> linkedId = new LinkedHashMap<>();
         linkedId.put(ID, String.valueOf(refDpId));
@@ -236,91 +236,24 @@ public class ControlExpectationsBuilder {
         return nonZero == target.size();
     }
 
+    /** Signed sensor vector, keyed by trim-normalized DP name (matching the {@link BaselineIndex} probes). */
     private Map<String, Integer> signedVector(TrackSection t) {
         Map<String, Integer> v = new HashMap<>();
         if (t.dpIn() != null) {
             for (String d : t.dpIn()) {
-                v.merge(d, 1, Integer::sum);
+                if (d != null) {
+                    v.merge(d.trim(), 1, Integer::sum);
+                }
             }
         }
         if (t.dpOut() != null) {
             for (String d : t.dpOut()) {
-                v.merge(d, -1, Integer::sum);
+                if (d != null) {
+                    v.merge(d.trim(), -1, Integer::sum);
+                }
             }
         }
         v.entrySet().removeIf(e -> e.getValue() == 0);
         return v;
-    }
-
-    // ---- shared FCT / Control-Table lookups ----
-
-    private Map<String, Integer> idByDpName(ComAebMap fct) {
-        Map<String, Integer> map = new LinkedHashMap<>();
-        for (var chain : fct.chains()) {
-            if (chain.aebs() == null) {
-                continue;
-            }
-            for (var aeb : chain.aebs()) {
-                if (aeb.dpName() != null) {
-                    map.put(aeb.dpName(), parseId(aeb.dpId(), "DP " + aeb.dpName()));
-                }
-            }
-        }
-        return map;
-    }
-
-    private Map<Integer, Integer> chainByDpId(ComAebMap fct) {
-        Map<Integer, Integer> map = new LinkedHashMap<>();
-        List<com.frauscher.ConfigurationValidationService.dto.fct.Chain> chains = fct.chains();
-        for (int i = 0; i < chains.size(); i++) {
-            var chain = chains.get(i);
-            if (chain.aebs() == null) {
-                continue;
-            }
-            for (var aeb : chain.aebs()) {
-                map.put(parseId(aeb.dpId(), "DP " + aeb.dpName()), i);
-            }
-        }
-        return map;
-    }
-
-    private Map<String, EvaluatedFma> fmaByName(ComAebMap fct) {
-        Map<String, EvaluatedFma> map = new LinkedHashMap<>();
-        for (var chain : fct.chains()) {
-            if (chain.aebs() == null) {
-                continue;
-            }
-            for (var aeb : chain.aebs()) {
-                if (aeb.evaluatedFmas() == null) {
-                    continue;
-                }
-                for (EvaluatedFma fma : aeb.evaluatedFmas()) {
-                    if (fma.fmaName() != null) {
-                        map.putIfAbsent(fma.fmaName(), fma);
-                    }
-                }
-            }
-        }
-        return map;
-    }
-
-    private Map<String, Boolean> eChcByDpName(ControlTable controlTable) {
-        Map<String, Boolean> map = new LinkedHashMap<>();
-        if (controlTable.dpTable() != null) {
-            for (DpTableRow row : controlTable.dpTable()) {
-                if (row.name() != null) {
-                    map.put(row.name(), row.eChc());
-                }
-            }
-        }
-        return map;
-    }
-
-    private int parseId(String value, String what) {
-        try {
-            return Integer.parseInt(value.trim());
-        } catch (NumberFormatException | NullPointerException e) {
-            throw new BaselineInconsistentException("Non-numeric id for " + what + ": " + value);
-        }
     }
 }

@@ -8,12 +8,10 @@ import java.util.Objects;
 
 import org.springframework.stereotype.Component;
 
-import com.frauscher.ConfigurationValidationService.dto.fct.ComAebMap;
 import com.frauscher.ConfigurationValidationService.dto.fct.EvaluatedFma;
 import com.frauscher.ConfigurationValidationService.dto.pdq.ControlTable;
 import com.frauscher.ConfigurationValidationService.dto.pdq.FadcAutoReset;
 import com.frauscher.ConfigurationValidationService.dto.pdq.TrackSection;
-import com.frauscher.ConfigurationValidationService.exception.BaselineInconsistentException;
 
 /**
  * Derives the {@code CFG_SUPERVIS_FMA1}/{@code CFG_SUPERVIS_FMA2} supervisor instanced expectations
@@ -27,8 +25,10 @@ import com.frauscher.ConfigurationValidationService.exception.BaselineInconsiste
  * = chain(R) == chain(host) ? 0 : 1}. {@code RESET_TYPE}/{@code RESET_DELAY} are scalar (the cqIR
  * CFG_SUPERVIS_FMA* values in M3's bucket), not emitted here.</p>
  *
- * <p>A null {@code fadcAutoReset} or a null operator ⇒ no supervisor block (§5.2 requires OR/AND). An
- * operand with no matching FCT FMA is a malformed baseline → {@code PHASE2_BASELINE_INCONSISTENT}.</p>
+ * <p>A null {@code fadcAutoReset} or a null operator ⇒ no supervisor block (§5.2 requires OR/AND).
+ * Unresolvable references (VTF-360): an unresolvable host or an unsupported operator skips the whole
+ * track, an unresolvable operand skips just that operand — each recorded in the
+ * {@link BaselineInconsistencies}.</p>
  */
 @Component
 public class SupervisorExpectationsBuilder {
@@ -39,14 +39,11 @@ public class SupervisorExpectationsBuilder {
     private static final String ID = "ID";
     private static final String SECTION = "SECTION";
 
-    public List<InstancedExpectation> build(ComAebMap fct, ControlTable controlTable) {
-        if (fct == null || fct.chains() == null
-                || controlTable == null || controlTable.trackSections() == null) {
+    public List<InstancedExpectation> build(
+            ControlTable controlTable, BaselineIndex index, BaselineInconsistencies problems) {
+        if (controlTable == null || controlTable.trackSections() == null) {
             return List.of();
         }
-
-        Map<String, EvaluatedFma> fmaByName = fmaByName(fct);
-        Map<Integer, Integer> chainByDpId = chainByDpId(fct);
 
         List<InstancedExpectation> out = new ArrayList<>();
         for (TrackSection track : controlTable.trackSections()) {
@@ -54,7 +51,7 @@ public class SupervisorExpectationsBuilder {
             if (fadc == null || fadc.op() == null) {
                 continue; // §5.2: a supervisor block requires an OR/AND operator.
             }
-            addTrack(out, track, fadc, fmaByName, chainByDpId);
+            addTrack(out, track, fadc, index, problems);
         }
         return out;
     }
@@ -63,94 +60,58 @@ public class SupervisorExpectationsBuilder {
             List<InstancedExpectation> out,
             TrackSection track,
             FadcAutoReset fadc,
-            Map<String, EvaluatedFma> fmaByName,
-            Map<Integer, Integer> chainByDpId) {
+            BaselineIndex index,
+            BaselineInconsistencies problems) {
 
-        EvaluatedFma host = fmaByName.get(track.name());
+        EvaluatedFma host = index.fmaByName(track.name());
         if (host == null) {
-            throw new BaselineInconsistentException(
-                    "Track '" + track.name() + "' with a FAdC auto-reset has no matching FCT FMA");
+            problems.add("Track '" + track.name() + "' with a FAdC auto-reset has no matching FCT FMA");
+            return;
         }
-        int fileId = parseId(host.dpId(), "evaluating DP of track " + track.name());
-        String block = BLOCK_PREFIX + (parseId(host.fmaId(), "fmaId of track " + track.name()) + 1);
-        String logicType = String.valueOf(logicType(fadc.op(), track.name()));
-        Integer fileChain = chainByDpId.get(fileId);
+        Integer fileId = BaselineIndex.parseId(host.dpId(), "evaluating DP of track " + track.name(), problems);
+        Integer hostFmaId = BaselineIndex.parseId(host.fmaId(), "fmaId of track " + track.name(), problems);
+        Integer logicType = logicType(fadc.op(), track.name(), problems);
+        if (fileId == null || hostFmaId == null || logicType == null) {
+            return; // skip the whole track; LOGIC_TYPE / the host coordinates are underivable.
+        }
+        String block = BLOCK_PREFIX + (hostFmaId + 1);
+        Integer fileChain = index.chainOfDpId(fileId);
 
         if (fadc.operands() == null) {
             return;
         }
         for (String operand : fadc.operands()) {
-            EvaluatedFma ref = fmaByName.get(operand);
+            EvaluatedFma ref = index.fmaByName(operand);
             if (ref == null) {
-                throw new BaselineInconsistentException(
-                        "FAdC auto-reset operand '" + operand + "' of track '" + track.name()
-                                + "' has no matching FCT FMA");
+                problems.add("FAdC auto-reset operand '" + operand + "' of track '" + track.name()
+                        + "' has no matching FCT FMA");
+                continue;
             }
-            int refId = parseId(ref.dpId(), "evaluating DP of operand " + operand);
-            int refSection = parseId(ref.fmaId(), "fmaId of operand " + operand);
+            Integer refId = BaselineIndex.parseId(ref.dpId(), "evaluating DP of operand " + operand, problems);
+            Integer refSection = BaselineIndex.parseId(ref.fmaId(), "fmaId of operand " + operand, problems);
+            if (refId == null || refSection == null) {
+                continue; // skip this operand only.
+            }
 
             Map<String, String> linkedId = new LinkedHashMap<>();
             linkedId.put(ID, String.valueOf(refId));
             linkedId.put(SECTION, String.valueOf(refSection));
 
-            int slctTimeout = Objects.equals(fileChain, chainByDpId.get(refId)) ? 0 : 1;
+            int slctTimeout = Objects.equals(fileChain, index.chainOfDpId(refId)) ? 0 : 1;
 
-            out.add(InstancedExpectation.byIdentity(fileId, block, linkedId, LOGIC_TYPE, logicType));
+            out.add(InstancedExpectation.byIdentity(fileId, block, linkedId, LOGIC_TYPE, String.valueOf(logicType)));
             out.add(InstancedExpectation.byIdentity(fileId, block, linkedId, SLCT_TIMEOUT, String.valueOf(slctTimeout)));
         }
     }
 
-    private int logicType(String op, String trackName) {
+    private Integer logicType(String op, String trackName, BaselineInconsistencies problems) {
         if ("OR".equalsIgnoreCase(op)) {
             return 0;
         }
         if ("AND".equalsIgnoreCase(op)) {
             return 1;
         }
-        throw new BaselineInconsistentException(
-                "Unsupported FAdC auto-reset operator '" + op + "' on track '" + trackName + "'");
-    }
-
-    private Map<String, EvaluatedFma> fmaByName(ComAebMap fct) {
-        Map<String, EvaluatedFma> map = new LinkedHashMap<>();
-        for (var chain : fct.chains()) {
-            if (chain.aebs() == null) {
-                continue;
-            }
-            for (var aeb : chain.aebs()) {
-                if (aeb.evaluatedFmas() == null) {
-                    continue;
-                }
-                for (EvaluatedFma fma : aeb.evaluatedFmas()) {
-                    if (fma.fmaName() != null) {
-                        map.putIfAbsent(fma.fmaName(), fma);
-                    }
-                }
-            }
-        }
-        return map;
-    }
-
-    private Map<Integer, Integer> chainByDpId(ComAebMap fct) {
-        Map<Integer, Integer> map = new LinkedHashMap<>();
-        List<com.frauscher.ConfigurationValidationService.dto.fct.Chain> chains = fct.chains();
-        for (int i = 0; i < chains.size(); i++) {
-            var chain = chains.get(i);
-            if (chain.aebs() == null) {
-                continue;
-            }
-            for (var aeb : chain.aebs()) {
-                map.put(parseId(aeb.dpId(), "DP " + aeb.dpName()), i);
-            }
-        }
-        return map;
-    }
-
-    private int parseId(String value, String what) {
-        try {
-            return Integer.parseInt(value.trim());
-        } catch (NumberFormatException | NullPointerException e) {
-            throw new BaselineInconsistentException("Non-numeric id for " + what + ": " + value);
-        }
+        problems.add("Unsupported FAdC auto-reset operator '" + op + "' on track '" + trackName + "'");
+        return null;
     }
 }

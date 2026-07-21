@@ -1,7 +1,6 @@
 package com.frauscher.ConfigurationValidationService.service.preprocessor;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
@@ -17,16 +16,20 @@ import com.frauscher.ConfigurationValidationService.dto.fct.FctCom;
 import com.frauscher.ConfigurationValidationService.dto.pdq.ControlTable;
 import com.frauscher.ConfigurationValidationService.dto.pdq.DpTableRow;
 import com.frauscher.ConfigurationValidationService.dto.pdq.TrackSection;
-import com.frauscher.ConfigurationValidationService.exception.BaselineInconsistentException;
 
 /**
  * Unit tests for the counting-head derivation (VTF-335 M5 #1 / v2-expectations-contract.md §5.1):
  * one BY_IDENTITY DIR_INV+SLCT_TIMEOUT pair per head, every EvaluatedFma (incl. combination tracks),
- * and the §3.3 malformed-baseline guards.
+ * and the §3.3 malformed-baseline cases (VTF-360: recorded + skipped per head, not thrown).
  */
 class CountingHeadExpectationsBuilderTest {
 
     private final CountingHeadExpectationsBuilder builder = new CountingHeadExpectationsBuilder();
+    private final BaselineInconsistencies problems = new BaselineInconsistencies();
+
+    private List<InstancedExpectation> build(ComAebMap fct, ControlTable ct) {
+        return builder.build(fct, BaselineIndex.build(fct, ct, problems), problems);
+    }
 
     @Test
     void emitsDirInvAndSlctTimeoutPerHead() {
@@ -42,7 +45,7 @@ class CountingHeadExpectationsBuilderTest {
                 List.of(track("TRK1", List.of("DPB"), List.of("DPC"))),
                 List.of(dp("DPB", "ABOVE THE RAIL"), dp("DPC", "BELOW THE RAIL")));
 
-        List<InstancedExpectation> out = builder.build(fct, ct);
+        List<InstancedExpectation> out = build(fct, ct);
 
         assertEquals(4, out.size(), "2 heads x (DIR_INV + SLCT_TIMEOUT)");
         // DPB: in (isOut=false) + ABOVE (isBelow=false) -> DIR_INV 0; same chain -> SLCT_TIMEOUT 0.
@@ -64,7 +67,7 @@ class CountingHeadExpectationsBuilderTest {
                 List.of(track("TRK1", List.of("DPB"), List.of())),
                 List.of(dp("DPB", "BELOW THE RAIL")));
 
-        List<InstancedExpectation> out = builder.build(fct, ct);
+        List<InstancedExpectation> out = build(fct, ct);
 
         assertEquals("1", value(out, "CFG_ZP_FMA2", "11", "DIR_INV"));
     }
@@ -80,27 +83,34 @@ class CountingHeadExpectationsBuilderTest {
                 List.of(track("SUP1", List.of("DPB"), List.of())),
                 List.of(dp("DPB", "ABOVE THE RAIL")));
 
-        List<InstancedExpectation> out = builder.build(fct, ct);
+        List<InstancedExpectation> out = build(fct, ct);
 
         assertTrue(out.stream().anyMatch(e -> e.block().equals("CFG_ZP_FMA1")
                 && e.linkedId().equals(Map.of("ID", "11"))));
     }
 
     @Test
-    void headAbsentFromDpTableIsInconsistent() {
+    void headAbsentFromDpTableIsRecordedAndSkipped() {
+        // DPB missing from the dpTable, DPC healthy: the run continues, DPC still derives.
         ComAebMap fct = new ComAebMap(List.of(
                 chain("COMA", "100",
                         aeb("DPA", "10", fma("TRK1", "0", "10")),
-                        aeb("DPB", "11"))));
+                        aeb("DPB", "11"),
+                        aeb("DPC", "12"))));
         ControlTable ct = new ControlTable(
-                List.of(track("TRK1", List.of("DPB"), List.of())),
-                List.of()); // DPB not in dpTable
+                List.of(track("TRK1", List.of("DPB"), List.of("DPC"))),
+                List.of(dp("DPC", "ABOVE THE RAIL"))); // DPB not in dpTable
 
-        assertThrows(BaselineInconsistentException.class, () -> builder.build(fct, ct));
+        List<InstancedExpectation> out = build(fct, ct);
+
+        assertEquals(List.of("Counting head 'DPB' of track 'TRK1' is absent from the PDQ DP table"),
+                problems.items());
+        assertEquals(2, out.size(), "the healthy head DPC still derives its pair");
+        assertEquals("1", value(out, "CFG_ZP_FMA1", "12", "DIR_INV")); // out + ABOVE -> disagree
     }
 
     @Test
-    void headAbsentFromFctIsInconsistent() {
+    void headAbsentFromFctIsRecordedAndSkipped() {
         ComAebMap fct = new ComAebMap(List.of(
                 chain("COMA", "100",
                         aeb("DPA", "10", fma("TRK1", "0", "10")))));
@@ -108,7 +118,30 @@ class CountingHeadExpectationsBuilderTest {
                 List.of(track("TRK1", List.of("DPGHOST"), List.of())),
                 List.of(dp("DPGHOST", "ABOVE THE RAIL"))); // in dpTable but no FCT DP
 
-        assertThrows(BaselineInconsistentException.class, () -> builder.build(fct, ct));
+        List<InstancedExpectation> out = build(fct, ct);
+
+        assertEquals(List.of("Counting head 'DPGHOST' of track 'TRK1' has no matching DP in the FCT"),
+                problems.items());
+        assertTrue(out.isEmpty());
+    }
+
+    @Test
+    void multipleProblemsAccumulateInOneRun() {
+        // Ghost head + malformed dpId on another AEB: both facts collected, nothing thrown here.
+        ComAebMap fct = new ComAebMap(List.of(
+                chain("COMA", "100",
+                        aeb("DPA", "10", fma("TRK1", "0", "10")),
+                        aeb("DPBAD", "notanumber"))));
+        ControlTable ct = new ControlTable(
+                List.of(track("TRK1", List.of("DPGHOST"), List.of())),
+                List.of(dp("DPGHOST", "ABOVE THE RAIL")));
+
+        build(fct, ct);
+
+        assertEquals(List.of(
+                "Non-numeric id for DP DPBAD: notanumber",
+                "Counting head 'DPGHOST' of track 'TRK1' has no matching DP in the FCT"),
+                problems.items());
     }
 
     // --- builders ---

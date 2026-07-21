@@ -1,18 +1,15 @@
 package com.frauscher.ConfigurationValidationService.service.preprocessor;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 import org.springframework.stereotype.Component;
 
-import com.frauscher.ConfigurationValidationService.dto.fct.ComAebMap;
 import com.frauscher.ConfigurationValidationService.dto.pdq.DataSafetyLevel;
 import com.frauscher.ConfigurationValidationService.dto.pdq.DataTransmission;
 import com.frauscher.ConfigurationValidationService.dto.pdq.OutputDataTransmission;
-import com.frauscher.ConfigurationValidationService.exception.BaselineInconsistentException;
 
 /**
  * Derives the {@code CFG_DATA_OUT} instanced expectations for Cluster 1 (VTF-338) — the DT slice Cluster 1
@@ -24,9 +21,11 @@ import com.frauscher.ConfigurationValidationService.exception.BaselineInconsiste
  * §6.6): {@code dataSafetyLevels[i]} carries the <b>receiving</b> DP ({@code dpName}) and
  * {@code outputDataTransmission[i]} the <b>source</b> DP ({@code sourceDpName}) of the same row. So per
  * paired row: {@code fileId = idOf(receivingDp)}, {@code linkedId = {ID: idOf(sourceDp)}},
- * {@code SLCT_TIMEOUT = chain(source) == chain(receiver) ? 0 : 1}, {@code matchMode = BY_IDENTITY}. A
- * length mismatch between the two sub-tables (they can only be paired by row) or a DP name that resolves to
- * no FCT AEB is a malformed baseline (§3.3) → {@code PHASE2_BASELINE_INCONSISTENT}.</p>
+ * {@code SLCT_TIMEOUT = chain(source) == chain(receiver) ? 0 : 1}, {@code matchMode = BY_IDENTITY}.</p>
+ *
+ * <p>Malformed baselines (VTF-360): a length mismatch between the two sub-tables skips the <b>whole</b>
+ * {@code CFG_DATA_OUT} slice (they can only be paired by row — prefix-pairing would silently pair wrong);
+ * an unresolvable DP name skips just that row. Both are recorded in the {@link BaselineInconsistencies}.</p>
  */
 @Component
 public class DataTransmissionExpectationsBuilder {
@@ -35,8 +34,8 @@ public class DataTransmissionExpectationsBuilder {
     private static final String SLCT_TIMEOUT = "SLCT_TIMEOUT";
     private static final String ID = "ID";
 
-    public List<InstancedExpectation> build(ComAebMap fct, DataTransmission dt) {
-        if (fct == null || fct.chains() == null || dt == null) {
+    public List<InstancedExpectation> build(DataTransmission dt, BaselineIndex index, BaselineInconsistencies problems) {
+        if (dt == null) {
             return List.of();
         }
         List<DataSafetyLevel> levels = dt.dataSafetyLevels();
@@ -45,69 +44,30 @@ public class DataTransmissionExpectationsBuilder {
             return List.of();
         }
         if (levels.size() != outputs.size()) {
-            throw new BaselineInconsistentException(
-                    "Data Transmission sub-tables cannot be paired: " + levels.size()
-                            + " data-safety-level row(s) vs " + outputs.size() + " output row(s)");
+            problems.add("Data Transmission sub-tables cannot be paired: " + levels.size()
+                    + " data-safety-level row(s) vs " + outputs.size() + " output row(s)");
+            return List.of(); // whole-slice skip — index-pairing misaligned rows would derive wrong expectations.
         }
-
-        Map<String, Integer> idByDpName = idByDpName(fct);
-        Map<Integer, Integer> chainByDpId = chainByDpId(fct);
 
         List<InstancedExpectation> out = new ArrayList<>();
         for (int i = 0; i < levels.size(); i++) {
-            int receivingId = resolve(idByDpName, levels.get(i).dpName(), "receiving DP");
-            int sourceId = resolve(idByDpName, outputs.get(i).sourceDpName(), "source DP");
-            int slctTimeout = Objects.equals(chainByDpId.get(receivingId), chainByDpId.get(sourceId)) ? 0 : 1;
+            Integer receivingId = resolve(index, levels.get(i).dpName(), "receiving DP", problems);
+            Integer sourceId = resolve(index, outputs.get(i).sourceDpName(), "source DP", problems);
+            if (receivingId == null || sourceId == null) {
+                continue; // skip just this row; rows are independent.
+            }
+            int slctTimeout = Objects.equals(index.chainOfDpId(receivingId), index.chainOfDpId(sourceId)) ? 0 : 1;
             out.add(InstancedExpectation.byIdentity(
                     receivingId, BLOCK, Map.of(ID, String.valueOf(sourceId)), SLCT_TIMEOUT, String.valueOf(slctTimeout)));
         }
         return out;
     }
 
-    private int resolve(Map<String, Integer> idByDpName, String dpName, String role) {
-        Integer id = dpName == null ? null : idByDpName.get(dpName);
+    private Integer resolve(BaselineIndex index, String dpName, String role, BaselineInconsistencies problems) {
+        Integer id = index.idOfDp(dpName);
         if (id == null) {
-            throw new BaselineInconsistentException(
-                    "Data Transmission " + role + " '" + dpName + "' has no matching DP in the FCT");
+            problems.add("Data Transmission " + role + " '" + dpName + "' has no matching DP in the FCT");
         }
         return id;
-    }
-
-    private Map<String, Integer> idByDpName(ComAebMap fct) {
-        Map<String, Integer> map = new LinkedHashMap<>();
-        for (var chain : fct.chains()) {
-            if (chain.aebs() == null) {
-                continue;
-            }
-            for (var aeb : chain.aebs()) {
-                if (aeb.dpName() != null) {
-                    map.put(aeb.dpName(), parseId(aeb.dpId(), "DP " + aeb.dpName()));
-                }
-            }
-        }
-        return map;
-    }
-
-    private Map<Integer, Integer> chainByDpId(ComAebMap fct) {
-        Map<Integer, Integer> map = new LinkedHashMap<>();
-        List<com.frauscher.ConfigurationValidationService.dto.fct.Chain> chains = fct.chains();
-        for (int i = 0; i < chains.size(); i++) {
-            var chain = chains.get(i);
-            if (chain.aebs() == null) {
-                continue;
-            }
-            for (var aeb : chain.aebs()) {
-                map.put(parseId(aeb.dpId(), "DP " + aeb.dpName()), i);
-            }
-        }
-        return map;
-    }
-
-    private int parseId(String value, String what) {
-        try {
-            return Integer.parseInt(value.trim());
-        } catch (NumberFormatException | NullPointerException e) {
-            throw new BaselineInconsistentException("Non-numeric id for " + what + ": " + value);
-        }
     }
 }

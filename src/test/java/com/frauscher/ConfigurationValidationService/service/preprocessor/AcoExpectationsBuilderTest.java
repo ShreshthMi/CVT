@@ -20,6 +20,11 @@ import com.frauscher.ConfigurationValidationService.dto.fct.FctCom;
 class AcoExpectationsBuilderTest {
 
     private final AcoExpectationsBuilder builder = new AcoExpectationsBuilder();
+    private final BaselineInconsistencies problems = new BaselineInconsistencies();
+
+    private List<InstancedExpectation> build(ComAebMap fct) {
+        return builder.build(fct, BaselineIndex.build(fct, null, problems), problems);
+    }
 
     @Test
     void emitsTwoPositionsPerCardWithFillerForSingleTrack() {
@@ -34,7 +39,7 @@ class AcoExpectationsBuilderTest {
                 chain("COMB", "200",
                         aeb("DP30", "30"))));
 
-        List<InstancedExpectation> out = builder.build(fct);
+        List<InstancedExpectation> out = build(fct);
 
         assertEquals(4 * 3, out.size(), "2 cards x 2 slots x (ID + SECTION + SLCT_TIMEOUT)");
 
@@ -57,7 +62,26 @@ class AcoExpectationsBuilderTest {
     @Test
     void aebWithoutAcoEmitsNothing() {
         ComAebMap fct = new ComAebMap(List.of(chain("COMA", "100", aeb("DPA", "10"))));
-        assertEquals(0, builder.build(fct).size());
+        assertEquals(0, build(fct).size());
+    }
+
+    @Test
+    void unresolvableSlotSkipsTheWholeHost() {
+        // Card 2's output id is malformed: the ENTIRE host emits nothing (POSITIONAL slots must not
+        // shift), the problem is recorded, and the healthy sibling host still derives.
+        ComAebMap fct = new ComAebMap(List.of(
+                chain("COMA", "100",
+                        aeb("DPA", "10",
+                                card("T1", "0", "10", null, null, null),
+                                card("T2", "0", "oops", null, null, null)),
+                        aeb("DPB", "11",
+                                card("T3", "0", "11", null, null, null)))));
+
+        List<InstancedExpectation> out = build(fct);
+
+        assertEquals(List.of("Non-numeric id for ACO output DP on host DPA: oops"), problems.items());
+        assertEquals(0, out.stream().filter(e -> e.fileId() == 10).count(), "whole host DPA skipped");
+        assertEquals(2 * 3, out.stream().filter(e -> e.fileId() == 11).count(), "host DPB still derives");
     }
 
     // --- builders ---

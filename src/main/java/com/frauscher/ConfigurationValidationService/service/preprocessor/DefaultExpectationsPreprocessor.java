@@ -17,6 +17,11 @@ import lombok.RequiredArgsConstructor;
  * control, v2-expectations-contract.md §3) and then builds the {@link Expectations} buckets: the scalar
  * bucket (§4) and the full instanced bucket (§5 — counting heads, supervisors, ACO, control, IP switch,
  * forwarding). Emission-only — BE-06 consumes the expectations against the actual ADC values.
+ *
+ * <p>VTF-360: the builders share one trim-normalized {@link BaselineIndex} and record every
+ * unresolvable reference into a {@link BaselineInconsistencies} collector instead of first-throwing —
+ * the end-check then rejects with ONE {@code PHASE2_BASELINE_INCONSISTENT} enumerating the complete
+ * problem list (vtf-371-design.md §2). A clean baseline proceeds unchanged.</p>
  */
 @Service
 @RequiredArgsConstructor
@@ -42,15 +47,21 @@ public class DefaultExpectationsPreprocessor implements ExpectationsPreprocessor
         ComAebMap fct = userInput.getFctData();
         ControlTable controlTable = userInput.getPdqData().getControlTable();
 
+        BaselineInconsistencies problems = new BaselineInconsistencies();
+        BaselineIndex index = BaselineIndex.build(fct, controlTable, problems);
+
         List<InstancedExpectation> instancedExpectations = new ArrayList<>();
-        instancedExpectations.addAll(countingHeadExpectationsBuilder.build(fct, controlTable));
-        instancedExpectations.addAll(supervisorExpectationsBuilder.build(fct, controlTable));
-        instancedExpectations.addAll(acoExpectationsBuilder.build(fct));
-        instancedExpectations.addAll(controlExpectationsBuilder.build(fct, controlTable));
-        instancedExpectations.addAll(ipSwitchExpectationsBuilder.build(fct));
-        instancedExpectations.addAll(forwardingExpectationsBuilder.build(fct, controlTable));
-        instancedExpectations.addAll(
-                dataTransmissionExpectationsBuilder.build(fct, userInput.getPdqData().getDataTransmission()));
+        instancedExpectations.addAll(countingHeadExpectationsBuilder.build(fct, index, problems));
+        instancedExpectations.addAll(supervisorExpectationsBuilder.build(controlTable, index, problems));
+        instancedExpectations.addAll(acoExpectationsBuilder.build(fct, index, problems));
+        instancedExpectations.addAll(controlExpectationsBuilder.build(controlTable, index, problems));
+        instancedExpectations.addAll(ipSwitchExpectationsBuilder.build(fct, problems));
+        instancedExpectations.addAll(forwardingExpectationsBuilder.build(fct, index, problems));
+        instancedExpectations.addAll(dataTransmissionExpectationsBuilder.build(
+                userInput.getPdqData().getDataTransmission(), index, problems));
+
+        // VTF-360 end-check: reject once, with every accumulated problem, or proceed clean.
+        problems.throwIfAny();
 
         return new Expectations(scalarExpectations, instancedExpectations);
     }

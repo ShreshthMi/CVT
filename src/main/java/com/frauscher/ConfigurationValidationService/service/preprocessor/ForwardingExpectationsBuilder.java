@@ -10,13 +10,9 @@ import java.util.Set;
 
 import org.springframework.stereotype.Component;
 
-import com.frauscher.ConfigurationValidationService.dto.fct.Chain;
 import com.frauscher.ConfigurationValidationService.dto.fct.ComAebMap;
 import com.frauscher.ConfigurationValidationService.dto.fct.EvaluatedFma;
-import com.frauscher.ConfigurationValidationService.dto.fct.FctCom;
-import com.frauscher.ConfigurationValidationService.dto.pdq.ControlTable;
 import com.frauscher.ConfigurationValidationService.dto.pdq.TrackSection;
-import com.frauscher.ConfigurationValidationService.exception.BaselineInconsistentException;
 
 /**
  * Derives the {@code CFG_FWRD_ACD} Check-B virtual-forwarding instanced expectations
@@ -41,8 +37,9 @@ import com.frauscher.ConfigurationValidationService.exception.BaselineInconsiste
  * consistency, and set-equality comparison are BE-06's job (it reads the COM ADC targets); BE-05 only
  * emits the FCT-derived expected set.</p>
  *
- * <p>A head absent from the FCT, or a chain with no addressable COM, is a malformed baseline (§3.3) →
- * {@code PHASE2_BASELINE_INCONSISTENT}.</p>
+ * <p>Unresolvable references (VTF-360) are recorded in the {@link BaselineInconsistencies} and skipped
+ * at their grain: the FMA when its track/DP does not resolve, the single (track, head) tuple when the
+ * head or either COM does not.</p>
  */
 @Component
 public class ForwardingExpectationsBuilder {
@@ -51,19 +48,14 @@ public class ForwardingExpectationsBuilder {
     private static final String CAN_TX_ID = "CAN_TX_ID";
     private static final String DEST_COM = "DEST_COM";
 
-    public List<InstancedExpectation> build(ComAebMap fct, ControlTable controlTable) {
-        if (fct == null || fct.chains() == null || controlTable == null) {
+    public List<InstancedExpectation> build(ComAebMap fct, BaselineIndex index, BaselineInconsistencies problems) {
+        if (fct == null || fct.chains() == null) {
             return List.of();
         }
 
-        Map<String, TrackSection> trackByName = trackByName(controlTable);
-        Map<String, Integer> idByDpName = idByDpName(fct);
-        Map<Integer, Integer> chainByDpId = chainByDpId(fct);
-        List<Chain> chains = fct.chains();
-
         // Dedup forwarding tuples (home COM, source DP, dest COM) in encounter order.
         Set<Forward> forwards = new LinkedHashSet<>();
-        for (Chain chain : chains) {
+        for (var chain : fct.chains()) {
             if (chain.aebs() == null) {
                 continue;
             }
@@ -72,7 +64,7 @@ public class ForwardingExpectationsBuilder {
                     continue;
                 }
                 for (EvaluatedFma fma : aeb.evaluatedFmas()) {
-                    collectForwards(forwards, fma, trackByName, idByDpName, chainByDpId, chains);
+                    collectForwards(forwards, fma, index, problems);
                 }
             }
         }
@@ -89,115 +81,55 @@ public class ForwardingExpectationsBuilder {
     }
 
     private void collectForwards(
-            Set<Forward> forwards,
-            EvaluatedFma fma,
-            Map<String, TrackSection> trackByName,
-            Map<String, Integer> idByDpName,
-            Map<Integer, Integer> chainByDpId,
-            List<Chain> chains) {
+            Set<Forward> forwards, EvaluatedFma fma, BaselineIndex index, BaselineInconsistencies problems) {
 
-        TrackSection track = trackByName.get(fma.fmaName());
+        TrackSection track = index.trackByName(fma.fmaName());
         if (track == null) {
-            // The reconciliation gate (§3.1) guarantees a match; defensive.
-            throw new BaselineInconsistentException(
-                    "FCT FMA '" + fma.fmaName() + "' has no matching PDQ Control Table track");
+            problems.add("FCT FMA '" + fma.fmaName() + "' has no matching PDQ Control Table track");
+            return;
         }
-        int consumingDpId = parseId(fma.dpId(), "evaluating DP of FMA " + fma.fmaName());
-        Integer consumingChain = chainByDpId.get(consumingDpId);
+        Integer consumingDpId = BaselineIndex.parseId(fma.dpId(), "evaluating DP of FMA " + fma.fmaName(), problems);
+        if (consumingDpId == null) {
+            return;
+        }
+        Integer consumingChain = index.chainOfDpId(consumingDpId);
 
-        addHeads(forwards, safe(track.dpIn()), consumingChain, idByDpName, chainByDpId, chains, fma.fmaName());
-        addHeads(forwards, safe(track.dpOut()), consumingChain, idByDpName, chainByDpId, chains, fma.fmaName());
+        addHeads(forwards, safe(track.dpIn()), consumingChain, index, problems, fma.fmaName());
+        addHeads(forwards, safe(track.dpOut()), consumingChain, index, problems, fma.fmaName());
     }
 
     private void addHeads(
             Set<Forward> forwards,
             List<String> heads,
             Integer consumingChain,
-            Map<String, Integer> idByDpName,
-            Map<Integer, Integer> chainByDpId,
-            List<Chain> chains,
+            BaselineIndex index,
+            BaselineInconsistencies problems,
             String trackName) {
 
         for (String head : heads) {
-            Integer headId = idByDpName.get(head);
+            Integer headId = index.idOfDp(head);
             if (headId == null) {
-                throw new BaselineInconsistentException(
-                        "Counting head '" + head + "' of track '" + trackName
-                                + "' has no matching DP in the FCT");
+                problems.add("Counting head '" + head + "' of track '" + trackName
+                        + "' has no matching DP in the FCT");
+                continue;
             }
-            Integer headChain = chainByDpId.get(headId);
+            Integer headChain = index.chainOfDpId(headId);
             if (Objects.equals(consumingChain, headChain)) {
                 continue; // same COM segment → no forwarding (SLCT_TIMEOUT 0).
             }
-            int homeComId = comIdOf(headChain, chains, "home COM of forwarded DP '" + head + "'");
-            int destComId = comIdOf(consumingChain, chains, "consuming COM of track '" + trackName + "'");
+            Integer homeComId = index.comIdOfChain(headChain,
+                    "home COM of forwarded DP '" + head + "'", problems);
+            Integer destComId = index.comIdOfChain(consumingChain,
+                    "consuming COM of track '" + trackName + "'", problems);
+            if (homeComId == null || destComId == null) {
+                continue; // skip just this tuple; the COM-less segment dedups to one recorded item.
+            }
             forwards.add(new Forward(homeComId, headId, destComId));
         }
     }
 
-    private int comIdOf(Integer chainIndex, List<Chain> chains, String what) {
-        if (chainIndex == null || chainIndex < 0 || chainIndex >= chains.size()) {
-            throw new BaselineInconsistentException("No chain resolved for " + what);
-        }
-        FctCom com = chains.get(chainIndex).com();
-        if (com == null) {
-            throw new BaselineInconsistentException("No COM for " + what);
-        }
-        return parseId(com.comId(), what);
-    }
-
-    private Map<String, TrackSection> trackByName(ControlTable controlTable) {
-        Map<String, TrackSection> map = new LinkedHashMap<>();
-        if (controlTable.trackSections() != null) {
-            for (TrackSection ts : controlTable.trackSections()) {
-                if (ts.name() != null) {
-                    map.put(ts.name(), ts);
-                }
-            }
-        }
-        return map;
-    }
-
-    private Map<String, Integer> idByDpName(ComAebMap fct) {
-        Map<String, Integer> map = new LinkedHashMap<>();
-        for (Chain chain : fct.chains()) {
-            if (chain.aebs() == null) {
-                continue;
-            }
-            for (var aeb : chain.aebs()) {
-                if (aeb.dpName() != null) {
-                    map.put(aeb.dpName(), parseId(aeb.dpId(), "DP " + aeb.dpName()));
-                }
-            }
-        }
-        return map;
-    }
-
-    private Map<Integer, Integer> chainByDpId(ComAebMap fct) {
-        Map<Integer, Integer> map = new LinkedHashMap<>();
-        List<Chain> chains = fct.chains();
-        for (int i = 0; i < chains.size(); i++) {
-            Chain chain = chains.get(i);
-            if (chain.aebs() == null) {
-                continue;
-            }
-            for (var aeb : chain.aebs()) {
-                map.put(parseId(aeb.dpId(), "DP " + aeb.dpName()), i);
-            }
-        }
-        return map;
-    }
-
     private List<String> safe(List<String> list) {
         return list == null ? List.of() : list;
-    }
-
-    private int parseId(String value, String what) {
-        try {
-            return Integer.parseInt(value.trim());
-        } catch (NumberFormatException | NullPointerException e) {
-            throw new BaselineInconsistentException("Non-numeric id for " + what + ": " + value);
-        }
     }
 
     /** A deduped forwarding obligation: {@code home COM} forwards {@code source DP} to {@code dest COM}. */
