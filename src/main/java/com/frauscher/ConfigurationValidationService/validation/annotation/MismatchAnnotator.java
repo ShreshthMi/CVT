@@ -8,7 +8,6 @@ import java.util.Map;
 import org.springframework.stereotype.Component;
 
 import com.frauscher.ConfigurationValidationService.model.Annotatable;
-import com.frauscher.ConfigurationValidationService.service.preprocessor.BaselineInconsistencies;
 import com.frauscher.ConfigurationValidationService.model.CHCDetail;
 import com.frauscher.ConfigurationValidationService.model.ConfigBlock;
 import com.frauscher.ConfigurationValidationService.model.ConfigEntry;
@@ -23,6 +22,7 @@ import com.frauscher.ConfigurationValidationService.model.TrackSectionDetail;
 import com.frauscher.ConfigurationValidationService.model.ValidationResult;
 import com.frauscher.ConfigurationValidationService.model.ValidationSummary;
 import com.frauscher.ConfigurationValidationService.service.extractors.ValueMappingService;
+import com.frauscher.ConfigurationValidationService.service.preprocessor.BaselineInconsistencies;
 import com.frauscher.ConfigurationValidationService.util.ConfigExtractionUtil;
 import com.frauscher.ConfigurationValidationService.validation.instanced.ForwardingDestinationResolver;
 import com.frauscher.ConfigurationValidationService.validation.instanced.ForwardingDestinationResolver.ForwardMember;
