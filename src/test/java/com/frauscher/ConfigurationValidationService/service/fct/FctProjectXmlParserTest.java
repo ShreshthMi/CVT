@@ -6,8 +6,10 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 import org.junit.jupiter.api.Test;
 
@@ -22,8 +24,9 @@ import com.frauscher.ConfigurationValidationService.testsupport.FctFixtures;
 
 /**
  * Parses each FCT fixture's {@code Project.xml} into a ComAebMap: the ACO case (segments, AEBs,
- * evaluated FMAs, OutputFma cross-resolution), MASTER/SLAVE redundancy collapse, DT-IoExb counting,
- * and the duplicate-AEB-Id rejection.
+ * evaluated FMAs, OutputFma cross-resolution), redundancy collapse for both COM-pair vocabularies
+ * (MASTER/SLAVE and PRIMARY/SECONDARY — the latter via in-memory ComMode substitution on the same
+ * fixture), mixed-pair rejection, DT-IoExb counting, and the duplicate-AEB-Id rejection.
  */
 class FctProjectXmlParserTest {
 
@@ -68,8 +71,30 @@ class FctProjectXmlParserTest {
     void collapsesMasterSlaveRedundancy() throws Exception {
         ComAebMap map = parse(FctFixtures.openRedundantProjectXml());
         dump(map, "build/fct-redundant.json");
-        assertTrue(map.chains().stream().anyMatch(Chain::redundantComPresent),
-                "expected at least one chain collapsed from a MASTER/SLAVE pair");
+        // The surviving chain COM must be the MASTER ("COM-AdC(M)"), not the SLAVE ("COM-AdC(R)").
+        assertEquals("COM-AdC(M)", redundantChain(map, "MASTER/SLAVE").com().comName());
+    }
+
+    @Test
+    void collapsesPrimarySecondaryRedundancy() throws Exception {
+        // Same fixture, alternative vocabulary: baseline FCTs also label redundant pairs PRIMARY/SECONDARY.
+        ComAebMap map = parse(withComModes("PRIMARY", "SECONDARY"));
+        // The surviving chain COM must be the PRIMARY (the fixture's former MASTER), not the SECONDARY.
+        assertEquals("COM-AdC(M)", redundantChain(map, "PRIMARY/SECONDARY").com().comName());
+    }
+
+    private static Chain redundantChain(ComAebMap map, String pairLabel) {
+        return map.chains().stream().filter(Chain::redundantComPresent).findFirst()
+                .orElseThrow(() -> new AssertionError(
+                        "expected at least one chain collapsed from a " + pairLabel + " pair"));
+    }
+
+    @Test
+    void rejectsMixedRedundancyPair() {
+        // MASTER + SECONDARY is not a pair in either vocabulary.
+        FctInvalidException ex = assertThrows(FctInvalidException.class,
+                () -> parse(withComModes("MASTER", "SECONDARY")));
+        assertEquals(FctInvalidReason.MULTI_COM_NO_REDUNDANCY, ex.getReason());
     }
 
     @Test
@@ -92,6 +117,16 @@ class FctProjectXmlParserTest {
     private ComAebMap parse(InputStream in) throws Exception {
         try (in) {
             return parser.parse(in);
+        }
+    }
+
+    /** The redundant fixture's project.xml with its MASTER/SLAVE ComModes substituted. */
+    private static InputStream withComModes(String masterAs, String slaveAs) throws Exception {
+        try (InputStream in = FctFixtures.openRedundantProjectXml()) {
+            String xml = new String(in.readAllBytes(), StandardCharsets.UTF_8)
+                    .replace("<ComMode>MASTER</ComMode>", "<ComMode>" + masterAs + "</ComMode>")
+                    .replace("<ComMode>SLAVE</ComMode>", "<ComMode>" + slaveAs + "</ComMode>");
+            return new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8));
         }
     }
 

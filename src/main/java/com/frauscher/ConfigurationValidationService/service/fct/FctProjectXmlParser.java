@@ -10,6 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -30,9 +31,10 @@ import com.frauscher.ConfigurationValidationService.exception.FctInvalidReason;
 
 /**
  * Parses the FCT2 {@code Project.xml} into a {@link ComAebMap} (design §5.3–§5.6): groups {@code Bp}s
- * into CAN segments via {@code CanConnections}, collapses MASTER/SLAVE redundancy, and per AEB
- * surfaces its FMAs, ACO IoExbs (with OutputFma cross-resolution), and DT-IoExb count. ADC files are
- * not touched — this reads the FCT baseline only.
+ * into CAN segments via {@code CanConnections}, collapses redundant COM pairs (MASTER/SLAVE or
+ * PRIMARY/SECONDARY — both vocabularies occur in baseline FCTs), and per AEB surfaces its FMAs, ACO
+ * IoExbs (with OutputFma cross-resolution), and DT-IoExb count. ADC files are not touched — this reads
+ * the FCT baseline only.
  */
 @Component
 public class FctProjectXmlParser {
@@ -182,16 +184,39 @@ public class FctProjectXmlParser {
             return new ComResult(toCom(coms.get(0)), false);
         }
         if (coms.size() == 2) {
-            Element master = coms.stream().filter(c -> "MASTER".equalsIgnoreCase(childText(c, "ComMode"))).findFirst().orElse(null);
-            Element slave = coms.stream().filter(c -> "SLAVE".equalsIgnoreCase(childText(c, "ComMode"))).findFirst().orElse(null);
-            if (master == null || slave == null) {
-                throw new FctInvalidException(FctInvalidReason.MULTI_COM_NO_REDUNDANCY,
-                        "CAN segment has 2 COMs that are not a MASTER/SLAVE pair");
+            Element lead = pairLead(coms, "MASTER", "SLAVE");
+            if (lead == null) {
+                lead = pairLead(coms, "PRIMARY", "SECONDARY");
             }
-            return new ComResult(toCom(master), true);
+            if (lead == null) {
+                throw new FctInvalidException(FctInvalidReason.MULTI_COM_NO_REDUNDANCY,
+                        "CAN segment has 2 COMs that are not a MASTER/SLAVE or PRIMARY/SECONDARY pair: "
+                                + comSummary(coms));
+            }
+            return new ComResult(toCom(lead), true);
         }
         throw new FctInvalidException(FctInvalidReason.MULTI_COM_NO_REDUNDANCY,
-                "CAN segment has " + coms.size() + " COMs");
+                "CAN segment has " + coms.size() + " COMs: " + comSummary(coms));
+    }
+
+    private String comSummary(List<Element> coms) {
+        return coms.stream()
+                .map(c -> c.getAttribute("name").strip() + "=" + childText(c, "ComMode"))
+                .collect(Collectors.joining(", "));
+    }
+
+    /**
+     * The lead (MASTER / PRIMARY) COM iff the two COMs form exactly this redundancy pair, else null.
+     * Pairing is within-vocabulary — a mixed pair (e.g. MASTER + SECONDARY) does not match.
+     */
+    private Element pairLead(List<Element> coms, String leadMode, String followerMode) {
+        Element lead = comByMode(coms, leadMode);
+        Element follower = comByMode(coms, followerMode);
+        return lead != null && follower != null ? lead : null;
+    }
+
+    private Element comByMode(List<Element> coms, String mode) {
+        return coms.stream().filter(c -> mode.equalsIgnoreCase(childText(c, "ComMode"))).findFirst().orElse(null);
     }
 
     private void classifyIoExb(Element ioExb, Map<String, List<Element>> acoByRefAeb, Map<String, Integer> dtCountByRefAeb) {

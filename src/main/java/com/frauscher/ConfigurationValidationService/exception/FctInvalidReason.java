@@ -24,7 +24,7 @@ public enum FctInvalidReason {
     DANGLING_CAN_CONNECTION("FCT_INCOMPLETE_BASELINE"),
     /** A CAN segment has no COM. */
     CHAIN_NO_COM("FCT_INCOMPLETE_BASELINE"),
-    /** A CAN segment has 2+ COMs that are not a MASTER/SLAVE redundancy pair. */
+    /** A CAN segment has 2+ COMs that are not a recognized redundancy pair (MASTER/SLAVE or PRIMARY/SECONDARY). */
     MULTI_COM_NO_REDUNDANCY("FCT_INCOMPLETE_BASELINE"),
     /** Two entities share the same Id. */
     DUPLICATE_ENTITY_ID("FCT_INCOMPLETE_BASELINE"),
