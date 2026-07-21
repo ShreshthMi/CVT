@@ -1,7 +1,6 @@
 package com.frauscher.ConfigurationValidationService.validation.instanced;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
@@ -11,24 +10,26 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 import com.frauscher.ConfigurationValidationService.constants.ValidationConstants;
-import com.frauscher.ConfigurationValidationService.exception.BaselineInconsistentException;
 import com.frauscher.ConfigurationValidationService.model.ConfigBlock;
 import com.frauscher.ConfigurationValidationService.model.ConfigEntry;
 import com.frauscher.ConfigurationValidationService.model.ParsedConfigFile;
 import com.frauscher.ConfigurationValidationService.model.ValidationResult;
+import com.frauscher.ConfigurationValidationService.service.preprocessor.BaselineInconsistencies;
 import com.frauscher.ConfigurationValidationService.service.preprocessor.InstancedExpectation;
 import com.frauscher.ConfigurationValidationService.validation.instanced.ForwardingDestinationResolver.ForwardMember;
 
 /**
  * CFG_FWRD_ACD validation (v2-expectations-contract.md §5.6): the {@link ForwardingDestinationResolver}
- * socket→COM/IP resolution + §3.3 network-consistency 400s, and the {@link InstancedExpectationEvaluator}
- * set-equality over the resolved actual forwards. COM ADCs are hand-built to the verified C0391 layout
- * (the header is the value of the entry keyed by the block name; socket+32 = NW1, socket+48 = NW2).
+ * socket→COM/IP resolution + §3.3 network-consistency cases (VTF-360: recorded per member + excluded,
+ * not thrown), and the {@link InstancedExpectationEvaluator} set-equality over the resolved actual
+ * forwards. COM ADCs are hand-built to the verified C0391 layout (the header is the value of the entry
+ * keyed by the block name; socket+32 = NW1, socket+48 = NW2).
  */
 class ForwardingValidationTest {
 
     private final ForwardingDestinationResolver resolver = new ForwardingDestinationResolver();
     private final InstancedExpectationEvaluator evaluator = new InstancedExpectationEvaluator(resolver);
+    private final BaselineInconsistencies problems = new BaselineInconsistencies();
 
     // ---------- resolver: socket → dest COM ----------
 
@@ -40,38 +41,46 @@ class ForwardingValidationTest {
                 fwrd(0, "361"));
         ParsedConfigFile dest = com(41, "10.1.106.41", "10.2.106.41");
 
-        List<ForwardMember> members = resolver.resolveActualForwards(home, List.of(home, dest));
+        List<ForwardMember> members = resolver.resolveActualForwards(home, List.of(home, dest), problems);
 
+        assertTrue(problems.isEmpty());
         assertEquals(1, members.size());
         assertEquals("361", members.get(0).canTxId());
         assertEquals("41", members.get(0).destCom());
     }
 
     @Test
-    void destIpMatchingNoPresentComThrows() {
+    void destIpMatchingNoPresentComIsRecordedAndExcluded() {
         ParsedConfigFile home = homeCom(391, "10.1.106.53", "10.2.106.53",
                 dest("CFG_INT_ID_DEST_NW1", "DEST_IP_INT_ID_NW1_B", 32, "10.1.106.41"),
                 dest("CFG_INT_ID_DEST_NW2", "DEST_IP_INT_ID_NW2_B", 48, "10.2.106.41"),
                 fwrd(0, "361"));
 
         // dest COM 41 not in the uploaded set.
-        assertThrows(BaselineInconsistentException.class,
-                () -> resolver.resolveActualForwards(home, List.of(home)));
+        List<ForwardMember> members = resolver.resolveActualForwards(home, List.of(home), problems);
+
+        assertTrue(members.isEmpty());
+        assertEquals(1, problems.items().size());
+        assertTrue(problems.items().get(0).contains("NW1 dest IP 10.1.106.41 matches no present COM file"));
     }
 
     @Test
-    void missingNw2DestThrows() {
+    void missingNw2DestIsRecordedAndExcluded() {
         ParsedConfigFile home = homeCom(391, "10.1.106.53", "10.2.106.53",
                 dest("CFG_INT_ID_DEST_NW1", "DEST_IP_INT_ID_NW1_B", 32, "10.1.106.41"),
                 fwrd(0, "361")); // no NW2 dest block
         ParsedConfigFile dest = com(41, "10.1.106.41", "10.2.106.41");
 
-        assertThrows(BaselineInconsistentException.class,
-                () -> resolver.resolveActualForwards(home, List.of(home, dest)));
+        // VTF-360 D4 (strict): the NW1-resolved COM is NOT accepted without its NW2 mirror.
+        List<ForwardMember> members = resolver.resolveActualForwards(home, List.of(home, dest), problems);
+
+        assertTrue(members.isEmpty());
+        assertEquals(1, problems.items().size());
+        assertTrue(problems.items().get(0).contains("has no CFG_INT_ID_DEST_NW2 entry 48 (NW2 is mandatory)"));
     }
 
     @Test
-    void nw1AndNw2ResolvingToDifferentComsThrows() {
+    void nw1AndNw2ResolvingToDifferentComsIsRecordedAndExcluded() {
         ParsedConfigFile home = homeCom(391, "10.1.106.53", "10.2.106.53",
                 dest("CFG_INT_ID_DEST_NW1", "DEST_IP_INT_ID_NW1_B", 32, "10.1.106.41"),
                 dest("CFG_INT_ID_DEST_NW2", "DEST_IP_INT_ID_NW2_B", 48, "10.2.106.42"),
@@ -79,20 +88,29 @@ class ForwardingValidationTest {
         ParsedConfigFile dest41 = com(41, "10.1.106.41", "10.2.106.41");
         ParsedConfigFile dest42 = com(42, "10.1.106.42", "10.2.106.42");
 
-        assertThrows(BaselineInconsistentException.class,
-                () -> resolver.resolveActualForwards(home, List.of(home, dest41, dest42)));
+        List<ForwardMember> members =
+                resolver.resolveActualForwards(home, List.of(home, dest41, dest42), problems);
+
+        assertTrue(members.isEmpty());
+        assertEquals(1, problems.items().size());
+        assertTrue(problems.items().get(0).contains("resolves to COM 41 on NW1 but COM 42 on NW2"));
     }
 
     @Test
-    void nonNumericSocketThrows() {
+    void nonNumericSocketIsRecordedAndHealthySiblingSurvives() {
+        // One malformed + one healthy CFG_FWRD_ACD: BOTH facts surface in one run.
         ParsedConfigFile home = homeCom(391, "10.1.106.53", "10.2.106.53",
                 dest("CFG_INT_ID_DEST_NW1", "DEST_IP_INT_ID_NW1_B", 32, "10.1.106.41"),
                 dest("CFG_INT_ID_DEST_NW2", "DEST_IP_INT_ID_NW2_B", 48, "10.2.106.41"),
-                fwrd("x", "361"));
+                fwrd("x", "361"), fwrd(0, "370"));
         ParsedConfigFile dest = com(41, "10.1.106.41", "10.2.106.41");
 
-        assertThrows(BaselineInconsistentException.class,
-                () -> resolver.resolveActualForwards(home, List.of(home, dest)));
+        List<ForwardMember> members = resolver.resolveActualForwards(home, List.of(home, dest), problems);
+
+        assertEquals(1, problems.items().size());
+        assertTrue(problems.items().get(0).contains("non-numeric INT_ID_DEST: x"));
+        assertEquals(1, members.size(), "the healthy sibling entry still resolves");
+        assertEquals("370", members.get(0).canTxId());
     }
 
     // ---------- evaluator: set-equality over resolved forwards ----------

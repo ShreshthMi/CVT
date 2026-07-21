@@ -22,6 +22,7 @@ import com.frauscher.ConfigurationValidationService.model.ConfigEntry;
 import com.frauscher.ConfigurationValidationService.model.MismatchAnnotation;
 import com.frauscher.ConfigurationValidationService.model.ParsedConfigFile;
 import com.frauscher.ConfigurationValidationService.model.ValidationResult;
+import com.frauscher.ConfigurationValidationService.service.preprocessor.BaselineInconsistencies;
 import com.frauscher.ConfigurationValidationService.service.preprocessor.InstancedExpectation;
 import com.frauscher.ConfigurationValidationService.validation.ValidationStatus;
 
@@ -85,9 +86,27 @@ public class InstancedExpectationEvaluator {
                 .toList();
     }
 
-    /** As {@link #evaluate} but each result is wrapped with its BE-07 cell-annotation coordinate. */
+    /**
+     * As the collector overload but self-contained (VTF-360): accumulates any evaluation-phase
+     * baseline inconsistency (forwarding socket→COM resolution) and rejects at the end with the
+     * complete list — the convenience form for callers without their own collector.
+     */
     public List<InstancedFinding> evaluateAnnotated(
             List<ParsedConfigFile> parsedFiles, List<InstancedExpectation> expectations) {
+        BaselineInconsistencies problems = new BaselineInconsistencies();
+        List<InstancedFinding> findings = evaluateAnnotated(parsedFiles, expectations, problems);
+        problems.throwIfAny();
+        return findings;
+    }
+
+    /**
+     * As {@link #evaluate} but each result is wrapped with its BE-07 cell-annotation coordinate.
+     * Evaluation-phase baseline inconsistencies are recorded into {@code problems} (the affected
+     * forwarding members are excluded); the caller decides when to reject with the full list.
+     */
+    public List<InstancedFinding> evaluateAnnotated(
+            List<ParsedConfigFile> parsedFiles, List<InstancedExpectation> expectations,
+            BaselineInconsistencies problems) {
 
         if (expectations == null || expectations.isEmpty()) {
             return List.of();
@@ -121,7 +140,7 @@ public class InstancedExpectationEvaluator {
                 case SINGLE -> evaluateSingle(findings, file, rows);
                 case BY_IDENTITY -> {
                     if (FORWARDING_BLOCK.equals(key.block())) {
-                        evaluateForwarding(findings, parsedFiles, file, rows);
+                        evaluateForwarding(findings, parsedFiles, file, rows, problems);
                     } else {
                         evaluateByIdentity(findings, file, key.block(), rows);
                     }
@@ -273,7 +292,7 @@ public class InstancedExpectationEvaluator {
 
     private void evaluateForwarding(
             List<InstancedFinding> out, List<ParsedConfigFile> allFiles, ParsedConfigFile homeCom,
-            List<InstancedExpectation> rows) {
+            List<InstancedExpectation> rows, BaselineInconsistencies problems) {
 
         // Expected members: one per distinct (CAN_TX_ID, DEST_COM), in emission order.
         Map<String, Map<String, String>> expected = new LinkedHashMap<>();
@@ -281,9 +300,10 @@ public class InstancedExpectationEvaluator {
             expected.putIfAbsent(memberKey(e.linkedId()), e.linkedId());
         }
 
-        // Actual members: each CFG_FWRD_ACD entry's socket resolved to a present COM (may raise §3.3 → 400).
+        // Actual members: each CFG_FWRD_ACD entry's socket resolved to a present COM; unresolvable
+        // members are recorded into the collector and excluded (VTF-360 — the caller rejects at the end).
         Map<String, ForwardMember> actual = new LinkedHashMap<>();
-        for (ForwardMember m : forwardingResolver.resolveActualForwards(homeCom, allFiles)) {
+        for (ForwardMember m : forwardingResolver.resolveActualForwards(homeCom, allFiles, problems)) {
             actual.putIfAbsent(m.canTxId() + "|" + m.destCom(), m);
         }
 

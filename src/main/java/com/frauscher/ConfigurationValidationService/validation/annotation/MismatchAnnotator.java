@@ -8,6 +8,7 @@ import java.util.Map;
 import org.springframework.stereotype.Component;
 
 import com.frauscher.ConfigurationValidationService.model.Annotatable;
+import com.frauscher.ConfigurationValidationService.service.preprocessor.BaselineInconsistencies;
 import com.frauscher.ConfigurationValidationService.model.CHCDetail;
 import com.frauscher.ConfigurationValidationService.model.ConfigBlock;
 import com.frauscher.ConfigurationValidationService.model.ConfigEntry;
@@ -399,7 +400,10 @@ public class MismatchAnnotator {
         List<String> dtls = mutable(row.getFwrdAcdToDpDtls());
 
         // UNEXPECTED: re-resolve actual forwards (block order == ethernet array order) and flag the strays.
-        List<ForwardMember> resolved = forwardingResolver.resolveActualForwards(com, parsedFiles);
+        // Annotation runs only after evaluation proved the resolution clean (VTF-360 end-check), so the
+        // throwaway collector stays empty; annotation is best-effort either way.
+        List<ForwardMember> resolved = forwardingResolver.resolveActualForwards(
+                com, parsedFiles, new BaselineInconsistencies());
         for (int i = 0; i < resolved.size(); i++) {
             String key = resolved.get(i).canTxId() + "|" + resolved.get(i).destCom();
             if (!expectedKeys.contains(key) && unexpectedRid.containsKey(key)) {

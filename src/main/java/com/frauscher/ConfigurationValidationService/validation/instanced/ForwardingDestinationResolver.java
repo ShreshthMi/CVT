@@ -7,10 +7,10 @@ import java.util.Map;
 
 import org.springframework.stereotype.Component;
 
-import com.frauscher.ConfigurationValidationService.exception.BaselineInconsistentException;
 import com.frauscher.ConfigurationValidationService.model.ConfigBlock;
 import com.frauscher.ConfigurationValidationService.model.ConfigEntry;
 import com.frauscher.ConfigurationValidationService.model.ParsedConfigFile;
+import com.frauscher.ConfigurationValidationService.service.preprocessor.BaselineInconsistencies;
 
 /**
  * Resolves the destination COM of each actual {@code CFG_FWRD_ACD} forwarding entry of a home COM ADC
@@ -27,10 +27,11 @@ import com.frauscher.ConfigurationValidationService.model.ParsedConfigFile;
  *   <li><b>NW2 (mandatory mirror):</b> header {@code socket + 48} → {@code DEST_IP_INT_ID_NW2_B1..B4} →
  *       the present COM whose {@code CFG_MY_IP_NW2} equals it.</li>
  * </ul>
- * Both networks must resolve to the <b>same</b> present COM. A dest IP matching no present COM, a missing
- * NW2 dest/own-IP, or NW1/NW2 disagreeing is a malformed baseline → {@code PHASE2_BASELINE_INCONSISTENT}
- * (§3.3), surfaced as a hard {@link BaselineInconsistentException} (HTTP 400): Phase 2 supplies no
- * external IP baseline, so every forwarding dest must be wired to a COM actually present in the set.
+ * Both networks must resolve to the <b>same</b> present COM (VTF-360 D4: an NW2-mirror failure leaves
+ * the member unresolved — NW1's answer is not accepted alone). A member that cannot be resolved records
+ * its problem in the {@link BaselineInconsistencies} and is excluded; the evaluation-phase end-check
+ * then rejects with the complete list (vtf-371-design.md §2): Phase 2 supplies no external IP baseline,
+ * so every forwarding dest must be wired to a COM actually present in the set.
  */
 @Component
 public class ForwardingDestinationResolver {
@@ -58,10 +59,11 @@ public class ForwardingDestinationResolver {
     /**
      * Resolves every {@code CFG_FWRD_ACD} entry of {@code homeCom} to a {@code (CAN_TX_ID, destCom)}
      * member. {@code allFiles} supplies the present COMs whose self-IPs the dest IPs are matched against.
-     *
-     * @throws BaselineInconsistentException on any §3.3 network inconsistency.
+     * An unresolvable member records its problem into {@code problems} and is excluded from the result
+     * (VTF-360 — the caller's end-check rejects with the complete list).
      */
-    public List<ForwardMember> resolveActualForwards(ParsedConfigFile homeCom, List<ParsedConfigFile> allFiles) {
+    public List<ForwardMember> resolveActualForwards(
+            ParsedConfigFile homeCom, List<ParsedConfigFile> allFiles, BaselineInconsistencies problems) {
         Map<String, Integer> comByIpNw1 = new HashMap<>();
         Map<String, Integer> comByIpNw2 = new HashMap<>();
         for (ParsedConfigFile file : allFiles) {
@@ -81,46 +83,56 @@ public class ForwardingDestinationResolver {
         List<ForwardMember> members = new ArrayList<>();
         for (ConfigBlock block : occurrences(homeCom, FORWARDING_BLOCK)) {
             String canTxId = entryValue(block, CAN_TX_ID);
-            int socket = parseSocket(entryValue(block, INT_ID_DEST), homeCom);
-            int destCom = resolveDestCom(homeCom, socket, comByIpNw1, comByIpNw2);
+            Integer socket = parseSocket(entryValue(block, INT_ID_DEST), homeCom, problems);
+            if (socket == null) {
+                continue; // recorded; this occurrence drops out of the actual-member set.
+            }
+            Integer destCom = resolveDestCom(homeCom, socket, comByIpNw1, comByIpNw2, problems);
+            if (destCom == null) {
+                continue;
+            }
             members.add(new ForwardMember(canTxId, String.valueOf(destCom)));
         }
         return members;
     }
 
-    private int resolveDestCom(
-            ParsedConfigFile homeCom, int socket, Map<String, Integer> comByIpNw1, Map<String, Integer> comByIpNw2) {
+    private Integer resolveDestCom(
+            ParsedConfigFile homeCom, int socket, Map<String, Integer> comByIpNw1,
+            Map<String, Integer> comByIpNw2, BaselineInconsistencies problems) {
 
         String home = describe(homeCom);
 
         String destIpNw1 = destIp(homeCom, DEST_NW1, socket + NW1_OFFSET, DEST_IP_NW1_PREFIX);
         if (destIpNw1 == null) {
-            throw new BaselineInconsistentException(
-                    home + " forwards on socket " + socket + " but has no CFG_INT_ID_DEST_NW1 entry "
-                            + (socket + NW1_OFFSET));
+            problems.add(home + " forwards on socket " + socket + " but has no CFG_INT_ID_DEST_NW1 entry "
+                    + (socket + NW1_OFFSET));
+            return null;
         }
         Integer comNw1 = comByIpNw1.get(destIpNw1);
         if (comNw1 == null) {
-            throw new BaselineInconsistentException(
-                    home + " socket " + socket + " NW1 dest IP " + destIpNw1 + " matches no present COM file");
+            problems.add(home + " socket " + socket + " NW1 dest IP " + destIpNw1
+                    + " matches no present COM file");
+            return null;
         }
 
+        // VTF-360 D4 (strict): NW2 is a mandatory mirror — an NW1-only resolution is NOT accepted.
         String destIpNw2 = destIp(homeCom, DEST_NW2, socket + NW2_OFFSET, DEST_IP_NW2_PREFIX);
         if (destIpNw2 == null) {
-            throw new BaselineInconsistentException(
-                    home + " forwards on socket " + socket + " but has no CFG_INT_ID_DEST_NW2 entry "
-                            + (socket + NW2_OFFSET) + " (NW2 is mandatory)");
+            problems.add(home + " forwards on socket " + socket + " but has no CFG_INT_ID_DEST_NW2 entry "
+                    + (socket + NW2_OFFSET) + " (NW2 is mandatory)");
+            return null;
         }
         Integer comNw2 = comByIpNw2.get(destIpNw2);
         if (comNw2 == null) {
-            throw new BaselineInconsistentException(
-                    home + " socket " + socket + " NW2 dest IP " + destIpNw2 + " matches no present COM file");
+            problems.add(home + " socket " + socket + " NW2 dest IP " + destIpNw2
+                    + " matches no present COM file");
+            return null;
         }
 
         if (!comNw1.equals(comNw2)) {
-            throw new BaselineInconsistentException(
-                    home + " socket " + socket + " resolves to COM " + comNw1 + " on NW1 but COM " + comNw2
-                            + " on NW2");
+            problems.add(home + " socket " + socket + " resolves to COM " + comNw1 + " on NW1 but COM "
+                    + comNw2 + " on NW2");
+            return null;
         }
         return comNw1;
     }
@@ -158,12 +170,12 @@ public class ForwardingDestinationResolver {
         return ip.toString();
     }
 
-    private int parseSocket(String value, ParsedConfigFile homeCom) {
+    private Integer parseSocket(String value, ParsedConfigFile homeCom, BaselineInconsistencies problems) {
         try {
             return Integer.parseInt(trim(value));
-        } catch (NumberFormatException | NullPointerException e) {
-            throw new BaselineInconsistentException(
-                    describe(homeCom) + " has a CFG_FWRD_ACD with a non-numeric INT_ID_DEST: " + value);
+        } catch (NumberFormatException e) {
+            problems.add(describe(homeCom) + " has a CFG_FWRD_ACD with a non-numeric INT_ID_DEST: " + value);
+            return null;
         }
     }
 

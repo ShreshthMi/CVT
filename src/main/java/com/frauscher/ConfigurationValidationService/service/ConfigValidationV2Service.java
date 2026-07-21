@@ -9,6 +9,7 @@ import com.frauscher.ConfigurationValidationService.dto.ValidationInputV2;
 import com.frauscher.ConfigurationValidationService.model.ParsedConfigFile;
 import com.frauscher.ConfigurationValidationService.model.ValidationResult;
 import com.frauscher.ConfigurationValidationService.model.ValidationSummary;
+import com.frauscher.ConfigurationValidationService.service.preprocessor.BaselineInconsistencies;
 import com.frauscher.ConfigurationValidationService.service.preprocessor.Expectations;
 import com.frauscher.ConfigurationValidationService.service.preprocessor.ExpectationsPreprocessor;
 import com.frauscher.ConfigurationValidationService.validation.annotation.MismatchAnnotator;
@@ -56,8 +57,12 @@ public class ConfigValidationV2Service {
 
         // Instanced bucket (§5–§6): per-entity occurrence selection the flattening Phase 1 engine can't do.
         // The annotated form additionally carries the per-result cell coordinate for the BE-07 join.
+        // VTF-360: evaluation-phase baseline defects (forwarding socket→COM resolution) accumulate and,
+        // if any, reject once with the complete list — the same model as the preprocessor's end-check.
+        BaselineInconsistencies evaluationProblems = new BaselineInconsistencies();
         List<InstancedFinding> findings = instancedExpectationEvaluator.evaluateAnnotated(
-                parsedConfigFiles, expectations.instancedExpectations());
+                parsedConfigFiles, expectations.instancedExpectations(), evaluationProblems);
+        evaluationProblems.throwIfAny();
 
         // Cluster 1 (BE-08) Check-A named verdicts: refine SLCT_TIMEOUT / unknown-reference findings in
         // place and add ORPHANED results for uploaded AEB ADCs absent from the FCT-defined CAN segments.
