@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+import com.frauscher.ConfigurationValidationService.dto.fct.AcoIoExb;
 import com.frauscher.ConfigurationValidationService.dto.fct.Chain;
 import com.frauscher.ConfigurationValidationService.dto.fct.ComAebMap;
 import com.frauscher.ConfigurationValidationService.dto.fct.EvaluatedFma;
@@ -20,8 +21,8 @@ import com.frauscher.ConfigurationValidationService.dto.pdq.TrackSection;
 /**
  * Unit tests for the CHC derivation (VTF-335 M5 #4 / v2-expectations-contract.md §5.4): signed
  * sensor-set main-vs-combination detection, middle/boundary classification, the 2/1/0 CFG_CONTROL
- * emission, derived BEHAV_INPUT3 (6/7), combination exclusion, and the >2-tracks case (VTF-360:
- * recorded + skipped per DP, not thrown).
+ * emission, derived BEHAV_INPUT3 (6/7, emitted only for ACO-IO-EXB files — VTF-362 M5), combination
+ * exclusion, and the >2-tracks case (VTF-360: recorded + skipped per DP, not thrown).
  */
 class ControlExpectationsBuilderTest {
 
@@ -124,13 +125,41 @@ class ControlExpectationsBuilderTest {
         assertEquals("7", behav(out, 9));
     }
 
+    @Test
+    void behavInput3OnlyEmittedForIoExbFiles() {
+        // Two boundary heads on one main track: DPX carries an ACO IO-EXB, DPY does not. BEHAV_INPUT3
+        // lives in CFG_AXCNT (present only on IO-EXB files), so only DPX gets it (VTF-362 M5).
+        ComAebMap fct = new ComAebMap(List.of(
+                chain("COMA", "100",
+                        aeb("DPX", "5"),
+                        aebNoIo("DPY", "6"),
+                        aeb("DPH", "10", fma("A", "0", "10")))));
+        ControlTable ct = new ControlTable(
+                List.of(track("A", List.of("DPX"), List.of("DPY"), "MAIN")),
+                List.of(dp("DPX", false), dp("DPY", false)));
+
+        List<InstancedExpectation> out = build(fct, ct);
+
+        assertTrue(problems.isEmpty());
+        assertEquals("6", behav(out, 5), "DPX has an IO-EXB -> BEHAV_INPUT3 emitted");
+        assertEquals(0, out.stream().filter(e -> e.fileId() == 6 && "BEHAV_INPUT3".equals(e.key())).count(),
+                "DPY has no IO-EXB -> BEHAV_INPUT3 not emitted");
+    }
+
     // --- builders ---
 
     private Chain chain(String comName, String comId, FctAeb... aebs) {
         return new Chain(new FctCom(comId, comName), false, List.of(aebs));
     }
 
+    /** An AEB carrying an ACO IO-EXB — so its DP's derived BEHAV_INPUT3 is emitted (VTF-362 M5). */
     private FctAeb aeb(String dpName, String dpId, EvaluatedFma... fmas) {
+        return new FctAeb(dpId, dpName, List.of(fmas),
+                List.of(new AcoIoExb("ACO", null, null, null, null, null, null)), 0);
+    }
+
+    /** An AEB with no IO-EXB — its DP gets NO BEHAV_INPUT3 (CFG_AXCNT is absent on such a file). */
+    private FctAeb aebNoIo(String dpName, String dpId, EvaluatedFma... fmas) {
         return new FctAeb(dpId, dpName, List.of(fmas), List.of(), 0);
     }
 

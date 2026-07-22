@@ -126,7 +126,7 @@ public class ControlExpectationsBuilder {
             // exactly one + and one − main track → the 2 adjacent tracks.
             addControlBlock(out, fileId, thisChain, tracks.get(plus.get(0)), index, problems);
             addControlBlock(out, fileId, thisChain, tracks.get(minus.get(0)), index, problems);
-            out.add(InstancedExpectation.single(fileId, AXCNT, BEHAV_INPUT3, "6"));
+            addBehavInput3(out, fileId, "6", index);
             return;
         }
 
@@ -140,9 +140,21 @@ public class ControlExpectationsBuilder {
             for (int owner : owners) {
                 addControlBlock(out, fileId, thisChain, tracks.get(owner), index, problems);
             }
-            out.add(InstancedExpectation.single(fileId, AXCNT, BEHAV_INPUT3, "7"));
+            addBehavInput3(out, fileId, "7", index);
         } else {
-            out.add(InstancedExpectation.single(fileId, AXCNT, BEHAV_INPUT3, "6"));
+            addBehavInput3(out, fileId, "6", index);
+        }
+    }
+
+    /**
+     * Emits the derived {@code CFG_AXCNT.BEHAV_INPUT3} only for DPs whose AEB carries an ACO IO-EXB
+     * (VTF-362 M5). {@code BEHAV_INPUT3} lives in {@code CFG_AXCNT}, which is present only on IO-EXB
+     * files; emitting it for every counting-head DP produced a {@code CONFIG_BLOCK_OR_PARAM_NOT_FOUND}
+     * FAIL on every non-IO-EXB DP. The {@code CFG_CONTROL} blocks (on the DP file itself) are unaffected.
+     */
+    private void addBehavInput3(List<InstancedExpectation> out, int fileId, String value, BaselineIndex index) {
+        if (index.hasAcoIoExb(fileId)) {
+            out.add(InstancedExpectation.single(fileId, AXCNT, BEHAV_INPUT3, value));
         }
     }
 

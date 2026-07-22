@@ -1,8 +1,10 @@
 package com.frauscher.ConfigurationValidationService.service.preprocessor;
 
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.frauscher.ConfigurationValidationService.dto.fct.Chain;
 import com.frauscher.ConfigurationValidationService.dto.fct.ComAebMap;
@@ -38,6 +40,7 @@ public final class BaselineIndex {
     private final Map<Integer, Integer> chainByDpId = new LinkedHashMap<>();
     private final Map<String, String> positionByDpName = new LinkedHashMap<>();
     private final Map<String, Boolean> eChcByDpName = new LinkedHashMap<>();
+    private final Set<Integer> acoIoExbDpIds = new HashSet<>();
     private final List<Chain> chains;
 
     private BaselineIndex(List<Chain> chains) {
@@ -67,6 +70,9 @@ public final class BaselineIndex {
                     idByDpName.put(norm(aeb.dpName()), dpId);
                 }
                 chainByDpId.put(dpId, i);
+                if (aeb.acoIoExbs() != null && !aeb.acoIoExbs().isEmpty()) {
+                    acoIoExbDpIds.add(dpId);
+                }
                 if (aeb.evaluatedFmas() == null) {
                     continue;
                 }
@@ -114,6 +120,15 @@ public final class BaselineIndex {
 
     public Integer chainOfDpId(Integer dpId) {
         return dpId == null ? null : chainByDpId.get(dpId);
+    }
+
+    /**
+     * Whether the AEB evaluating {@code dpId} carries an ACO IO-EXB (has a {@code CFG_AXCNT} block).
+     * {@code BEHAV_INPUT3} lives in {@code CFG_AXCNT}, so it is only present on these files — matching
+     * the {@code CFG_AXCNT} scalar rules' {@code ACOIOEXBDETAILS} scope (VTF-362 M5).
+     */
+    public boolean hasAcoIoExb(Integer dpId) {
+        return dpId != null && acoIoExbDpIds.contains(dpId);
     }
 
     public String positionOfDp(String dpName) {
