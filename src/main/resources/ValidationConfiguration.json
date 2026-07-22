@@ -200,19 +200,94 @@
   },
 
   {
-    "RuleType": "InputMatchOrBlockNotFound",
+    "RuleType": "OptionalInputMatchOrBlockNotFound",
     "ConfigBlockName": "CFG_OCC",
     "ConfigEntryKey": "OCC_DELAY",
     "UIInputRequired": "Yes",
     "DefaultValue": "0",
+    "ValidateOnlyInFilesWith": "TRACKSECTIONDETAILS",
     "SkipComFile": true
   },
   {
-    "RuleType": "InputMatchOrBlockNotFound",
+    "RuleType": "OptionalInputMatchOrBlockNotFound",
     "ConfigBlockName": "CFG_OCC",
     "ConfigEntryKey": "OCC_EXT",
     "UIInputRequired": "Yes",
     "DefaultValue": "26",
+    "ValidateOnlyInFilesWith": "TRACKSECTIONDETAILS",
+    "SkipComFile": true
+  },
+
+  {
+    "RuleType": "OptionalInputMatchOrBlockNotFound",
+    "ConfigBlockName": "CFG_IP_SWITCH_TIME",
+    "ConfigEntryKey": "IP_SWITCH_TIME",
+    "UIInputRequired": "No",
+    "DefaultValue": "10",
+    "ValidateOnlyInFilesWith": "TRACKSECTIONDETAILS",
+    "SkipComFile": true
+  },
+  {
+    "RuleType": "OptionalInputMatchOrBlockNotFound",
+    "ConfigBlockName": "CFG_SWITCH",
+    "ConfigEntryKey": "SWITCH_GE",
+    "UIInputRequired": "No",
+    "DefaultValue": "26",
+    "ValidateOnlyInFilesWith": "TRACKSECTIONDETAILS",
+    "SkipComFile": true
+  },
+  {
+    "RuleType": "OptionalInputMatchOrBlockNotFound",
+    "ConfigBlockName": "CFG_SWITCH",
+    "ConfigEntryKey": "SWITCH_GSF",
+    "UIInputRequired": "No",
+    "DefaultValue": "0",
+    "ValidateOnlyInFilesWith": "TRACKSECTIONDETAILS",
+    "SkipComFile": true
+  },
+  {
+    "RuleType": "OptionalInputMatchOrBlockNotFound",
+    "ConfigBlockName": "CFG_SWITCH",
+    "ConfigEntryKey": "PRERESET_ACT_TIME",
+    "UIInputRequired": "No",
+    "DefaultValue": "180",
+    "ValidateOnlyInFilesWith": "TRACKSECTIONDETAILS",
+    "SkipComFile": true
+  },
+  {
+    "RuleType": "InputMatchOrBlockNotFound",
+    "ConfigBlockName": "CFG_SUPERVIS_FMA1",
+    "ConfigEntryKey": "RESET_TYPE",
+    "UIInputRequired": "No",
+    "DefaultValue": "3",
+    "ValidateOnlyInFilesWith": "TRACKSECTIONDETAILS",
+    "SkipComFile": true
+  },
+  {
+    "RuleType": "InputMatchOrBlockNotFound",
+    "ConfigBlockName": "CFG_SUPERVIS_FMA1",
+    "ConfigEntryKey": "RESET_DELAY",
+    "UIInputRequired": "No",
+    "DefaultValue": "30",
+    "ValidateOnlyInFilesWith": "TRACKSECTIONDETAILS",
+    "SkipComFile": true
+  },
+  {
+    "RuleType": "InputMatchOrBlockNotFound",
+    "ConfigBlockName": "CFG_SUPERVIS_FMA2",
+    "ConfigEntryKey": "RESET_TYPE",
+    "UIInputRequired": "No",
+    "DefaultValue": "3",
+    "ValidateOnlyInFilesWith": "TRACKSECTIONDETAILS",
+    "SkipComFile": true
+  },
+  {
+    "RuleType": "InputMatchOrBlockNotFound",
+    "ConfigBlockName": "CFG_SUPERVIS_FMA2",
+    "ConfigEntryKey": "RESET_DELAY",
+    "UIInputRequired": "No",
+    "DefaultValue": "30",
+    "ValidateOnlyInFilesWith": "TRACKSECTIONDETAILS",
     "SkipComFile": true
   },
 
