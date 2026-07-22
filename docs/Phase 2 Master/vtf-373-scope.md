@@ -1,8 +1,10 @@
 # VTF-373 — scope + soften scalar rules + BEHAV_INPUT3 scoping (as-built)
 
-Status: **DONE** — branch `VTF-373` off `VTF-372`, 2 commits (`bb05155` config, `498f2e8` M5), pushed.
-Suite **259 green**. Plan: [vtf-370-series-alpha-fix-plan.md](vtf-370-series-alpha-fix-plan.md) §6.
-Pass 1 (`bb05155`) = config-only rule scoping/softening; M5 (`498f2e8`) = preprocessor BEHAV_INPUT3 scoping.
+Status: **DONE** — branch `VTF-373` off `VTF-372`, 3 commits (`bb05155` config, `498f2e8` M5,
+`691af51` CFG_PROJECT_COM), pushed. Suite **259 green**.
+Plan: [vtf-370-series-alpha-fix-plan.md](vtf-370-series-alpha-fix-plan.md) §6.
+Pass 1 = rule scoping/softening; M5 = preprocessor BEHAV_INPUT3 scoping; final = CFG_PROJECT_COM to COM.
+**Net: every spurious FAIL across both alpha packages is gone — all remaining FAILs are genuine findings.**
 
 ## What shipped
 
@@ -65,15 +67,29 @@ are unaffected.
   `CFG_CONTROL` check still emits). If such a config appears, consider a named "missing CHC hardware"
   finding (plan O4).
 
-## Remaining FAILs (by design)
+## CFG_PROJECT_COM — scope to COM files (commit `691af51`, config)
 
-| Cluster | pkg1 / pkg2 | Why it remains |
+`CFG_PROJECT_COM` (the COM's project block) had no registry entry → default `InputMatch` broadcast it
+to every file → 26/18 spurious FAILs on AEBs, and the COM (where it belongs) was never checked. Fix:
+one entry mirroring `CFG_PROJECT_AEB` but pointed at COM files —
+`{RuleType: ProjectBlockCheck, ValidateOnlyInFilesWith: COMDETAILS, SkipComFile: false}`.
+
+- **`SkipComFile: false` is required** — `ValidationContext.shouldSkipForComFile()` defaults `skipCom`
+  to `true` when the field is *unset*, so without it the COM file is skipped and the block goes
+  silently unchecked (noise clears but no real check). With `false`, `ProjectBlockCheck` runs on the
+  COM (block absent + PDQ `BLOCK_EXISTS: false` → PASS).
+- Result: 26/18 AEB FAILs gone; COM now validated — pkg1 1 PASS (C1091), pkg2 2 PASS (C0691/C0692).
+
+## Remaining FAILs — all genuine findings (zero noise left)
+
+| Cluster | pkg1 / pkg2 | Nature |
 |---|---|---|
-| `CFG_PROJECT_COM` PROJECT_NUMBER | 26 / 18 | **excluded** per decision (COM project block; needs its own handling) — the only remaining noise |
-| `CFG_OCC` OCC_EXT | 14 / 16 | real finding (default 26 ≠ PDQ 0) — kept |
-| `CFG_CONTROL` | 2 / 2 | real findings (pkg1 C1008/C1020; pkg2 O2 junctions) — kept |
-| `CFG_AXCNT` BEHAV_INPUT3 | 2 / 1 | real findings (C1008/C1020; C0684 = S2) — kept |
-| `CFG_SUPERVIS_FMA1` members | — / 2 | pkg2 S3 findings — kept |
+| `CFG_OCC` OCC_EXT | 14 / 16 | real finding (device default 26 ≠ PDQ 0) |
+| `CFG_CONTROL` | 2 / 2 | real (pkg1 C1008/C1020; pkg2 O2 junctions) |
+| `CFG_AXCNT` BEHAV_INPUT3 | 2 / 1 | real (C1008/C1020; C0684 = S2) |
+| `CFG_SUPERVIS_FMA1` members | — / 2 | pkg2 S3 findings |
+
+Journey: pkg1 **272 → 64 → 44 → 18 FAIL**; pkg2 **199 → 53 → 39 → 21 FAIL** — every remaining FAIL is real.
 
 ## Notes / follow-ups
 
@@ -81,5 +97,5 @@ are unaffected.
   confirmed against the Frauscher firmware-default spec.
 - **Scope is `trackSectionDetails==true`** (14 of 26 AEB files in pkg1) — consistent with existing
   `CFG_SECTION`/`CFG_ZP` scoping; non-track-section AEBs are intentionally not checked for these blocks.
-- **Still open in the plan**: `CFG_PROJECT_COM` scoping (the last noise cluster), VTF-374 (/02 CHC
-  coverage), VTF-375 (hardening batch).
+- **Still open in the plan**: VTF-374 (/02 redundant-channel CHC coverage — diagnosed, deferred), VTF-375
+  (hardening batch). Noise cleanup is complete.
