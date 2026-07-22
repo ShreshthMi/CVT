@@ -31,18 +31,17 @@ import com.frauscher.ConfigurationValidationService.dto.pdq.TrackSection;
  *   <li>Over <b>main</b> tracks only, tally each DP's signs: a DP that is net-in for one main and
  *       net-out for another → <b>middle</b> (shared boundary); single-sign → <b>boundary</b>.</li>
  *   <li>Emit per DP ({@code fileId} = that DP): middle → <b>2</b> {@code CFG_CONTROL} (BY_IDENTITY,
- *       unordered) referencing the 2 adjacent main tracks; boundary + {@code eChc=YES} → <b>1</b>;
- *       boundary + {@code eChc=NO} → <b>0</b>. Per block {@code linkedId = (ID=evalDP, SECTION=FMA)} of
- *       the referenced track (via FCT), value {@code SLCT_TIMEOUT} = same/diff COM chain. Plus the
- *       derived {@code CFG_AXCNT.BEHAV_INPUT3} = {@code "7"} iff boundary+{@code eChc=YES}, else
- *       {@code "6"}.</li>
+ *       unordered) referencing the 2 adjacent main tracks; boundary + {@code eChc=YES} → <b>one per
+ *       owning main track</b> (a plain boundary owns exactly one; a same-sign junction head shared by
+ *       >1 main — the ABS AD01A/AU09A layout — references each, VTF-361); boundary + {@code eChc=NO} →
+ *       <b>0</b>. Per block {@code linkedId = (ID=evalDP, SECTION=FMA)} of the referenced track (via
+ *       FCT), value {@code SLCT_TIMEOUT} = same/diff COM chain. Plus the derived
+ *       {@code CFG_AXCNT.BEHAV_INPUT3} = {@code "7"} iff boundary+{@code eChc=YES}, else {@code "6"}.</li>
  * </ol>
  *
  * <p>Unresolvable/unclassifiable DPs (VTF-360) are recorded in the {@link BaselineInconsistencies} and
  * skipped per DP (their CFG_CONTROL + BEHAV_INPUT3 emissions); an unresolvable adjacent track skips
- * just that one block. The same-sign junction case (an {@code eChc=YES} boundary DP on ≥2 main tracks
- * — real ABS topology) is transitional: VTF-361 replaces the skip with real per-owning-track
- * derivation.</p>
+ * just that one block.</p>
  */
 @Component
 public class ControlExpectationsBuilder {
@@ -135,13 +134,12 @@ public class ControlExpectationsBuilder {
         List<Integer> owners = plus.isEmpty() ? minus : plus;
         boolean eChcYes = Boolean.TRUE.equals(index.eChcOfDp(dpName));
         if (eChcYes) {
-            if (owners.size() != 1) {
-                // Transitional (VTF-361 derives the junction case): record + skip this DP.
-                problems.add("Boundary counting-head DP '" + dpName
-                        + "' (eChc=YES) is not on exactly one main track");
-                return;
+            // One CFG_CONTROL per owning main track. The usual boundary head owns exactly one; a same-sign
+            // junction head — shared by >1 main on the same side (the ABS AD01A/AU09A layout) — references
+            // each owning track (VTF-361, user-confirmed 2026-07-06). BEHAV_INPUT3=7 regardless of count.
+            for (int owner : owners) {
+                addControlBlock(out, fileId, thisChain, tracks.get(owner), index, problems);
             }
-            addControlBlock(out, fileId, thisChain, tracks.get(owners.get(0)), index, problems);
             out.add(InstancedExpectation.single(fileId, AXCNT, BEHAV_INPUT3, "7"));
         } else {
             out.add(InstancedExpectation.single(fileId, AXCNT, BEHAV_INPUT3, "6"));

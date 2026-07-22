@@ -99,13 +99,15 @@ class ControlExpectationsBuilderTest {
     }
 
     @Test
-    void junctionEChcDpIsRecordedAndSkipped() {
-        // AD01A-style same-sign junction: +in of two mains with eChc=YES (real ABS topology).
-        // Transitional until VTF-361 derives it: recorded + skipped, siblings unaffected.
+    void junctionEChcDpEmitsOneControlBlockPerOwningTrack() {
+        // AD01A-style same-sign junction: DPJ is +in of two main tracks with eChc=YES (real ABS topology).
+        // VTF-361: it references BOTH owning tracks (2 CFG_CONTROL) + BEHAV_INPUT3=7 — no problem recorded.
+        // Track A's host is on DPJ's own COM (SLCT_TIMEOUT 0); track B's host is cross-COM (SLCT_TIMEOUT 1).
         ComAebMap fct = new ComAebMap(List.of(
                 chain("COMA", "100",
                         aeb("DPJ", "9"), aeb("DPQ", "2"), aeb("DPR", "3"),
-                        aeb("DPA", "10", fma("A", "0", "10")),
+                        aeb("DPA", "10", fma("A", "0", "10"))),
+                chain("COMB", "200",
                         aeb("DPB", "20", fma("B", "0", "20")))));
         ControlTable ct = new ControlTable(
                 List.of(
@@ -115,11 +117,11 @@ class ControlExpectationsBuilderTest {
 
         List<InstancedExpectation> out = build(fct, ct);
 
-        assertEquals(List.of(
-                "Boundary counting-head DP 'DPJ' (eChc=YES) is not on exactly one main track"),
-                problems.items());
-        assertEquals(0, controlCount(out, 9));
-        assertTrue(out.stream().anyMatch(e -> e.fileId() == 2), "boundary DPQ still derives");
+        assertTrue(problems.isEmpty(), "the junction now derives instead of being recorded");
+        assertEquals(2, controlCount(out, 9), "one CFG_CONTROL per owning main track");
+        assertEquals("0", control(out, 9, Map.of("ID", "10", "SECTION", "0"))); // track A host, same chain
+        assertEquals("1", control(out, 9, Map.of("ID", "20", "SECTION", "0"))); // track B host, other chain
+        assertEquals("7", behav(out, 9));
     }
 
     // --- builders ---
