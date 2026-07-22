@@ -31,21 +31,36 @@ skip is gone. The middle-DP and `eChc=NO` paths are untouched. (User-confirmed d
 | pkg1 (P0708) regression | 951 / 272 | **951 / 272 — byte-identical** |
 | suite | 258 | 258 |
 
-## Newly-visible findings for domain review (NOT VTF-372 defects)
+## Newly-visible findings — investigated, decided as AE-register items (NOT VTF-372 defects)
 
-Because the pipeline now runs to completion on pkg2, three real config-vs-baseline results surface that
-the first-throw abort previously hid. These are **data for the AE/domain team, not code bugs** — the
-derivation faithfully implements the confirmed rule; the tool is flagging what it was built to flag:
+Because the pipeline now runs to completion on pkg2, real config-vs-baseline results surface that the
+first-throw abort previously hid. Both O2 and S2 were traced to ground truth (raw ADC blocks + FCT
+hosts) and **decided 2026-07-21: leave as flagged findings for the AE/domain team — no code change**.
+The derivation faithfully implements the confirmed rule; the tool is flagging what it was built to flag.
 
-- **O2 / junction `CFG_CONTROL` (C0685 `AD01A`, C0671 `AU09A`)**: each junction expects a `CFG_CONTROL`
-  member (`ID=676`/`ID=657`, `SECTION=0`) that the ADC does not carry →
-  `EXPECTED_OCCURRENCE_NOT_FOUND`. Either the ADCs lack the junction CHC blocks the contract mandates,
-  or the junction should reference different tracks. Needs domain confirmation before any rule change.
-- **S2 / C0684 (`AD07A`) `BEHAV_INPUT3` expect 6 / actual 7**: `AD07A` is a plain boundary head
-  (`eChc=NO` per the PDQ → expect 6) whose ADC carries `7`. Unaffected by VTF-372 (not a junction).
-  This is part of the eChc-scope / firmware-default question tracked for **VTF-373**, or a site finding.
-- The large `BEHAV_INPUT3 = 6 → CONFIG_BLOCK_OR_PARAM_NOT_FOUND` FAIL cluster is the known N3 noise
-  (BEHAV_INPUT3 emitted per counting-head DP but `CFG_AXCNT` exists only on IO-EXB files) → **VTF-373 M5**.
+### O2 — junction `CFG_CONTROL` (C0685 `AD01A`, C0671 `AU09A`) → each one `EXPECTED_OCCURRENCE_NOT_FOUND`
+Ground truth (raw ADCs + FCT FMA hosts):
+- A **middle** head references the FMA host of *both* connected sections and the device carries both —
+  e.g. `AU02A` (651): `CFG_CONTROL` → 651 (`199AXT1`, self-hosted) **and** 661 (`199XT1`) → both PASS.
+- A **junction** head (two sections same direction) carries **only the section it hosts** — `AD01A`(685)
+  → one block ID=685 (`C200XT`, self); `AU09A`(671) → one block ID=671 (`C1XT`, self). The other owning
+  track (`A502AXT1` host 676 / `A505AXT1` host 657) has **no** block → the derivation's second expected
+  member fails.
+- Consistent 2-of-2: the real convention is "a junction owns exactly one section" — the "one per owning
+  track" rule (decided 2026-07-06, before this device data) over-asks by one block.
+- **Decision: keep flagging (leave as-is).** Treated as a real site finding to report, not a rule bug;
+  the correct half still PASSes. No rule refinement in code. Revisit only if AE confirms otherwise.
+
+### S2 — C0684 (`AD07A`) `BEHAV_INPUT3` expect 6 / actual 7
+`AD07A` is the end-of-line sensor (`dpOut` of `2XT1`, a station boundary). PDQ `eChc=NO` → tool expects
+6; the device is configured as a counting-head-control point (7, with a `CFG_CONTROL` block). A genuine
+**PDQ-vs-device data disagreement** — most likely the PDQ `eChc` box was not ticked YES for this
+end-of-line boundary. **Decision: leave as a flagged finding for AE** (they decide which document wins).
+Not a tool bug; not a VTF-372 concern.
+
+### (context) N3 noise
+The large `BEHAV_INPUT3 = 6 → CONFIG_BLOCK_OR_PARAM_NOT_FOUND` FAIL cluster is the known scoping noise
+(BEHAV_INPUT3 emitted per counting-head DP but `CFG_AXCNT` exists only on IO-EXB files) → **VTF-373 M5**.
 
 ## Test
 
