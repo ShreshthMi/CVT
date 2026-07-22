@@ -1,8 +1,8 @@
-# VTF-373 — scope + soften scalar rules + BEHAV_INPUT3 scoping (as-built)
+# VTF-362 — scope + soften scalar rules + BEHAV_INPUT3 scoping (as-built)
 
-Status: **DONE** — branch `VTF-373` off `VTF-372`, 3 commits (`bb05155` config, `498f2e8` M5,
+Status: **DONE** — branch `VTF-362` off `VTF-361`, 3 commits (`bb05155` config, `498f2e8` M5,
 `691af51` CFG_PROJECT_COM), pushed. Suite **259 green**.
-Plan: [vtf-370-series-alpha-fix-plan.md](vtf-370-series-alpha-fix-plan.md) §6.
+Plan: [vtf-359-series-alpha-fix-plan.md](vtf-359-series-alpha-fix-plan.md) §6.
 Pass 1 = rule scoping/softening; M5 = preprocessor BEHAV_INPUT3 scoping; final = CFG_PROJECT_COM to COM.
 **Net: every spurious FAIL across both alpha packages is gone — all remaining FAILs are genuine findings.**
 
@@ -40,7 +40,7 @@ excluded per decision.
 
 ## Verified on real packages
 
-| | before (VTF-372) | after |
+| | before (VTF-361) | after |
 |---|---|---|
 | pkg1 P0708 | 951 / **272 FAIL** | 831 / **64 FAIL** |
 | pkg2 P0589 | 729 / **199 FAIL** | 709 / **53 FAIL** |

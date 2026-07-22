@@ -1,4 +1,4 @@
-# VTF-370 series — alpha-feedback fix plan (execution planning doc)
+# VTF-359 series — alpha-feedback fix plan (execution planning doc)
 
 Status: **PLANNING** (no implementation started). Drafted 2026-07-09.
 Basis: empirical run of the two Package W alpha bundles against the VTF-338 tip (`b1b9edc`) on 2026-07-06,
@@ -35,8 +35,8 @@ correct and these FAILs stand.
 
 ## 2. Git & delivery strategy
 
-- **Numbering**: VTF-370 onwards. Provisional mapping below; renumber in Jira if it assigns differently.
-- **Branch chain**: linear, matching Phase 2 practice — `VTF-370` branches off `b1b9edc` (VTF-338 tip);
+- **Numbering**: VTF-359 onwards. Provisional mapping below; renumber in Jira if it assigns differently.
+- **Branch chain**: linear, matching Phase 2 practice — `VTF-359` branches off `b1b9edc` (VTF-338 tip);
   each subsequent story branches off the previous story's tip. Push each `origin/VTF-3xx`.
 - **Commits**: `VTF-3xx: <imperative summary>` (matches `VTF-338 BE-08: …` style), small logical commits.
   No co-author trailers.
@@ -58,7 +58,7 @@ under investigation (user); if not decided in time it slides later without block
 
 ---
 
-## 3. VTF-370 — FCT redundancy vocabulary: accept PRIMARY/SECONDARY (Story 1)
+## 3. VTF-359 — FCT redundancy vocabulary: accept PRIMARY/SECONDARY (Story 1)
 
 **Problem.** `FctProjectXmlParser.resolveCom` (lines 184-191) recognises a 2-COM CAN segment only as a
 `MASTER`+`SLAVE` `ComMode` pair. Real baseline FCTs also use **`PRIMARY`+`SECONDARY`** as a valid
@@ -86,7 +86,7 @@ throwaway patch on 2026-07-06.)  Size: **S**.
 
 ---
 
-## 4. VTF-371 — post-gate baseline error handling (own story; design pending)
+## 4. VTF-360 — post-gate baseline error handling (own story; design pending)
 
 **Problem (empirically confirmed).** Baseline inconsistencies discovered *after* the `BaselineGate`
 (inside expectation builders and `ForwardingDestinationResolver` during `/validate`) throw
@@ -112,12 +112,12 @@ Acceptance & tests: defined with the decision. Size: **M** (A or C), **M/L** (B)
 
 ---
 
-## 5. VTF-372 — junction eChc semantics (Story 2)
+## 5. VTF-361 — junction eChc semantics (Story 2)
 
 **Problem.** ABS topology has **same-sign junction DPs**: `AD01A` = `dpIn` of two main tracks
 (`C200XT`, `A502AXT1`); `AU09A` = `dpOut` of two (`A505AXT1`, `C1XT`). With `eChc=YES` they fail
 `ControlExpectationsBuilder`'s "boundary must own exactly one main track" check (line 143) → today the
-whole run 400s (see VTF-371).
+whole run 400s (see VTF-360).
 
 **Decided semantics (2026-07-06):** a same-sign junction DP with `eChc=YES` expects
 **one `CFG_CONTROL` reference per owning main track** (AD01A/AU09A → 2 references each, identity
@@ -140,7 +140,7 @@ finding). Size: **S/M**.
 
 ---
 
-## 6. VTF-373 — spurious-FAIL elimination (Story 3; the big one)
+## 6. VTF-362 — spurious-FAIL elimination (Story 3; the big one)
 
 ~97 % of the alpha FAIL noise, identical shape in both packages. Milestones are independently
 verifiable against Package W.
@@ -275,18 +275,18 @@ FAIL-cluster analysis: group `summary.json` → `validation_results` by
 | Checkpoint | Pkg1 expected | Pkg2 expected |
 |---|---|---|
 | at `b1b9edc` (baseline) | 272 FAIL / 951 | FCT 400 |
-| after VTF-370 | unchanged | FCT 200; validate 400 (`AD01A`) |
-| after VTF-372 | unchanged | validate 200; ~197 FAIL |
-| after VTF-373 | **4 FAIL** (C1008/C1020 real findings) | **≈3 FAIL** (S2 `C0684`, S3 `C0671`/`C0685` pending verdicts) |
+| after VTF-359 | unchanged | FCT 200; validate 400 (`AD01A`) |
+| after VTF-361 | unchanged | validate 200; ~197 FAIL |
+| after VTF-362 | **4 FAIL** (C1008/C1020 real findings) | **≈3 FAIL** (S2 `C0684`, S3 `C0671`/`C0685` pending verdicts) |
 | after VTF-374 | + new CFG_CONTROL results for C1022/23/27/29 | n/a (no `/NN` channels) |
 
 ## 10. Open items register
 
 | Id | Item | Owner/state |
 |---|---|---|
-| O1 | VTF-371 design (A degrade / B flag / C accumulate) | user investigating |
-| O2 | S2: Pkg2 `C0684` BEHAV_INPUT3 exp=6/act=7 — junction B-side convention | verify after VTF-372 |
+| O1 | VTF-360 design (A degrade / B flag / C accumulate) | user investigating |
+| O2 | S2: Pkg2 `C0684` BEHAV_INPUT3 exp=6/act=7 — junction B-side convention | verify after VTF-361 |
 | O3 | S3: Pkg2 `C0671`/`C0685` missing `CFG_SUPERVIS_FMA1` members (ID=657/676, from `C1XT`/`C200XT` autoReset) — genuine vs supervisor-modeling edge | un-root-caused |
-| O4 | M5 policy: eChc=YES DP without IO-EXB → drop expectation or named finding | decide in VTF-373 |
-| O5 | Upload-error opacity ("FCT archive is invalid", reason log-only) — FE contract change? | fold into VTF-371 scope decision |
+| O4 | M5 policy: eChc=YES DP without IO-EXB → drop expectation or named finding | decide in VTF-362 |
+| O5 | Upload-error opacity ("FCT archive is invalid", reason log-only) — FE contract change? | fold into VTF-360 scope decision |
 | O6 | Filled Data-Transmission alpha package needed to exercise CFG_DATA_OUT end-to-end | request from AE team |

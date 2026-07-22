@@ -1,7 +1,7 @@
-# VTF-370 — Accept PRIMARY/SECONDARY as a redundant COM pair (as-built)
+# VTF-359 — Accept PRIMARY/SECONDARY as a redundant COM pair (as-built)
 
-Status: **DONE** — `origin/VTF-370` (`0c41f2a`, off `b1b9edc`/VTF-338). Suite 245 green (243 + 2 new).
-Plan reference: [vtf-370-series-alpha-fix-plan.md](vtf-370-series-alpha-fix-plan.md) §3.
+Status: **DONE** — `origin/VTF-359` (`0c41f2a`, off `b1b9edc`/VTF-338). Suite 245 green (243 + 2 new).
+Plan reference: [vtf-359-series-alpha-fix-plan.md](vtf-359-series-alpha-fix-plan.md) §3.
 
 ## Problem
 
@@ -40,5 +40,5 @@ entire FCT rejected — HTTP 400 `FCT_INCOMPLETE_BASELINE` / log `MULTI_COM_NO_R
 | `P0513_Arakkonam` (12 segments, all NORMAL) | 200 | 200 — 12 chains, no false pairing of its same-named COM-AdC-1/-2 pairs |
 
 Pkg2 `/validate` now proceeds to the next planned blocker (`AD01A` junction-eChc gate) — exactly the
-plan's post-370 checkpoint. Next: **VTF-371** (post-gate baseline error handling, design pending) or
-**VTF-372** (junction eChc semantics) per the plan's ordering note.
+plan's post-370 checkpoint. Next: **VTF-360** (post-gate baseline error handling, design pending) or
+**VTF-361** (junction eChc semantics) per the plan's ordering note.

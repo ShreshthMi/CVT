@@ -1,8 +1,8 @@
-# VTF-371 — post-gate baseline error handling (design — LOCKED)
+# VTF-360 — post-gate baseline error handling (design — LOCKED)
 
-Status: **DESIGN LOCKED** 2026-07-09 (decisions §6). Ready for implementation off VTF-370 (`0c41f2a`).
+Status: **DESIGN LOCKED** 2026-07-09 (decisions §6). Ready for implementation off VTF-359 (`0c41f2a`).
 Inputs: exhaustive audited throw-site inventory + FE-contract analysis, Package W alpha evidence
-([vtf-370-series-alpha-fix-plan.md](vtf-370-series-alpha-fix-plan.md) §4).
+([vtf-359-series-alpha-fix-plan.md](vtf-359-series-alpha-fix-plan.md) §4).
 
 ## 1. Problem
 
@@ -52,7 +52,7 @@ The collector conversion uses each site's safe continue-grain so later sites sti
 |---|---|---|
 | `CountingHeadExpectationsBuilder` | 79, 108, 114, `parseId`:191 | per-FMA (79); per-head (108); per-head with DIR_INV/SLCT_TIMEOUT both skipped (114 — never default a chain comparison); map sites per-AEB entry |
 | `SupervisorExpectationsBuilder` | 71, 85, 110, `parseId`:153 | per-track (71, 110); per-operand (85); map sites per-AEB entry |
-| `ControlExpectationsBuilder` | 121, 129, 144*, 164, `parseId`:323 | per-DP (121, 129, 144); per-block (164). *144 (junction eChc) is transitional — VTF-372 replaces it with real derivation |
+| `ControlExpectationsBuilder` | 121, 129, 144*, 164, `parseId`:323 | per-DP (121, 129, 144); per-block (164). *144 (junction eChc) is transitional — VTF-361 replaces it with real derivation |
 | `AcoExpectationsBuilder` | `parseId`:113 | whole host AEB (POSITIONAL slots must not shift) |
 | `IpSwitchExpectationsBuilder` | `parseId`:52 | per-COM |
 | `ForwardingExpectationsBuilder` | 102, 124, 140, 144, `parseId`:199 | per-(track, head) at 124; per-track at 140; per-chain at 144; map sites per-AEB entry |

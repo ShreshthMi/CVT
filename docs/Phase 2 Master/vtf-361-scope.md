@@ -1,16 +1,16 @@
-# VTF-372 — junction eChc semantics (as-built)
+# VTF-361 — junction eChc semantics (as-built)
 
-Status: **DONE** — branch `VTF-372` off `VTF-371` (`445dab4`), 1 commit, pushed. Suite **258 green**;
+Status: **DONE** — branch `VTF-361` off `VTF-360` (`445dab4`), 1 commit, pushed. Suite **258 green**;
 adversarial diff-review clean (owners-never-empty on the boundary path, no duplicate/half set, middle
 & eChc=NO paths untouched, test covers the multi-owner regression). Plan:
-[vtf-370-series-alpha-fix-plan.md](vtf-370-series-alpha-fix-plan.md) §5.
+[vtf-359-series-alpha-fix-plan.md](vtf-359-series-alpha-fix-plan.md) §5.
 
 ## What shipped
 
 A same-sign **junction** counting head — a boundary DP shared by >1 main track on the same side
 (the ABS `AD01A`/`AU09A` layout: one head is the `dpIn`/`dpOut` of two main tracks) — with
 `eChc=YES` now **derives** its CHC expectations instead of being recorded as a baseline inconsistency
-(the VTF-371 transitional skip).
+(the VTF-360 transitional skip).
 
 `ControlExpectationsBuilder`, boundary + `eChc=YES` branch:
 - emit **one `CFG_CONTROL` block per owning main track** (BY_IDENTITY, referencing each owning
@@ -24,14 +24,14 @@ skip is gone. The middle-DP and `eChc=NO` paths are untouched. (User-confirmed d
 
 **Package 2 (P0589, ABS) now validates end-to-end** — the junction DPs no longer abort the run:
 
-| | before (VTF-371) | after (VTF-372) |
+| | before (VTF-360) | after (VTF-361) |
 |---|---|---|
 | pkg2 `/validate` | HTTP 400 (`AD01A`, `AU09A` junction) | **HTTP 200**, 729 results |
 | junction `BEHAV_INPUT3` | not derived | `AD01A`(C0685), `AU09A`(C0671) → expect 7, **actual 7 → PASS** |
 | pkg1 (P0708) regression | 951 / 272 | **951 / 272 — byte-identical** |
 | suite | 258 | 258 |
 
-## Newly-visible findings — investigated, decided as AE-register items (NOT VTF-372 defects)
+## Newly-visible findings — investigated, decided as AE-register items (NOT VTF-361 defects)
 
 Because the pipeline now runs to completion on pkg2, real config-vs-baseline results surface that the
 first-throw abort previously hid. Both O2 and S2 were traced to ground truth (raw ADC blocks + FCT
@@ -56,11 +56,11 @@ Ground truth (raw ADCs + FCT FMA hosts):
 6; the device is configured as a counting-head-control point (7, with a `CFG_CONTROL` block). A genuine
 **PDQ-vs-device data disagreement** — most likely the PDQ `eChc` box was not ticked YES for this
 end-of-line boundary. **Decision: leave as a flagged finding for AE** (they decide which document wins).
-Not a tool bug; not a VTF-372 concern.
+Not a tool bug; not a VTF-361 concern.
 
 ### (context) N3 noise
 The large `BEHAV_INPUT3 = 6 → CONFIG_BLOCK_OR_PARAM_NOT_FOUND` FAIL cluster is the known scoping noise
-(BEHAV_INPUT3 emitted per counting-head DP but `CFG_AXCNT` exists only on IO-EXB files) → **VTF-373 M5**.
+(BEHAV_INPUT3 emitted per counting-head DP but `CFG_AXCNT` exists only on IO-EXB files) → **VTF-362 M5**.
 
 ## Test
 

@@ -2,7 +2,7 @@
 
 One-stop summary of everything built on the Phase 2 backend line to date. Companion artifacts:
 full diff [vtf-338.diff](vtf-338.diff) (59b5cb5 → b1b9edc: 43 commits, 118 files, +9,075/−36, test
-suite 159 → 243 green), forward plan [vtf-370-series-alpha-fix-plan.md](vtf-370-series-alpha-fix-plan.md).
+suite 159 → 243 green), forward plan [vtf-359-series-alpha-fix-plan.md](vtf-359-series-alpha-fix-plan.md).
 
 ## What Phase 2 is
 
@@ -65,7 +65,7 @@ POST /api/upload/pdq          POST /api/upload/fct           POST /api/upload/ad
 4. **Raw-entry validation** — the instanced evaluator reads raw `ID`/`SECTION` block entries, not the
    display-mapped (lossy, comment-deduped) extractor output.
 5. **Locked external error vocabulary** — uploads answer with a small fixed code set; detailed reasons
-   are log-only (a deliberate contract; revisit tracked as O5 in the VTF-370 plan).
+   are log-only (a deliberate contract; revisit tracked as O5 in the VTF-359 plan).
 
 ## Where it stands (and what's next)
 
@@ -75,5 +75,5 @@ customer bundles (Package W: Centralised + ABS topologies) confirmed the core ma
 counting-head/ACO/CHC derivation, occurrence selection — works on real data, and produced a precise
 defect/fix inventory: two P0 real-world blockers (redundant-COM vocabulary, junction-eChc handling),
 one ~28 % spurious-FAIL noise complex (scoping + firmware-default absence tolerance), one coverage gap
-(/02 channel CHC), and a hardening batch. That work is scoped as **VTF-370…375** — see
-[vtf-370-series-alpha-fix-plan.md](vtf-370-series-alpha-fix-plan.md). Implementation has not started.
+(/02 channel CHC), and a hardening batch. That work is scoped as **VTF-359…375** — see
+[vtf-359-series-alpha-fix-plan.md](vtf-359-series-alpha-fix-plan.md). Implementation has not started.

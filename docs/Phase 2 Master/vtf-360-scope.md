@@ -1,9 +1,9 @@
-# VTF-371 — post-gate baseline error handling (as-built)
+# VTF-360 — post-gate baseline error handling (as-built)
 
-Status: **DONE** — branch `VTF-371` off `VTF-370` (`0c41f2a`), 4 commits `55b2b5c`→`445dab4`, pushed.
+Status: **DONE** — branch `VTF-360` off `VTF-359` (`0c41f2a`), 4 commits `55b2b5c`→`445dab4`, pushed.
 Suite 245 → **258 green**. Adversarial diff-review + a focused skip-grain correctness re-review both
 returned clean (no half-emission / null-chain / trim-collision / positional-shift / dedup-collapse
-defects). Design: [vtf-371-design.md](vtf-371-design.md).
+defects). Design: [vtf-360-design.md](vtf-360-design.md).
 
 ## What shipped
 
@@ -33,7 +33,7 @@ A clean baseline is unaffected.
 | CountingHead | per-FMA (track/id unresolved); per-head, both DIR_INV+SLCT_TIMEOUT together (head/position unresolved) |
 | Supervisor | per-track (host/operator unresolved); per-operand, both LOGIC_TYPE+SLCT_TIMEOUT together |
 | ACO | **whole host AEB** — staged, emitted only if every POSITIONAL slot resolves (no position shift) |
-| Control | per-DP (CFG_CONTROL + BEHAV_INPUT3); per-block for an unresolvable adjacent track. Junction `eChc=YES on ≥2 mains` recorded + skipped (transitional — VTF-372 derives it) |
+| Control | per-DP (CFG_CONTROL + BEHAV_INPUT3); per-block for an unresolvable adjacent track. Junction `eChc=YES on ≥2 mains` recorded + skipped (transitional — VTF-361 derives it) |
 | IpSwitch | per-COM |
 | Forwarding (builder) | per-FMA; per-(track, head) tuple |
 | DataTransmission | **whole CFG_DATA_OUT slice** on sub-table size mismatch (never prefix-pair); per-row otherwise |
@@ -52,14 +52,14 @@ A clean baseline is unaffected.
 
 | Input | Result |
 |---|---|
-| pkg1 clean (P0708) | 200, **951 results / 272 FAIL — byte-identical to VTF-370** |
+| pkg1 clean (P0708) | 200, **951 results / 272 FAIL — byte-identical to VTF-359** |
 | pkg2 (P0589, ABS) | one 400: *"2 problems: 1) …DP 'AD01A'…; 2) …DP 'AU09A'…"* (both junctions, was first-throw of one) |
 | fault-injected pkg1 (DP01→DP01X, DP20→DP20X) | one 400 enumerating all **4** derived problems |
 | unit | `DefaultExpectationsPreprocessorTest` asserts 4 cross-builder defects in one message; per-builder tests assert record-and-continue |
 
 ## Follow-ups / notes
 
-- `Control:144` junction skip is transitional — **VTF-372** replaces it with real per-owning-track
+- `Control:144` junction skip is transitional — **VTF-361** replaces it with real per-owning-track
   derivation (the message will then disappear for AD01A/AU09A-style DPs).
 - The `BaselineGate` 5 hard sites are unchanged (admission control stays a hard 400).
 - Contract unchanged: still `{errorCode, message, timestamp}`; no new status/field.
