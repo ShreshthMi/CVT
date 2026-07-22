@@ -1,8 +1,8 @@
-# VTF-373 — scope + soften scalar rules (as-built, first pass)
+# VTF-373 — scope + soften scalar rules + BEHAV_INPUT3 scoping (as-built)
 
-Status: **DONE (first pass)** — branch `VTF-373` off `VTF-372`, 1 commit `bb05155`, pushed. Suite
-**258 green**. Config-only change to `src/main/resources/ValidationConfiguration.json`.
-Plan: [vtf-370-series-alpha-fix-plan.md](vtf-370-series-alpha-fix-plan.md) §6.
+Status: **DONE** — branch `VTF-373` off `VTF-372`, 2 commits (`bb05155` config, `498f2e8` M5), pushed.
+Suite **259 green**. Plan: [vtf-370-series-alpha-fix-plan.md](vtf-370-series-alpha-fix-plan.md) §6.
+Pass 1 (`bb05155`) = config-only rule scoping/softening; M5 (`498f2e8`) = preprocessor BEHAV_INPUT3 scoping.
 
 ## What shipped
 
@@ -48,14 +48,32 @@ Cleared (now PASS on AEB files, no rows on COM): `CFG_IP_SWITCH_TIME`, `CFG_SWIT
 (38 + 30 PASS). All real findings preserved: `OCC_EXT` (14), `C1008`/`C1020` `CFG_CONTROL` (2), pkg2
 junction/supervisor findings.
 
-## Remaining FAILs (by design — not this pass)
+## M5 — BEHAV_INPUT3 scoping (commit `498f2e8`, preprocessor)
 
-| Cluster | pkg1 | Why it remains |
+`BEHAV_INPUT3` (a `CFG_AXCNT` param) was emitted per counting-head DP by `ControlExpectationsBuilder`
+(the instanced path — so it bypasses the registry marker), but `CFG_AXCNT` exists only on ACO-IO-EXB
+files → `CONFIG_BLOCK_OR_PARAM_NOT_FOUND` FAIL on every non-IO-EXB DP. Fix: `BaselineIndex` now records
+which DP ids carry an ACO IO-EXB (`FctAeb.acoIoExbs` non-empty → `hasAcoIoExb(dpId)`), and
+`ControlExpectationsBuilder.addBehavInput3` emits only for those files — matching the existing
+`ACOIOEXBDETAILS` scope of the scalar `CFG_AXCNT` rules. `CFG_CONTROL` blocks (on the DP file itself)
+are unaffected.
+
+- pkg1 BEHAV_INPUT3: 22 FAIL → **2** (only C1008/C1020, exp 7 / act 6 — real, they ARE IO-EXB files).
+- pkg2 BEHAV_INPUT3: 15 FAIL → **1** (C0684 / AD07A, exp 6 / act 7 — the S2 finding, kept).
+- Total: pkg1 **272 → 64 → 44 FAIL**; pkg2 **199 → 53 → 39 FAIL**.
+- Edge (not in samples): an `eChc=YES` DP with no IO-EXB now drops its `BEHAV_INPUT3=7` (the
+  `CFG_CONTROL` check still emits). If such a config appears, consider a named "missing CHC hardware"
+  finding (plan O4).
+
+## Remaining FAILs (by design)
+
+| Cluster | pkg1 / pkg2 | Why it remains |
 |---|---|---|
-| `CFG_PROJECT_COM` PROJECT_NUMBER | 26 | **excluded** per decision (COM project block; needs its own handling) |
-| `CFG_AXCNT` BEHAV_INPUT3 | 22 | **M5** — emitted per counting-head DP by `ControlExpectationsBuilder` (instanced), scoped to IO-EXB files in the preprocessor, not the registry. Separate change. |
-| `CFG_OCC` OCC_EXT | 14 | real finding (default 26 ≠ PDQ 0) — kept |
-| `CFG_CONTROL` | 2 | real findings (C1008/C1020) — kept |
+| `CFG_PROJECT_COM` PROJECT_NUMBER | 26 / 18 | **excluded** per decision (COM project block; needs its own handling) — the only remaining noise |
+| `CFG_OCC` OCC_EXT | 14 / 16 | real finding (default 26 ≠ PDQ 0) — kept |
+| `CFG_CONTROL` | 2 / 2 | real findings (pkg1 C1008/C1020; pkg2 O2 junctions) — kept |
+| `CFG_AXCNT` BEHAV_INPUT3 | 2 / 1 | real findings (C1008/C1020; C0684 = S2) — kept |
+| `CFG_SUPERVIS_FMA1` members | — / 2 | pkg2 S3 findings — kept |
 
 ## Notes / follow-ups
 
@@ -63,5 +81,5 @@ junction/supervisor findings.
   confirmed against the Frauscher firmware-default spec.
 - **Scope is `trackSectionDetails==true`** (14 of 26 AEB files in pkg1) — consistent with existing
   `CFG_SECTION`/`CFG_ZP` scoping; non-track-section AEBs are intentionally not checked for these blocks.
-- **Still open in the plan**: `CFG_PROJECT_COM` scoping, BEHAV_INPUT3 M5 (preprocessor), VTF-374 (/02
-  CHC coverage), VTF-375 (hardening batch).
+- **Still open in the plan**: `CFG_PROJECT_COM` scoping (the last noise cluster), VTF-374 (/02 CHC
+  coverage), VTF-375 (hardening batch).
