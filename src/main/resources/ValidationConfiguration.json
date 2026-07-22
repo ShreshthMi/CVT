@@ -315,6 +315,14 @@
     "UIInputRequired": "Yes",
     "SkipComFile": true
   },
+  {
+    "RuleType": "ProjectBlockCheck",
+    "ConfigBlockName": "CFG_PROJECT_COM",
+    "ConfigEntryKey": "PROJECT_NUMBER",
+    "UIInputRequired": "No",
+    "ValidateOnlyInFilesWith": "COMDETAILS",
+    "SkipComFile": false
+  },
 
   {
     "RuleType": "MultipleBlockMultipleInputMatch",
