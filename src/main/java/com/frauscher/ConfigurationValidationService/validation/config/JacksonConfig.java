@@ -12,7 +12,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 public class JacksonConfig {
 
     @Bean
-    ObjectMapper objectMapper() {
+    public ObjectMapper objectMapper() {
 
         ObjectMapper mapper = new ObjectMapper();
 

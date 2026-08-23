@@ -1,5 +1,7 @@
 package com.frauscher.ConfigurationValidationService.model;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -33,8 +35,20 @@ public class ValidationResult {
     @Setter
     private String status; // PASS / FAIL / INVALID
 
-    public ValidationResult(String fileName, String ruleType, String blockName, String entryKey,
-            String expectedValue, String actualValue, String status) {
+    /**
+     * Also the Jackson creator: {@code fileName}/{@code ruleType}/{@code blockName}/{@code entryKey} have no
+     * setter, so without this the {@code /api/report/download} round-trip (the FE POSTs the summary back)
+     * silently drops those four columns from the regenerated workbook.
+     */
+    @JsonCreator
+    public ValidationResult(
+            @JsonProperty("fileName") String fileName,
+            @JsonProperty("ruleType") String ruleType,
+            @JsonProperty("blockName") String blockName,
+            @JsonProperty("entryKey") String entryKey,
+            @JsonProperty("expectedValue") String expectedValue,
+            @JsonProperty("actualValue") String actualValue,
+            @JsonProperty("status") String status) {
         this.fileName = fileName;
         this.ruleType = ruleType;
         this.blockName = blockName;

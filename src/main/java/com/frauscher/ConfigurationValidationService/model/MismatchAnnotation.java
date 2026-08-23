@@ -1,5 +1,6 @@
 package com.frauscher.ConfigurationValidationService.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
@@ -45,7 +46,14 @@ public class MismatchAnnotation {
     @JsonProperty("result_id")
     private final String resultId;
 
-    public MismatchAnnotation(String field, Integer index, Kind kind, String expected, String actual, String resultId) {
+    @JsonCreator
+    public MismatchAnnotation(
+            @JsonProperty("field") String field,
+            @JsonProperty("index") Integer index,
+            @JsonProperty("kind") Kind kind,
+            @JsonProperty("expected") String expected,
+            @JsonProperty("actual") String actual,
+            @JsonProperty("result_id") String resultId) {
         this.field = field;
         this.index = index;
         this.kind = kind;
