@@ -8,6 +8,9 @@ import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.frauscher.ConfigurationValidationService.model.Annotatable;
+import com.frauscher.ConfigurationValidationService.model.MismatchAnnotation;
 import com.frauscher.ConfigurationValidationService.model.ValidationResult;
 
 /**
@@ -99,10 +102,53 @@ public class ExcelDataProcessor {
                 }
             }
 
+            // v2 (BE-07): a detail cell named by one of the row's _mismatches entries is styled by that
+            // annotation's kind. Without this the annotator's work is invisible in the exported workbook.
+            CellStyle mismatchStyle = mismatchStyleFor(obj, field);
+            if (mismatchStyle != null) {
+                cell.setCellStyle(mismatchStyle);
+                return;
+            }
+
             cell.setCellStyle(styleManager.getDataRowStyle(rowIdx));
         } catch (Exception e) {
             cell.setCellStyle(styleManager.getDataRowStyle(rowIdx));
         }
+    }
+
+    /**
+     * The style for a cell named by one of the row's {@code _mismatches} entries, or {@code null} when the
+     * cell is clean. Annotations address a cell by its JSON property name ({@code dp_name_1}), so the join
+     * reads the field's {@link JsonProperty} rather than its Java name. An array column is rendered as one
+     * newline-joined cell, so an annotation on any element highlights the whole cell.
+     */
+    private CellStyle mismatchStyleFor(Object obj, Field field) {
+        if (!(obj instanceof Annotatable)) {
+            return null;
+        }
+        List<MismatchAnnotation> mismatches = ((Annotatable) obj).getMismatches();
+        if (mismatches == null || mismatches.isEmpty()) {
+            return null;
+        }
+        JsonProperty jsonProperty = field.getAnnotation(JsonProperty.class);
+        String cellName = jsonProperty != null ? jsonProperty.value() : field.getName();
+        for (MismatchAnnotation mismatch : mismatches) {
+            if (!cellName.equals(mismatch.getField())) {
+                continue;
+            }
+            // The predicate is "an annotation names this cell", nothing more. UNEXPECTED always carries a
+            // null expected and MISSING always a null actual, so any null-guard on either would silently
+            // drop a third of all findings — the shape of the defect being fixed here.
+            if (mismatch.getKind() == null) {
+                return styleManager.getMismatchValueStyle();
+            }
+            return switch (mismatch.getKind()) {
+                case MISSING -> styleManager.getMismatchMissingStyle();
+                case UNEXPECTED -> styleManager.getMismatchUnexpectedStyle();
+                case VALUE -> styleManager.getMismatchValueStyle();
+            };
+        }
+        return null;
     }
 
     /**
