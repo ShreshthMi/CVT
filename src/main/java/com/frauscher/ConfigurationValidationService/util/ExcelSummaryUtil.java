@@ -3,6 +3,7 @@ package com.frauscher.ConfigurationValidationService.util;
 import java.io.ByteArrayOutputStream;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -24,6 +25,12 @@ import com.frauscher.ConfigurationValidationService.util.excel.ExcelStyleManager
  * device configurations, and system details.
  */
 public class ExcelSummaryUtil {
+
+    /**
+     * The v2 per-cell annotation carrier. It drives cell styling, not a column of its own — left in the
+     * field list it renders as a raw {@code List<MismatchAnnotation>} object string on every detail sheet.
+     */
+    private static final String MISMATCHES_FIELD = "mismatches";
 
     /**
      * Creates Excel report from validation summary data.
@@ -160,7 +167,9 @@ public class ExcelSummaryUtil {
      */
     private static Field[] getOrderedFields(Object obj) {
         Class<?> clazz = obj.getClass();
-        Field[] allFields = clazz.getDeclaredFields();
+        Field[] allFields = Arrays.stream(clazz.getDeclaredFields())
+                .filter(f -> !MISMATCHES_FIELD.equals(f.getName()))
+                .toArray(Field[]::new);
         
         // Check for JsonPropertyOrder annotation
         if (clazz.isAnnotationPresent(com.fasterxml.jackson.annotation.JsonPropertyOrder.class)) {
