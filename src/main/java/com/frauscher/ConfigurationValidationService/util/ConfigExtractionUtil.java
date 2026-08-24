@@ -104,6 +104,26 @@ public class ConfigExtractionUtil {
     /**
      * Extracts timeout value from CFG_TIMEOUT block by index and multiplies by 10
      */
+    /**
+     * The FMA display value for a block's {@code SECTION} entry, which every detail table shows 1-based.
+     *
+     * <p>Degrades instead of throwing: the extractors' {@code extractValueFromBlock} yields {@code ""} for
+     * an absent entry, and {@link Integer#parseInt} on that throws inside
+     * {@code SummaryService.generateSummary} -- failing the whole validate request over one missing cell.
+     * An absent SECTION gives {@code ""} (which is also the extractors' initial value, so parallel arrays
+     * stay aligned) and a non-numeric one is passed through unchanged.</p>
+     */
+    public static String fmaFromSection(String section) {
+        if (section == null || section.trim().isEmpty()) {
+            return "";
+        }
+        try {
+            return String.valueOf(Integer.parseInt(section.trim()) + 1);
+        } catch (NumberFormatException e) {
+            return section;
+        }
+    }
+
     public static String extractTimeoutValue(ParsedConfigFile file, String timeoutIndex) {
         // Look up CFG_TIMEOUT block with matching index and get TIMEOUT_VALUE
         String timeoutValue = file.getBlocks().stream()

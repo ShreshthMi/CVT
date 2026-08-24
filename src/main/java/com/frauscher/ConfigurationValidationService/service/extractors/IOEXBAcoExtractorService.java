@@ -110,15 +110,7 @@ public class IOEXBAcoExtractorService {
         
         // Extract SECTION value and add 1 to get FMA_1_2
         String sectionValue = extractEntryValueFromBlock(sectionOutBlock, "SECTION");
-        String fma12 = "";
-        if (sectionValue != null && !sectionValue.isEmpty()) {
-            try {
-                int section = Integer.parseInt(sectionValue);
-                fma12 = String.valueOf(section + 1);
-            } catch (NumberFormatException e) {
-                fma12 = sectionValue;
-            }
-        }
+        String fma12 = ConfigExtractionUtil.fmaFromSection(sectionValue);
 
         // Extract SLCT_TIMEOUT and get corresponding timeout value
         String slctTimeout = extractEntryValueFromBlock(sectionOutBlock, "SLCT_TIMEOUT");

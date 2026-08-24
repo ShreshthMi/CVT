@@ -118,7 +118,7 @@ public class SupervisorExtractorService {
 
             // FMA section (SECTION + 1)
             String section = extractValueFromBlock(supervisBlock, "SECTION");
-            supByTsFma.add(String.valueOf(Integer.parseInt(section) + 1));
+            supByTsFma.add(ConfigExtractionUtil.fmaFromSection(section));
 
             // Timeout values
             String slctTimeout = extractValueFromBlock(supervisBlock, "SLCT_TIMEOUT");

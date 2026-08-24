@@ -96,7 +96,7 @@ public class CHCExtractorService {
             dpName1 = findDPNameById(allParsedFiles, dpId1);
 
             String section1 = extractValueFromBlock(controlBlock1, "SECTION");
-            fmaDtl1 = String.valueOf(Integer.parseInt(section1) + 1);
+            fmaDtl1 = ConfigExtractionUtil.fmaFromSection(section1);
         }
 
         if (cfgControlBlocks.size() >= 2) {
@@ -110,7 +110,7 @@ public class CHCExtractorService {
             dpName2 = findDPNameById(allParsedFiles, dpId2);
 
             String section2 = extractValueFromBlock(controlBlock2, "SECTION");
-            fmaDtl2 = String.valueOf(Integer.parseInt(section2) + 1);
+            fmaDtl2 = ConfigExtractionUtil.fmaFromSection(section2);
         }
 
         return CHCDetail.builder()
