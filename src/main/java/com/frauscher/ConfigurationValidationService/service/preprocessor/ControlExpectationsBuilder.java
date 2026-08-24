@@ -11,6 +11,8 @@ import java.util.Set;
 
 import org.springframework.stereotype.Component;
 
+import lombok.RequiredArgsConstructor;
+
 import com.frauscher.ConfigurationValidationService.dto.fct.EvaluatedFma;
 import com.frauscher.ConfigurationValidationService.dto.pdq.ControlTable;
 import com.frauscher.ConfigurationValidationService.dto.pdq.TrackSection;
@@ -44,16 +46,21 @@ import com.frauscher.ConfigurationValidationService.dto.pdq.TrackSection;
  * just that one block.</p>
  */
 @Component
+@RequiredArgsConstructor
 public class ControlExpectationsBuilder {
 
     private static final String CONTROL = "CFG_CONTROL";
     private static final String AXCNT = "CFG_AXCNT";
+    private static final String SECTION_BLOCK = "CFG_SECTION";
+    private static final String RESET_OUT = "RESET_OUT";
     private static final String SLCT_TIMEOUT = "SLCT_TIMEOUT";
     private static final String BEHAV_INPUT3 = "BEHAV_INPUT3";
     private static final String ID = "ID";
     private static final String SECTION = "SECTION";
     /** Generous bound on a combination's constituent count (real combinations are 2–3 mains). */
     private static final int MAX_COMBINATION_SIZE = 8;
+
+    private final ResetOutMappingService resetOutMappings;
 
     public List<InstancedExpectation> build(
             ControlTable controlTable, BaselineIndex index, BaselineInconsistencies problems) {
@@ -95,7 +102,68 @@ public class ControlExpectationsBuilder {
         for (String dpName : dpNames) {
             addForDp(out, dpName, plusByDp, minusByDp, tracks, index, problems);
         }
+        addResetOut(out, tracks, index, problems);
         return out;
+    }
+
+    /**
+     * Derives {@code CFG_SECTION.RESET_OUT} from the Control table's <b>Reset Type</b> column (col E) --
+     * the second control-table-derived key alongside {@code BEHAV_INPUT3}, and the one that was specified
+     * but never built: {@code TrackSection.resetType} has been parsed since VTF-331 and read by nothing,
+     * so the rule sat dormant and UAT saw no RESET_OUT checks at all.
+     *
+     * <p>The axis is different from the rest of this class. {@code CFG_CONTROL} is emitted per
+     * <i>counting-head</i> DP; {@code CFG_SECTION} lives on the AEB that <i>evaluates</i> a track section
+     * (the file carrying {@code CFG_ZP_FMA1/2}), so tracks are grouped by their FCT {@code EvaluatedFma}
+     * owner. That grouping is also the scope guard: every {@code fileId} emitted here is by construction an
+     * evaluating AEB, so unlike {@code BEHAV_INPUT3} no separate has-the-block test is needed.</p>
+     *
+     * <p>An AEB evaluating several track sections must see one Reset Type across all of them -- RESET_OUT is
+     * a single per-file value with a single {@code dp_details} column, so differing types have no
+     * representation. That is a baseline defect, recorded and skipped per AEB in the VTF-360/371 style
+     * rather than resolved by picking one.</p>
+     */
+    private void addResetOut(List<InstancedExpectation> out, List<TrackSection> tracks,
+            BaselineIndex index, BaselineInconsistencies problems) {
+
+        // evaluating AEB -> normalised Reset Type -> "'track' = VERBATIM TEXT" (names the pair on conflict)
+        Map<Integer, Map<String, String>> byEvaluator = new LinkedHashMap<>();
+        for (TrackSection track : tracks) {
+            EvaluatedFma fma = index.fmaByName(track.name());
+            if (fma == null) {
+                continue; // not an FCT-evaluated track; addControlBlock reports the ones that are referenced
+            }
+            Integer dpId = BaselineIndex.parseId(fma.dpId(), "evaluating DP of track " + track.name(), problems);
+            if (dpId == null) {
+                continue;
+            }
+            String key = ResetOutMappingService.normalize(track.resetType());
+            if (key == null) {
+                continue; // unreachable for a named track: ControlTableParser rejects a blank Reset Type
+            }
+            byEvaluator.computeIfAbsent(dpId, k -> new LinkedHashMap<>())
+                    .putIfAbsent(key, "'" + track.name() + "' = " + track.resetType().trim());
+        }
+
+        for (Map.Entry<Integer, Map<String, String>> evaluator : byEvaluator.entrySet()) {
+            Map<String, String> distinct = evaluator.getValue();
+            if (distinct.size() > 1) {
+                problems.add("AEB " + evaluator.getKey() + " evaluates track sections with differing Reset "
+                        + "Types: " + String.join(", ", distinct.values())
+                        + " — RESET_OUT is one value per AEB, so the tracks its CFG_ZP_FMA1/2 name must agree");
+                continue;
+            }
+            // "'<track>' = <RESET TYPE>" -> the Reset Type half
+            String labelled = distinct.values().iterator().next();
+            String resetType = labelled.substring(labelled.indexOf("' = ") + 4);
+            String code = resetOutMappings.codeFor(resetType);
+            if (code == null) {
+                problems.add("No RESET_OUT mapping for Reset Type '" + resetType + "' (track section "
+                        + labelled.substring(0, labelled.indexOf("' = ") + 1) + ")");
+                continue;
+            }
+            out.add(InstancedExpectation.single(evaluator.getKey(), SECTION_BLOCK, RESET_OUT, code));
+        }
     }
 
     private void addForDp(

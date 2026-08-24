@@ -26,7 +26,7 @@ import com.frauscher.ConfigurationValidationService.dto.pdq.TrackSection;
  */
 class ControlExpectationsBuilderTest {
 
-    private final ControlExpectationsBuilder builder = new ControlExpectationsBuilder();
+    private final ControlExpectationsBuilder builder = new ControlExpectationsBuilder(new ResetOutMappingService());
     private final BaselineInconsistencies problems = new BaselineInconsistencies();
 
     private List<InstancedExpectation> build(ComAebMap fct, ControlTable ct) {

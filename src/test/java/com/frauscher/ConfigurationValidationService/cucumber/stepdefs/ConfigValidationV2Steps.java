@@ -65,7 +65,8 @@ public class ConfigValidationV2Steps {
     public void aV2ValidationInput() {
         userInput = new ValidationInputV2();
         userInput.setFctData(fctParsingService.parse(FctFixtures.acoBytes()));
-        userInput.setPdqData(pdqParsingService.parse(new ByteArrayInputStream(PdqFixtures.workbookBytes())));
+        userInput.setPdqData(PdqFixtures.withConsistentResetTypes(
+                pdqParsingService.parse(new ByteArrayInputStream(PdqFixtures.workbookBytes()))));
     }
 
     @When("the v2 validation runs over a parsed config file")

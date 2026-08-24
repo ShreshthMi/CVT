@@ -13,6 +13,7 @@ import com.frauscher.ConfigurationValidationService.model.CHCDetail;
 import com.frauscher.ConfigurationValidationService.model.ConfigBlock;
 import com.frauscher.ConfigurationValidationService.model.ConfigEntry;
 import com.frauscher.ConfigurationValidationService.model.DataTransmissionDetail;
+import com.frauscher.ConfigurationValidationService.model.DpDetail;
 import com.frauscher.ConfigurationValidationService.model.EthernetDetail;
 import com.frauscher.ConfigurationValidationService.model.IOEXBAcoDetail;
 import com.frauscher.ConfigurationValidationService.model.IOEXBBehaviourDetail;
@@ -162,6 +163,7 @@ public class MismatchAnnotator {
             case SECTION_OUT -> annotateAco(summary, filesById, f);
             case "CFG_AXCNT" -> annotateIoexbBehaviour(summary, f);
             case "CFG_DATA_OUT" -> annotateDataTransmission(summary, filesById, f);
+            case "CFG_SECTION" -> annotateDpDetail(summary, f);
             default -> { /* CFG_IP_SWITCH and any other instanced block has no detail cell */ }
         }
     }
@@ -356,6 +358,26 @@ public class MismatchAnnotator {
             case UNEXPECTED -> add(row, MismatchAnnotation.unexpected("aco_fma1", null, row.getAcoFma1(), rid));
             case MISSING -> { /* unreachable here (position < occ.size); MISSING handled above */ }
         }
+    }
+
+    // ---- DP details: CFG_SECTION RESET_OUT (SINGLE, control-table derived) → dp_details ----
+
+    /**
+     * {@code RESET_OUT} is derived from the Control table's Reset Type rather than read from the CQ-IR, so
+     * it arrives as an instanced finding. Its cell is the existing DP Details column
+     * ({@code ExcelColumnMapper} "INACTIVE RESET RESTRICTION / RESET_OUT"), whose extractor stores the
+     * mapped label -- hence the {@code value-mappings} display transform on both sides.
+     */
+    private void annotateDpDetail(ValidationSummary summary, InstancedFinding f) {
+        if (f.kind() != MismatchAnnotation.Kind.VALUE || !"RESET_OUT".equals(f.entryKey())) {
+            return;
+        }
+        DpDetail row = first(summary.getDpDetails(), r -> eq(f.fileId(), r.getDpCanId()));
+        if (row == null) {
+            return;
+        }
+        add(row, MismatchAnnotation.value("reset_out", null,
+                mapped("RESET_OUT", f.rawExpected()), mapped("RESET_OUT", f.rawActual()), f.result().getId()));
     }
 
     // ---- IOEXB behaviour: CFG_AXCNT BEHAV_INPUT3 (SINGLE) → ioexb_behaviour_details ----

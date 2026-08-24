@@ -110,7 +110,8 @@ class ConfigValidationV2ControllerTest {
     }
 
     private PdqUploadResponse pdqData() {
-        return pdqParsingService.parse(new ByteArrayInputStream(PdqFixtures.workbookBytes()));
+        return PdqFixtures.withConsistentResetTypes(
+                pdqParsingService.parse(new ByteArrayInputStream(PdqFixtures.workbookBytes())));
     }
 
     private String requestBody(ComAebMap fctData, PdqUploadResponse pdqData) throws Exception {

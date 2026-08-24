@@ -35,7 +35,7 @@ class DefaultExpectationsPreprocessorTest {
             new CountingHeadExpectationsBuilder(),
             new SupervisorExpectationsBuilder(),
             new AcoExpectationsBuilder(),
-            new ControlExpectationsBuilder(),
+            new ControlExpectationsBuilder(new ResetOutMappingService()),
             new IpSwitchExpectationsBuilder(),
             new ForwardingExpectationsBuilder(),
             new DataTransmissionExpectationsBuilder());
