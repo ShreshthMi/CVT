@@ -294,6 +294,129 @@ class MismatchAnnotatorTest {
         assertNull(row.getMismatches());
     }
 
+    // ---------- scalar routes: file-gated, engine-verdict, display-form ----------
+
+    /**
+     * A scalar ValidationResult names only a file, so before the gate existed annotateAcoScalar compared
+     * the expected value against every ACO row in the project and stamped one file's result_id onto other
+     * DPs' rows. DP2 below is wrong in the same column and must stay untouched.
+     */
+    @Test
+    void acoScalarAnnotatesOnlyItsOwnFile() {
+        IOEXBAcoDetail mine = IOEXBAcoDetail.builder().dpId("1").dpName("DP2A").aux1Out("3").build();
+        IOEXBAcoDetail other = IOEXBAcoDetail.builder().dpId("2").dpName("DP3A").aux1Out("9").build();
+        ValidationSummary summary = new ValidationSummary();
+        summary.setIoexbAcoDetails(list(mine, other));
+
+        annotator.annotate(summary,
+                List.of(scalar("r0", "C1.ADC", "CFG_SECTION_OUT", "AUX1_OUT", "5", "3")),
+                List.of(), List.of(dpFile(1, "DP2A"), dpFile(2, "DP3A")));
+
+        MismatchAnnotation a = byField(mine.getMismatches(), "aux1_out", null);
+        assertEquals("5", a.getExpected());
+        assertEquals("3", a.getActual());
+        assertEquals("r0", a.getResultId());
+        assertNull(other.getMismatches(), "another DP's row must not carry this file's verdict");
+    }
+
+    /** A Set.toString() payload from the Optional* rules must not reach the tooltip as bracket form. */
+    @Test
+    void acoScalarMapsAMultiValuedExpectedPerToken() {
+        IOEXBAcoDetail row = IOEXBAcoDetail.builder().dpId("1").dpName("DP2A").aux1Out("3").build();
+        ValidationSummary summary = new ValidationSummary();
+        summary.setIoexbAcoDetails(list(row));
+
+        annotator.annotate(summary,
+                List.of(scalar("r1", "C1.ADC", "CFG_SECTION_OUT", "AUX1_OUT", "[3, 4]", "3")),
+                List.of(), List.of(dpFile(1, "DP2A")));
+
+        assertEquals("3, 4", byField(row.getMismatches(), "aux1_out", null).getExpected());
+    }
+
+    /** A FAIL on a file with no ACO row (CFG_AXCNT-only) annotates nothing at all -- results-only. */
+    @Test
+    void acoScalarWithNoRowForItsFileAnnotatesNothing() {
+        IOEXBAcoDetail other = IOEXBAcoDetail.builder().dpId("2").dpName("DP3A").aux1Out("9").build();
+        ValidationSummary summary = new ValidationSummary();
+        summary.setIoexbAcoDetails(list(other));
+
+        annotator.annotate(summary,
+                List.of(scalar("r2", "C1.ADC", "CFG_SECTION_OUT", "AUX1_OUT", "5", "3")),
+                List.of(), List.of(dpFile(1, "DP2A"), dpFile(2, "DP3A")));
+
+        assertNull(other.getMismatches());
+    }
+
+    /** UAT #2: a supervisor RESET_TYPE verdict must land on the row for its own FMA. */
+    @Test
+    void supervisorResetTypeScalarLandsOnItsFmaRow() {
+        SupervisorDetail fma1 = SupervisorDetail.builder().dpId("1").dpName("DP2A").resetType("3").build();
+        SupervisorDetail fma2 = SupervisorDetail.builder().dpId("1").dpName("DP2A").resetType("1").build();
+        ValidationSummary summary = new ValidationSummary();
+        summary.setSupervisorDetail(list(fma1, fma2));
+
+        annotator.annotate(summary,
+                List.of(scalar("r3", "C1.ADC", "CFG_SUPERVIS_FMA2", "RESET_TYPE", "3", "1")),
+                List.of(), List.of(supervisorFile(1, "CFG_SUPERVIS_FMA1", "CFG_SUPERVIS_FMA2")));
+
+        MismatchAnnotation a = byField(fma2.getMismatches(), "reset_type", null);
+        assertEquals("3", a.getExpected());
+        assertEquals("1", a.getActual());
+        assertNull(fma1.getMismatches(), "the FMA1 row must not carry an FMA2 verdict");
+    }
+
+    /** Only one FMA block present means one row; the other FMA's result has no cell and stays quiet. */
+    @Test
+    void supervisorScalarHandlesASingleFmaBlock() {
+        SupervisorDetail only = SupervisorDetail.builder().dpId("1").dpName("DP2A").resetDelay("4").build();
+        ValidationSummary summary = new ValidationSummary();
+        summary.setSupervisorDetail(list(only));
+
+        annotator.annotate(summary,
+                List.of(scalar("r4", "C1.ADC", "CFG_SUPERVIS_FMA2", "RESET_DELAY", "2", "4"),
+                        scalar("r5", "C1.ADC", "CFG_SUPERVIS_FMA1", "RESET_DELAY", "2", "4")),
+                List.of(), List.of(supervisorFile(1, "CFG_SUPERVIS_FMA2")));
+
+        assertEquals(1, only.getMismatches().size(), "the absent FMA1 must not also annotate this row");
+        assertEquals("r4", byField(only.getMismatches(), "reset_delay", null).getResultId());
+    }
+
+    /**
+     * UAT #5: the four CFG_ZP counts are validated but their only display home is chc_details. The
+     * annotation takes the engine's verdict verbatim -- CHCExtractorService stores these three counts raw
+     * while value-mappings defines labels for them, so a display re-compare would flag every row.
+     */
+    @Test
+    void chcCountScalarUsesTheEngineVerdict() {
+        CHCDetail mine = CHCDetail.builder().dpId("1").dpName("DP2A").supervisCount("2").build();
+        CHCDetail other = CHCDetail.builder().dpId("2").dpName("DP3A").supervisCount("2").build();
+        ValidationSummary summary = new ValidationSummary();
+        summary.setChcDetails(list(mine, other));
+
+        annotator.annotate(summary,
+                List.of(scalar("r6", "C1.ADC", "CFG_ZP", "SUPERVIS_COUNT", "5", "2")),
+                List.of(), List.of(dpFile(1, "DP2A"), dpFile(2, "DP3A")));
+
+        MismatchAnnotation a = byField(mine.getMismatches(), "supervis_count", null);
+        assertEquals("5", a.getExpected());
+        assertEquals("2", a.getActual());
+        assertNull(other.getMismatches(), "an identical value on another DP must not be flagged");
+    }
+
+    /** A scalar block with no detail column of its own is still dropped silently. */
+    @Test
+    void unroutedScalarBlockLeavesRowsUnannotated() {
+        CHCDetail row = CHCDetail.builder().dpId("1").dpName("DP2A").supervisCount("2").build();
+        ValidationSummary summary = new ValidationSummary();
+        summary.setChcDetails(list(row));
+
+        annotator.annotate(summary,
+                List.of(scalar("r7", "C1.ADC", "CFG_RSR_TYPE", "RSR_TYPE", "1", "2")),
+                List.of(), List.of(dpFile(1, "DP2A")));
+
+        assertNull(row.getMismatches());
+    }
+
     // ---------- helpers ----------
 
     private MismatchAnnotation byField(List<MismatchAnnotation> list, String field, Integer index) {
@@ -302,6 +425,24 @@ class MismatchAnnotatorTest {
                 .filter(a -> field.equals(a.getField()) && java.util.Objects.equals(index, a.getIndex()))
                 .findFirst()
                 .orElseThrow(() -> new AssertionError("no annotation for " + field + "[" + index + "] in " + list));
+    }
+
+    /** A scalar-bucket result: the engine records the file by name only, never by id. */
+    private ValidationResult scalar(String id, String fileName, String block, String entry,
+            String expected, String actual) {
+        ValidationResult r = new ValidationResult(fileName, "InputMatch", block, entry, expected, actual, "FAIL");
+        r.setId(id);
+        return r;
+    }
+
+    /** A DP file carrying the named supervisor blocks, in the order given. */
+    private ParsedConfigFile supervisorFile(int id, String... supervisBlocks) {
+        List<ConfigBlock> blocks = new ArrayList<>();
+        blocks.add(block("ID", 0, entryC("ID", String.valueOf(id), "DP" + id)));
+        for (int i = 0; i < supervisBlocks.length; i++) {
+            blocks.add(block(supervisBlocks[i], i + 1, entry("RESET_TYPE", "1")));
+        }
+        return new ParsedConfigFile("C" + id + ".ADC", blocks, true, false, false, false, id);
     }
 
     private ValidationResult vr(String id, String status) {
@@ -322,7 +463,7 @@ class MismatchAnnotatorTest {
     }
 
     private ParsedConfigFile dpFile(int id, String name) {
-        return new ParsedConfigFile("C" + id, new ArrayList<>(List.of(
+        return new ParsedConfigFile("C" + id + ".ADC", new ArrayList<>(List.of(
                 block("ID", 0, entryC("ID", String.valueOf(id), name)))),
                 false, false, false, false, id);
     }

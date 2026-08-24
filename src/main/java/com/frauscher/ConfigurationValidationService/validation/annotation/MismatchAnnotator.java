@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.stereotype.Component;
 
@@ -77,6 +78,31 @@ public class MismatchAnnotator {
             "AUX2_OUT", "aux2_out",
             "AUX2_NO_NC", "aux2_no_nc");
 
+    private static final String CFG_ZP = "CFG_ZP";
+    private static final List<String> SUPERVIS_ORDER = List.of("CFG_SUPERVIS_FMA1", "CFG_SUPERVIS_FMA2");
+    private static final Set<String> SUPERVIS_BLOCKS = Set.copyOf(SUPERVIS_ORDER);
+
+    /** (entry) to supervisor_details column, for the scalar CFG_SUPERVIS_FMA* checks. */
+    private static final Map<String, String> SUPERVISOR_SCALAR_FIELD = Map.of(
+            "RESET_TYPE", "reset_type",
+            "RESET_DELAY", "reset_delay");
+
+    /** (entry) to chc_details column, for the scalar CFG_ZP checks. */
+    private static final Map<String, String> CHC_ZP_FIELD = Map.of(
+            "INTERVAL", "interval",
+            "SUPERVIS_COUNT", "supervis_count",
+            "SYSTEM_COUNT", "system_count",
+            "PARTIAL_COUNT", "partial_count");
+
+    /**
+     * Entries whose detail column carries the {@link ValueMappingService} label. The rest are stored raw by
+     * their extractor -- CHC's three counts ({@code CHCExtractorService} maps only {@code INTERVAL}) and the
+     * supervisor {@code RESET_DELAY} -- and a mapped annotation would disagree with the cell it points at.
+     */
+    private static final Set<String> DISPLAY_MAPPED_ENTRIES = Set.of(
+            "CLR_OCC", "TYPE_AUX1", "TYPE_AUX2", "AUX1_OUT", "AUX1_NO_NC", "AUX2_OUT", "AUX2_NO_NC",
+            "RESET_TYPE", "INTERVAL");
+
     private final ValueMappingService valueMappingService;
     private final ForwardingDestinationResolver forwardingResolver;
 
@@ -92,9 +118,11 @@ public class MismatchAnnotator {
             List<InstancedFinding> findings, List<ParsedConfigFile> parsedFiles) {
 
         Map<Integer, ParsedConfigFile> filesById = new LinkedHashMap<>();
+        Map<String, Integer> fileIdByName = new LinkedHashMap<>();
         if (parsedFiles != null) {
             for (ParsedConfigFile f : parsedFiles) {
                 filesById.putIfAbsent(f.getId(), f);
+                fileIdByName.putIfAbsent(f.getFileName(), f.getId());
             }
         }
 
@@ -114,12 +142,11 @@ public class MismatchAnnotator {
         }
         forwardingByCom.forEach((comId, group) -> annotateForwarding(summary, filesById, parsedFiles, comId, group));
 
-        // Scalar bucket: only CFG_SECTION_OUT aux fields have a detail cell; the rest are results-only.
+        // Scalar bucket: every block whose keys own a detail cell is routed; the rest are results-only.
         if (scalarResults != null) {
             for (ValidationResult r : scalarResults) {
-                if ("FAIL".equals(r.getStatus()) && SECTION_OUT.equals(r.getBlockName())
-                        && ACO_AUX_FIELD.containsKey(r.getEntryKey())) {
-                    annotateAcoScalar(summary, r);
+                if ("FAIL".equals(r.getStatus())) {
+                    dispatchScalar(summary, filesById, fileIdByName, r);
                 }
             }
         }
@@ -422,17 +449,154 @@ public class MismatchAnnotator {
         row.setFwrdAcdToDpDtls(dtls);
     }
 
-    // ---- Scalar CFG_SECTION_OUT aux: one result, possibly several offending aco rows ----
+    // ---- Scalar results that own a detail cell ----
 
-    private void annotateAcoScalar(ValidationSummary summary, ValidationResult r) {
-        String field = ACO_AUX_FIELD.get(r.getEntryKey());
-        String expectedDisplay = mapped(r.getEntryKey(), r.getExpectedValue());
+    /**
+     * Routes a failing scalar result onto its detail cell. Every route resolves the row by the result's
+     * {@code fileName} first: a scalar {@link ValidationResult} carries no file id, only the name, and
+     * without that gate one file's verdict is stamped onto every DP's rows -- the broadcast shape the
+     * VTF-359..362 series spent four tickets removing from the rules.
+     */
+    private void dispatchScalar(ValidationSummary summary, Map<Integer, ParsedConfigFile> filesById,
+            Map<String, Integer> fileIdByName, ValidationResult r) {
+
+        Integer fileId = fileIdByName.get(r.getFileName());
+        if (fileId == null) {
+            return; // result cannot be attributed to an uploaded file -> results-only
+        }
+        String block = r.getBlockName();
+        String entry = r.getEntryKey();
+        if (SECTION_OUT.equals(block) && ACO_AUX_FIELD.containsKey(entry)) {
+            annotateAcoScalar(summary, fileId, r, ACO_AUX_FIELD.get(entry));
+        } else if (SUPERVIS_BLOCKS.contains(block) && SUPERVISOR_SCALAR_FIELD.containsKey(entry)) {
+            annotateSupervisorScalar(summary, filesById.get(fileId), fileId, r,
+                    SUPERVISOR_SCALAR_FIELD.get(entry));
+        } else if (CFG_ZP.equals(block) && CHC_ZP_FIELD.containsKey(entry)) {
+            annotateChcScalar(summary, fileId, r, CHC_ZP_FIELD.get(entry));
+        }
+    }
+
+    /**
+     * ACO aux (CFG_SECTION_OUT) to ioexb_aco_details. A file can hold several CFG_SECTION_OUT occurrences
+     * and {@code InputMatchRule} flattens them into one result, so the offending row(s) <em>within</em> the
+     * file are still picked by value; the file gate is what stops that comparison reaching other DPs.
+     */
+    private void annotateAcoScalar(ValidationSummary summary, int fileId, ValidationResult r, String field) {
+        String expected = display(r.getEntryKey(), r.getExpectedValue());
+        boolean annotated = false;
         for (IOEXBAcoDetail row : nonNull(summary.getIoexbAcoDetails())) {
+            if (!eq(fileId, row.getDpId())) {
+                continue;
+            }
             String actual = acoField(row, field);
-            if (!expectedDisplay.equals(actual)) {
-                add(row, MismatchAnnotation.value(field, null, expectedDisplay, actual, r.getId()));
+            if (!expected.equals(actual)) {
+                add(row, MismatchAnnotation.value(field, null, expected, actual, r.getId()));
+                annotated = true;
             }
         }
+        if (!annotated) {
+            noCell(r, "ioexb_aco_details");
+        }
+    }
+
+    /** Supervisor scalars (CFG_SUPERVIS_FMA1/2 RESET_TYPE, RESET_DELAY) to supervisor_details. */
+    private void annotateSupervisorScalar(ValidationSummary summary, ParsedConfigFile file, int fileId,
+            ValidationResult r, String field) {
+
+        SupervisorDetail row = supervisorRowFor(summary, file, fileId, r.getBlockName());
+        if (row == null) {
+            noCell(r, "supervisor_details");
+            return;
+        }
+        addScalar(row, field, r);
+    }
+
+    /** CFG_ZP count scalars to chc_details (one row per file, per {@code CHCExtractorService}). */
+    private void annotateChcScalar(ValidationSummary summary, int fileId, ValidationResult r, String field) {
+        CHCDetail row = first(summary.getChcDetails(), c -> eq(fileId, c.getDpId()));
+        if (row == null) {
+            noCell(r, "chc_details");
+            return;
+        }
+        addScalar(row, field, r);
+    }
+
+    /**
+     * Attaches a scalar result to a cell using the verdict the engine already reached. The row is never
+     * re-compared against the expected value: CHC's counts are stored raw while {@code value-mappings}
+     * defines labels for them, so a display re-compare would flag every row, correct ones included.
+     */
+    private <T extends Annotatable> void addScalar(T row, String field, ValidationResult r) {
+        add(row, MismatchAnnotation.value(field, null,
+                display(r.getEntryKey(), r.getExpectedValue()),
+                display(r.getEntryKey(), r.getActualValue()), r.getId()));
+    }
+
+    /**
+     * The supervisor row a scalar CFG_SUPERVIS_FMA* result belongs to. {@code SupervisorExtractorService}
+     * emits one row per (file, FMA) but the DTO carries no FMA field, so the row is located positionally:
+     * it emits FMA1 before FMA2 and the later sort compares {@code dpId} only ({@code List.sort} is
+     * stable), so a file's rows line up in order with the FMA blocks the file actually has. If those two
+     * disagree the result stays results-only rather than risk annotating the wrong FMA.
+     */
+    private SupervisorDetail supervisorRowFor(ValidationSummary summary, ParsedConfigFile file, int fileId,
+            String block) {
+
+        if (file == null || file.getBlocks() == null) {
+            return null;
+        }
+        List<String> present = new ArrayList<>();
+        for (String candidate : SUPERVIS_ORDER) {
+            if (file.getBlocks().stream().anyMatch(b -> candidate.equals(b.getName()))) {
+                present.add(candidate);
+            }
+        }
+        List<SupervisorDetail> rows = new ArrayList<>();
+        for (SupervisorDetail row : nonNull(summary.getSupervisorDetail())) {
+            if (eq(fileId, row.getDpId())) {
+                rows.add(row);
+            }
+        }
+        int slot = present.indexOf(block);
+        return (slot >= 0 && rows.size() == present.size()) ? rows.get(slot) : null;
+    }
+
+    /**
+     * The detail cell's form of a rule value. A {@code Set.toString()} payload ("[3, 4]", what the
+     * {@code Optional*} rules store) is split into its raw tokens and mapped per token, so a tooltip never
+     * shows bracket form against a display-form column. The split happens before mapping, so a label
+     * containing a comma cannot be corrupted by it.
+     */
+    private String display(String entryKey, String raw) {
+        if (raw == null) {
+            return "";
+        }
+        String trimmed = raw.trim();
+        if (trimmed.length() > 2 && trimmed.startsWith("[") && trimmed.endsWith("]")) {
+            StringBuilder joined = new StringBuilder();
+            for (String token : trimmed.substring(1, trimmed.length() - 1).split(",")) {
+                if (joined.length() > 0) {
+                    joined.append(", ");
+                }
+                joined.append(displayOne(entryKey, token.trim()));
+            }
+            return joined.toString();
+        }
+        return displayOne(entryKey, trimmed);
+    }
+
+    private String displayOne(String entryKey, String raw) {
+        return DISPLAY_MAPPED_ENTRIES.contains(entryKey) ? mapped(entryKey, raw) : raw;
+    }
+
+    /**
+     * Debug rather than warn: until the CFG_SECTION_OUT rules are scoped to the files that carry the block,
+     * a CFG_AXCNT-only file fails all seven aux keys with no ACO row to land on, and warning would put one
+     * line per key per such file into every run.
+     */
+    private void noCell(ValidationResult r, String table) {
+        log.debug("No {} row for {}.{} on {} - result {} stays results-only",
+                table, r.getBlockName(), r.getEntryKey(), r.getFileName(), r.getId());
     }
 
     private String acoField(IOEXBAcoDetail row, String field) {
