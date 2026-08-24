@@ -48,5 +48,12 @@ public enum PdqInvalidReason {
     UNSUPPORTED_LOGIC_TYPE,
 
     /** The CQ-IR PROJECT_NUMBER row is missing or inconsistent (e.g. NO with a non-empty Remarks). */
-    PROJECT_BLOCK_INVALID
+    PROJECT_BLOCK_INVALID,
+
+    /**
+     * A Control table track-section row names a track but leaves its Reset Type blank. Reset Type drives
+     * the derived {@code CFG_SECTION.RESET_OUT}, so a named track without one makes the control table
+     * incomplete rather than merely sparse.
+     */
+    MISSING_RESET_TYPE
 }

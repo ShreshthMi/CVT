@@ -1,17 +1,24 @@
 package com.frauscher.ConfigurationValidationService.service.pdq;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.DataFormatter;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.frauscher.ConfigurationValidationService.dto.pdq.ControlTable;
+import com.frauscher.ConfigurationValidationService.exception.PdqInvalidException;
+import com.frauscher.ConfigurationValidationService.exception.PdqInvalidReason;
 import com.frauscher.ConfigurationValidationService.dto.pdq.DpTableRow;
 import com.frauscher.ConfigurationValidationService.dto.pdq.TrackSection;
 import com.frauscher.ConfigurationValidationService.testsupport.PdqFixtures;
@@ -27,6 +34,36 @@ class ControlTableParserTest {
     @BeforeEach
     void setUp() {
         parser = new ControlTableParser(new PdqWorkbookContract());
+    }
+
+    /**
+     * Reset Type is the sole source of the derived {@code CFG_SECTION.RESET_OUT}, so a row that names a
+     * track section must carry one — a blank there makes the control table incomplete, not merely sparse.
+     */
+    @Test
+    void rejectsANamedTrackSectionWithNoResetType() throws Exception {
+        try (Workbook wb = PdqFixtures.loadWorkbook()) {
+            Sheet sheet = wb.getSheet("Control table");
+            blankResetTypeOfFirstTrackSection(sheet);
+
+            PdqInvalidException thrown = assertThrows(PdqInvalidException.class, () -> parser.parse(sheet));
+
+            assertEquals(PdqInvalidReason.MISSING_RESET_TYPE, thrown.getReason());
+        }
+    }
+
+    /** Column E of the row naming 1AXT1 — located by text so it survives a fixture re-layout. */
+    private void blankResetTypeOfFirstTrackSection(Sheet sheet) {
+        DataFormatter formatter = new DataFormatter();
+        for (Row row : sheet) {
+            for (Cell cell : row) {
+                if ("1AXT1".equals(formatter.formatCellValue(cell).strip())) {
+                    row.getCell(cell.getColumnIndex() + 3).setBlank(); // B name -> E resetType
+                    return;
+                }
+            }
+        }
+        throw new AssertionError("fixture has no 1AXT1 track section");
     }
 
     @Test

@@ -54,12 +54,13 @@ public class ControlTableParser {
             if (!isInteger(serial)) {
                 break;
             }
+            String name = cellText(row, c.get("name"));
             out.add(new TrackSection(
                     serial,
-                    cellText(row, c.get("name")),
+                    name,
                     splitComma(cellText(row, c.get("dpIn"))),
                     splitComma(cellText(row, c.get("dpOut"))),
-                    cellText(row, c.get("resetType")),
+                    resetType(name, cellText(row, c.get("resetType"))),
                     trackType(cellText(row, c.get("trackOutput"))),
                     fadcAutoReset(cellText(row, c.get("fadcAutoReset")), cellText(row, c.get("logicType"))),
                     yesNo(cellText(row, c.get("autoResetByTimer")))));
@@ -82,6 +83,20 @@ public class ControlTableParser {
                     yesNo(cellText(row, c.get("eChc")))));
         }
         return out;
+    }
+
+    /**
+     * Reset Type is passed through verbatim (input-artefacts-pdq-workbook.wiki, no catalog enforced), but a
+     * row that names a track section must carry one: it is the sole source of the derived
+     * {@code CFG_SECTION.RESET_OUT}, so a blank leaves that AEB's check with nothing to validate against.
+     * A blank on an unnamed row is just an empty row and is left alone.
+     */
+    private String resetType(String trackSectionName, String value) {
+        if (!trackSectionName.isBlank() && value.isBlank()) {
+            throw new PdqInvalidException(PdqInvalidReason.MISSING_RESET_TYPE,
+                    "Control table track section '" + trackSectionName + "' has no Reset Type");
+        }
+        return value;
     }
 
     private String trackType(String value) {
