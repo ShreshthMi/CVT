@@ -24,7 +24,7 @@ import com.frauscher.ConfigurationValidationService.dto.pdq.TrackSection;
  * {@code DIR_INV = (X∈dpOut) == (dpTable[X] BELOW THE RAIL) ? 0 : 1}; {@code SLCT_TIMEOUT =
  * chain(X) == chain(fileDP) ? 0 : 1}.</p>
  *
- * <p>Unresolvable references (VTF-360, vtf-371-design.md §3) are recorded in the
+ * <p>Unresolvable references (VTF-360, vtf-360-design.md §3) are recorded in the
  * {@link BaselineInconsistencies} and skipped at their grain — the whole FMA when its track/ids do
  * not resolve, the single head (both expectations) when the head or its DP-table row does not — so
  * one run enumerates every problem before the preprocessor rejects.</p>

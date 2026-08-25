@@ -8,7 +8,7 @@ import java.util.Set;
 import com.frauscher.ConfigurationValidationService.exception.BaselineInconsistentException;
 
 /**
- * Request-scoped accumulator for post-gate baseline inconsistencies (vtf-371-design.md §2). Builders
+ * Request-scoped accumulator for post-gate baseline inconsistencies (vtf-360-design.md §2). Builders
  * and the forwarding resolver record every unresolvable reference here — skipping the affected
  * derivation at its documented grain and continuing — so a single run discovers <b>all</b> problems.
  * {@link #throwIfAny} then rejects with one {@code PHASE2_BASELINE_INCONSISTENT} whose message

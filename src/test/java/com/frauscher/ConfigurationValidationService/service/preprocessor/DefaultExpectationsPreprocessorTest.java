@@ -25,7 +25,7 @@ import com.frauscher.ConfigurationValidationService.exception.BaselineInconsiste
 /**
  * VTF-360 end-to-end preprocessor behavior: a gate-passing baseline with several distinct post-gate
  * defects is rejected ONCE with every problem enumerated in the message (accumulate-then-reject,
- * vtf-371-design.md §2); a clean baseline preprocesses without throwing.
+ * vtf-360-design.md §2); a clean baseline preprocesses without throwing.
  */
 class DefaultExpectationsPreprocessorTest {
 

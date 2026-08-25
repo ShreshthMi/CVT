@@ -16,7 +16,7 @@ import com.frauscher.ConfigurationValidationService.dto.pdq.TrackSection;
 
 /**
  * The shared FCT + Control-Table lookup index for the instanced-expectation builders, built once per
- * request (vtf-371-design.md §4). Replaces the per-builder copies of {@code idByDpName} /
+ * request (vtf-360-design.md §4). Replaces the per-builder copies of {@code idByDpName} /
  * {@code chainByDpId} / {@code fmaByName} / {@code trackByName} and fixes their two audited defects
  * at the root:
  * <ul>

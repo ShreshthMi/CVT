@@ -30,7 +30,7 @@ import com.frauscher.ConfigurationValidationService.service.preprocessor.Baselin
  * Both networks must resolve to the <b>same</b> present COM (VTF-360 D4: an NW2-mirror failure leaves
  * the member unresolved — NW1's answer is not accepted alone). A member that cannot be resolved records
  * its problem in the {@link BaselineInconsistencies} and is excluded; the evaluation-phase end-check
- * then rejects with the complete list (vtf-371-design.md §2): Phase 2 supplies no external IP baseline,
+ * then rejects with the complete list (vtf-360-design.md §2): Phase 2 supplies no external IP baseline,
  * so every forwarding dest must be wired to a COM actually present in the set.
  */
 @Component

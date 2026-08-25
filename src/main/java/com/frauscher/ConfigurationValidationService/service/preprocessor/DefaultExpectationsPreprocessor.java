@@ -21,7 +21,7 @@ import lombok.RequiredArgsConstructor;
  * <p>VTF-360: the builders share one trim-normalized {@link BaselineIndex} and record every
  * unresolvable reference into a {@link BaselineInconsistencies} collector instead of first-throwing —
  * the end-check then rejects with ONE {@code PHASE2_BASELINE_INCONSISTENT} enumerating the complete
- * problem list (vtf-371-design.md §2). A clean baseline proceeds unchanged.</p>
+ * problem list (vtf-360-design.md §2). A clean baseline proceeds unchanged.</p>
  */
 @Service
 @RequiredArgsConstructor
