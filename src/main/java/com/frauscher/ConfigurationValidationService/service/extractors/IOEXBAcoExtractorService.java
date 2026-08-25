@@ -8,9 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Service responsible for extracting IOEXB ACO (Axle Counting Output) details from parsed configuration files
@@ -53,12 +51,19 @@ public class IOEXBAcoExtractorService {
     }
 
     /**
-     * Extracts ACO details from a single parsed configuration file
-     * Processes all CFG_SECTION_OUT blocks (0 to 8 times)
+     * Extracts ACO details from a single parsed configuration file: one row per
+     * {@code CFG_SECTION_OUT} block, in file order.
+     *
+     * <p>Blocks are emitted 2 per attached ACO IO-EXB card (card i's two section outputs) and the
+     * order is significant -- it determines the order of the output FMAs, which is what
+     * {@code AcoExpectationsBuilder} validates positionally. This used to skip a block whose header
+     * comment had already been seen, which silently dropped a row whenever a card drove the same track
+     * section from both of its outputs. In a captured production package that lost 5 of 118 blocks, and
+     * one card ({@code 250BT}/{@code 250BT}) rendered as a single row -- so those slots had no cell for
+     * the annotator to mark and a positional FAIL on them survived only in {@code validation_results}.
      */
     private List<IOEXBAcoDetail> extractAcoDetailsFromFile(ParsedConfigFile file) {
         List<IOEXBAcoDetail> acoDetailsList = new ArrayList<>();
-        Set<String> processedComments = new HashSet<>();
 
         // Extract DP ID and name from ID block
         String dpId = extractEntryValue(file, "ID", "ID");
@@ -69,23 +74,11 @@ public class IOEXBAcoExtractorService {
                 .filter(block -> "CFG_SECTION_OUT".equals(block.getName()))
                 .toList();
 
-        for (ConfigBlock sectionOutBlock : sectionOutBlocks) {
-            // Extract the comment from CFG_SECTION_OUT block
-            String acoFma1 = extractEntryCommentFromBlock(sectionOutBlock, "CFG_SECTION_OUT");
-            
-            // Skip if this comment has already been processed
-            if (acoFma1 != null && !acoFma1.isEmpty() && processedComments.contains(acoFma1)) {
-                log.debug("Skipping duplicate CFG_SECTION_OUT with comment: {}", acoFma1);
-                continue;
-            }
-            
-            IOEXBAcoDetail acoDetails = extractAcoDetailsFromSectionOutBlock(sectionOutBlock, dpId, dpName, file);
+        for (int slot = 0; slot < sectionOutBlocks.size(); slot++) {
+            IOEXBAcoDetail acoDetails = extractAcoDetailsFromSectionOutBlock(
+                    sectionOutBlocks.get(slot), slot, dpId, dpName, file);
             if (acoDetails != null) {
                 acoDetailsList.add(acoDetails);
-                // Add the comment to processed set to avoid duplicates
-                if (acoFma1 != null && !acoFma1.isEmpty()) {
-                    processedComments.add(acoFma1);
-                }
             }
         }
 
@@ -95,8 +88,8 @@ public class IOEXBAcoExtractorService {
     /**
      * Extracts ACO details from a single CFG_SECTION_OUT block
      */
-    private IOEXBAcoDetail extractAcoDetailsFromSectionOutBlock(ConfigBlock sectionOutBlock, 
-                                                                  String dpId, String dpName, 
+    private IOEXBAcoDetail extractAcoDetailsFromSectionOutBlock(ConfigBlock sectionOutBlock, int slot,
+                                                                  String dpId, String dpName,
                                                                   ParsedConfigFile file) {
         // Extract values from CFG_SECTION_OUT block
         String acoFma1 = extractEntryCommentFromBlock(sectionOutBlock, "CFG_SECTION_OUT");
@@ -122,6 +115,7 @@ public class IOEXBAcoExtractorService {
         return IOEXBAcoDetail.builder()
                 .dpId(dpId)
                 .dpName(dpName)
+                .slot(String.valueOf(slot))
                 .acoFma1(acoFma1)
                 .clrOcc(clrOcc)
                 .typeAux1(typeAux1)

@@ -247,6 +247,12 @@ public class ExtractorSteps {
         assertThat(detail.getAcoFma1()).isEqualTo(expectedAcoFma1);
     }
 
+    @Then("IOEXB ACO detail {int} should have slot {string}")
+    public void ioexbAcoDetailShouldHaveSlot(int index, String expectedSlot) {
+        IOEXBAcoDetail detail = TestContext.get().getIoexbAcoDetails().get(index);
+        assertThat(detail.getSlot()).isEqualTo(expectedSlot);
+    }
+
     // ==================== THEN STEPS - Generic ====================
 
     @Then("the extraction should return {int} IOEXB behaviour detail\\(s)")

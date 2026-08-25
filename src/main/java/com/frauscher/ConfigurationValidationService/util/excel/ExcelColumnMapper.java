@@ -117,6 +117,7 @@ public class ExcelColumnMapper {
         Map<String, String> ioexbAcoMappings = new HashMap<>();
         ioexbAcoMappings.put("dpId", "DP ID");
         ioexbAcoMappings.put("dpName", "DP NAME");
+        ioexbAcoMappings.put("slot", "SLOT");
         ioexbAcoMappings.put("acoFma1", "TS NAME");
         ioexbAcoMappings.put("clrOcc", "CLR_OCC");
         ioexbAcoMappings.put("typeAux1", "TYPE_AUX1");

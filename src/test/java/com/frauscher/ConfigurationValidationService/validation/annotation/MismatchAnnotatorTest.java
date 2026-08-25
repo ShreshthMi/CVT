@@ -417,65 +417,62 @@ class MismatchAnnotatorTest {
         assertNull(row.getMismatches());
     }
 
-    // ---------- ACO positional: the extractor's comment dedup must not mis-target a slot ----------
+    // ---------- ACO positional: one row per CFG_SECTION_OUT block, joined by slot ----------
 
     /**
-     * Reproduces the real dp 19 layout from the captured production package: blocks
-     * {@code [2T, 125T, F98T, F98T]} build only three rows, because {@code IOEXBAcoExtractorService}
-     * dedups on the header comment. Slot 3 built no row, so it must annotate nothing at all -- painting it
-     * onto the row slot 2 built would put a mismatch badge on a cell whose value is correct, and leave the
-     * block that actually failed invisible.
+     * Reproduces the real dp 19 layout from the captured production package: an AEB whose four
+     * CFG_SECTION_OUT blocks include a card driving {@code F98T} from both of its outputs. Every block now
+     * has its own row, so slot 3 annotates the fourth row -- previously the extractor deduped it away and
+     * the finding was painted onto slot 2's row, marking a cell whose value is correct.
      */
     @Test
-    void acoSlotDedupedByTheExtractorGetsNoCell() {
-        IOEXBAcoDetail r0 = acoRow("2T");
-        IOEXBAcoDetail r1 = acoRow("125T");
-        IOEXBAcoDetail r2 = acoRow("F98T");
+    void acoPositionalFindingLandsOnItsOwnSlotRow() {
+        IOEXBAcoDetail r0 = acoRow(0, "2T");
+        IOEXBAcoDetail r1 = acoRow(1, "125T");
+        IOEXBAcoDetail r2 = acoRow(2, "F98T");
+        IOEXBAcoDetail r3 = acoRow(3, "F98T");
         ValidationSummary summary = new ValidationSummary();
-        summary.setIoexbAcoDetails(list(r0, r1, r2));
+        summary.setIoexbAcoDetails(list(r0, r1, r2, r3));
 
         annotator.annotate(summary, List.of(),
                 List.of(acoSectionFinding("r20", 3)), List.of(acoFile("2T", "125T", "F98T", "F98T")));
 
+        assertEquals("r20", byField(r3.getMismatches(), "fma_1_2", null).getResultId());
         assertNull(r0.getMismatches());
         assertNull(r1.getMismatches());
-        assertNull(r2.getMismatches(), "the deduped slot must not be painted onto the row slot 2 built");
+        assertNull(r2.getMismatches(), "the card's other output must not be marked");
     }
 
-    /** The slot that did build a row still annotates it. */
+    /** The two outputs of one card are separate rows, so a finding on the first leaves the second clean. */
     @Test
-    void acoSlotThatBuiltARowStillAnnotatesIt() {
-        IOEXBAcoDetail r0 = acoRow("2T");
-        IOEXBAcoDetail r1 = acoRow("125T");
-        IOEXBAcoDetail r2 = acoRow("F98T");
+    void acoFindingOnTheFirstOutputOfACardLeavesTheSecond() {
+        IOEXBAcoDetail r0 = acoRow(0, "2T");
+        IOEXBAcoDetail r1 = acoRow(1, "125T");
+        IOEXBAcoDetail r2 = acoRow(2, "F98T");
+        IOEXBAcoDetail r3 = acoRow(3, "F98T");
         ValidationSummary summary = new ValidationSummary();
-        summary.setIoexbAcoDetails(list(r0, r1, r2));
+        summary.setIoexbAcoDetails(list(r0, r1, r2, r3));
 
         annotator.annotate(summary, List.of(),
                 List.of(acoSectionFinding("r21", 2)), List.of(acoFile("2T", "125T", "F98T", "F98T")));
 
         assertEquals("r21", byField(r2.getMismatches(), "fma_1_2", null).getResultId());
-        assertNull(r0.getMismatches());
-        assertNull(r1.getMismatches());
+        assertNull(r3.getMismatches());
     }
 
-    /**
-     * A dedup earlier in the sequence shifts every later slot's row index, so the mapping is not
-     * {@code rows.get(position)}. Blocks {@code [2T, 2T, 125T]} build rows {@code [2T, 125T]}: slot 2 owns
-     * row 1.
-     */
+    /** A slot past the configured blocks has no cell; the result stays in validation_results only. */
     @Test
-    void acoRowIndexShiftsPastAnEarlierDedup() {
-        IOEXBAcoDetail r0 = acoRow("2T");
-        IOEXBAcoDetail r1 = acoRow("125T");
+    void acoSlotBeyondTheConfiguredBlocksAnnotatesNothing() {
+        IOEXBAcoDetail r0 = acoRow(0, "2T");
+        IOEXBAcoDetail r1 = acoRow(1, "125T");
         ValidationSummary summary = new ValidationSummary();
         summary.setIoexbAcoDetails(list(r0, r1));
 
         annotator.annotate(summary, List.of(),
-                List.of(acoSectionFinding("r22", 2)), List.of(acoFile("2T", "2T", "125T")));
+                List.of(acoSectionFinding("r22", 5)), List.of(acoFile("2T", "125T")));
 
-        assertEquals("r22", byField(r1.getMismatches(), "fma_1_2", null).getResultId());
         assertNull(r0.getMismatches());
+        assertNull(r1.getMismatches());
     }
 
     // ---------- helpers ----------
@@ -488,9 +485,10 @@ class MismatchAnnotatorTest {
                 .orElseThrow(() -> new AssertionError("no annotation for " + field + "[" + index + "] in " + list));
     }
 
-    /** One ioexb_aco_details row, identified by its ACO FMA name (the extractor's dedup key). */
-    private IOEXBAcoDetail acoRow(String acoFma1) {
-        return IOEXBAcoDetail.builder().dpId("1").dpName("DP2A").acoFma1(acoFma1).fma12("1").build();
+    /** One ioexb_aco_details row: one per CFG_SECTION_OUT block, carrying its slot. */
+    private IOEXBAcoDetail acoRow(int slot, String acoFma1) {
+        return IOEXBAcoDetail.builder().dpId("1").dpName("DP2A")
+                .slot(String.valueOf(slot)).acoFma1(acoFma1).fma12("1").build();
     }
 
     /** An ACO host file whose CFG_SECTION_OUT blocks carry the given header comments, in order. */

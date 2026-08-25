@@ -20,6 +20,16 @@ public class IOEXBAcoDetail implements Annotatable {
     @JsonProperty("dp_name")
     private String dpName;
 
+    /**
+     * The row's {@code CFG_SECTION_OUT} block ordinal (0-based). ACO is POSITIONAL -- blocks are paired
+     * per IO-EXB card (2i, 2i+1 = card i's two outputs) and the slot IS the output identity -- and a card
+     * may legitimately drive one track section from both of its outputs, which makes the two rows equal in
+     * every other displayed column. Neither {@code aco_fma1} nor {@code fma_1_2} separates them:
+     * {@code fma_1_2} is the referenced FMA's index, not the slot's. This is the only discriminator.
+     */
+    @JsonProperty("slot")
+    private String slot;
+
     @JsonProperty("aco_fma1")
     private String acoFma1;
 
