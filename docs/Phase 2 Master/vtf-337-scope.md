@@ -26,6 +26,25 @@ locked *Phase-1 byte-unchanged* constraint. Resolved by **annotator-side reconst
 extractor is untouched; the annotator rebuilds the un-deduped block-order ACO view only where it needs
 slot alignment.
 
+> **Superseded by VTF-371 (2026-08-25).** Both halves of this reasoning turned out not to hold, and the
+> dedup was removed from the shared extractor after all.
+>
+> The workaround did not survive the case it was chosen for. Rebuilding block *order* in the annotator
+> cannot recover a *row* the extractor never created, so a positional finding on a collapsed slot had
+> nowhere to land: it was painted onto the surviving row — marking a cell whose value is correct — and
+> after that was fixed it simply had no cell at all.
+>
+> The *Phase-1 byte-unchanged* constraint was also found to be unenforced prose rather than a lock: no
+> test exercises `POST /api/config/validate`, there are no golden or snapshot files under `src/test`,
+> and CI runs plain `gradle test`. The requirements authority (`VTF-2.0.0-epic.md`) mandates only
+> shape-compatibility and that no Phase-1 *rule* is dropped, renamed or reordered — and this change
+> moves no rule, because `generateSummary` receives already-computed results and only builds the display
+> array, leaving `validation_results[]` untouched.
+>
+> Measured cost of the dedup before removal, against the captured production response and its FCT:
+> 59 ACO cards, 118 `CFG_SECTION_OUT` blocks, but only 113 rows — the 5 cards whose two outputs drive
+> the same track section each lost one. See `v2-expectations-contract.md` §5.3 for what shipped.
+
 Scope decision: **full coverage now** (all 8 tables, to the extent each has a faithful display cell).
 
 ## 2. As-built

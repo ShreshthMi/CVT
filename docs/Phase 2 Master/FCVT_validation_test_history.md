@@ -435,3 +435,33 @@ These failures occur only in specific IOEXB-marked files where certain entries a
 - **Postman payload modifications:** Fixed BLOCK_EXISTS key/type, TIMEOUT_VALUE indexing, CFG_SECTION_OUT key names, added TYPE_IOEXB
 - **Endpoint:** POST /api/config/validate
 - **29 ADC files:** Mix of track section (16), IOEXB (4), COM (1), and base config (8) files
+
+
+---
+
+## 3. Coverage decision — Phase-1 `/api/config/validate` left untested (VTF-371, 2026-08-25)
+
+`POST /api/config/validate` has **no automated test of any kind**. There is no
+`ConfigValidationControllerTest`; `src/test/.../controller/` holds only the v2, FCT-upload and
+PDQ-upload tests. There are no golden or snapshot files anywhere under `src/test`, and `.gitlab-ci.yml`
+runs plain `gradle test` with no response-comparison job. Every result in §1 and §2 above was produced
+by hand through Postman against this endpoint.
+
+That gap has already cost something. The ACO comment-dedup defect fixed in VTF-371 — which silently
+dropped 5 of 118 `CFG_SECTION_OUT` rows in a real package — survived because the one extractor scenario
+covering it used a single block with a unique header comment, so it passed identically with and without
+the dedup. Nothing at the endpoint level was watching.
+
+**Decision: not adding that coverage.** Phase 2 is live, and `/api/config/v2/validate` is the endpoint
+that matters going forward; investing in a regression harness for the Phase-1 path is not worth it at
+this point in the migration.
+
+**What that means in practice.** VTF-371 changed this endpoint's payload — `ioexb_aco_details` gains a
+row per collided ACO card plus a `slot` column — and nothing will catch fallout automatically. The
+first real Phase-1 run after VTF-371 merges should be eyeballed. If Phase 1 is ever put back under
+active change rather than maintenance, this decision should be revisited first.
+
+Coverage of the shared machinery underneath it is unaffected: the extractors, the rule engine and the
+summary builder are all exercised by the unit and Cucumber suites, which VTF-371 extended — including
+a scenario asserting one ACO row per block with distinct slots, the assertion whose absence let the
+dedup persist.

@@ -22,7 +22,9 @@ The response keeps the Phase 1 shape — `validation_results[]` plus the eight d
 }
 ```
 
-The eight detail tables carry the same fields as today. The only addition is an optional `_mismatches` array on a row that has one or more failures (§4).
+The eight detail tables carry the same fields as today, with two additions: an optional `_mismatches` array on a row that has one or more failures (§4), and a `slot` field on `ioexb_aco_details` (VTF-371).
+
+`ioexb_aco_details` now carries **one row per `CFG_SECTION_OUT` block** rather than one per distinct ACO FMA name. An ACO card may legitimately drive the same track section from both of its outputs, and those two rows are identical in every other column — `slot`, the 0-based block ordinal, is what tells them apart. Do not key ACO rows on `aco_fma1` within a host AEB; it is no longer unique.
 
 ---
 
@@ -237,7 +239,7 @@ A validation run over two CAN segments (COM100, COM200). Four planted failures s
   ],
 
   "ioexb_aco_details": [
-    { "dp_id": "1", "dp_name": "DP2A", "aco_fma1": "2AXT1", "clr_occ": "0",
+    { "dp_id": "1", "dp_name": "DP2A", "slot": "0", "aco_fma1": "2AXT1", "clr_occ": "0",
       "type_aux1": "0", "type_aux2": "0", "aux1_out": "1", "aux1_no_nc": "0", "aux2_out": "1", "aux2_no_nc": "0",
       "fma_1_2": "1", "time_out": "620" }
   ],
