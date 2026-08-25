@@ -417,6 +417,67 @@ class MismatchAnnotatorTest {
         assertNull(row.getMismatches());
     }
 
+    // ---------- ACO positional: the extractor's comment dedup must not mis-target a slot ----------
+
+    /**
+     * Reproduces the real dp 19 layout from the captured production package: blocks
+     * {@code [2T, 125T, F98T, F98T]} build only three rows, because {@code IOEXBAcoExtractorService}
+     * dedups on the header comment. Slot 3 built no row, so it must annotate nothing at all -- painting it
+     * onto the row slot 2 built would put a mismatch badge on a cell whose value is correct, and leave the
+     * block that actually failed invisible.
+     */
+    @Test
+    void acoSlotDedupedByTheExtractorGetsNoCell() {
+        IOEXBAcoDetail r0 = acoRow("2T");
+        IOEXBAcoDetail r1 = acoRow("125T");
+        IOEXBAcoDetail r2 = acoRow("F98T");
+        ValidationSummary summary = new ValidationSummary();
+        summary.setIoexbAcoDetails(list(r0, r1, r2));
+
+        annotator.annotate(summary, List.of(),
+                List.of(acoSectionFinding("r20", 3)), List.of(acoFile("2T", "125T", "F98T", "F98T")));
+
+        assertNull(r0.getMismatches());
+        assertNull(r1.getMismatches());
+        assertNull(r2.getMismatches(), "the deduped slot must not be painted onto the row slot 2 built");
+    }
+
+    /** The slot that did build a row still annotates it. */
+    @Test
+    void acoSlotThatBuiltARowStillAnnotatesIt() {
+        IOEXBAcoDetail r0 = acoRow("2T");
+        IOEXBAcoDetail r1 = acoRow("125T");
+        IOEXBAcoDetail r2 = acoRow("F98T");
+        ValidationSummary summary = new ValidationSummary();
+        summary.setIoexbAcoDetails(list(r0, r1, r2));
+
+        annotator.annotate(summary, List.of(),
+                List.of(acoSectionFinding("r21", 2)), List.of(acoFile("2T", "125T", "F98T", "F98T")));
+
+        assertEquals("r21", byField(r2.getMismatches(), "fma_1_2", null).getResultId());
+        assertNull(r0.getMismatches());
+        assertNull(r1.getMismatches());
+    }
+
+    /**
+     * A dedup earlier in the sequence shifts every later slot's row index, so the mapping is not
+     * {@code rows.get(position)}. Blocks {@code [2T, 2T, 125T]} build rows {@code [2T, 125T]}: slot 2 owns
+     * row 1.
+     */
+    @Test
+    void acoRowIndexShiftsPastAnEarlierDedup() {
+        IOEXBAcoDetail r0 = acoRow("2T");
+        IOEXBAcoDetail r1 = acoRow("125T");
+        ValidationSummary summary = new ValidationSummary();
+        summary.setIoexbAcoDetails(list(r0, r1));
+
+        annotator.annotate(summary, List.of(),
+                List.of(acoSectionFinding("r22", 2)), List.of(acoFile("2T", "2T", "125T")));
+
+        assertEquals("r22", byField(r1.getMismatches(), "fma_1_2", null).getResultId());
+        assertNull(r0.getMismatches());
+    }
+
     // ---------- helpers ----------
 
     private MismatchAnnotation byField(List<MismatchAnnotation> list, String field, Integer index) {
@@ -425,6 +486,25 @@ class MismatchAnnotatorTest {
                 .filter(a -> field.equals(a.getField()) && java.util.Objects.equals(index, a.getIndex()))
                 .findFirst()
                 .orElseThrow(() -> new AssertionError("no annotation for " + field + "[" + index + "] in " + list));
+    }
+
+    /** One ioexb_aco_details row, identified by its ACO FMA name (the extractor's dedup key). */
+    private IOEXBAcoDetail acoRow(String acoFma1) {
+        return IOEXBAcoDetail.builder().dpId("1").dpName("DP2A").acoFma1(acoFma1).fma12("1").build();
+    }
+
+    /** An ACO host file whose CFG_SECTION_OUT blocks carry the given header comments, in order. */
+    private ParsedConfigFile acoFile(String... comments) {
+        List<ConfigBlock> blocks = new ArrayList<>();
+        for (int i = 0; i < comments.length; i++) {
+            blocks.add(block("CFG_SECTION_OUT", i, entryC("CFG_SECTION_OUT", "9", comments[i])));
+        }
+        return new ParsedConfigFile("C1.ADC", blocks, false, true, false, false, 1);
+    }
+
+    private InstancedFinding acoSectionFinding(String id, int position) {
+        return new InstancedFinding(vr(id, "FAIL"), "CFG_SECTION_OUT", 1,
+                Kind.VALUE, Map.of(), position, "SECTION", "0", "1", Map.of());
     }
 
     /** A scalar-bucket result: the engine records the file by name only, never by id. */

@@ -2,6 +2,7 @@ package com.frauscher.ConfigurationValidationService.validation.annotation;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -334,15 +335,9 @@ public class MismatchAnnotator {
         if (file == null || f.position() == null) {
             return;
         }
-        List<ConfigBlock> occ = occurrences(file, SECTION_OUT);
-        if (f.position() >= occ.size()) {
-            return; // MISSING slot beyond the configured blocks → no row to annotate; results-only.
-        }
-        String comment = entryComment(occ.get(f.position()), SECTION_OUT);
-        IOEXBAcoDetail row = first(summary.getIoexbAcoDetails(),
-                r -> eq(f.fileId(), r.getDpId()) && eqTrim(r.getAcoFma1(), comment));
+        IOEXBAcoDetail row = acoRowForPosition(summary, file, f.fileId(), f.position());
         if (row == null) {
-            return;
+            return; // slot past the configured blocks, or a slot the extractor deduped away → results-only
         }
         String rid = f.result().getId();
         switch (f.kind()) {
@@ -358,6 +353,62 @@ public class MismatchAnnotator {
             case UNEXPECTED -> add(row, MismatchAnnotation.unexpected("aco_fma1", null, row.getAcoFma1(), rid));
             case MISSING -> { /* unreachable here (position < occ.size); MISSING handled above */ }
         }
+    }
+
+    /**
+     * The {@code ioexb_aco_details} row belonging to CFG_SECTION_OUT slot {@code position}, or {@code null}
+     * when that slot has no row of its own.
+     *
+     * <p>ACO is POSITIONAL: blocks are paired per IO-EXB card ({@code 2i-1, 2i} = card i's track-1/track-2)
+     * and the slot IS the output-FMA identity. But {@code IOEXBAcoExtractorService} builds rows with a
+     * dedup on the block's header comment, so two slots sharing an FMA name collapse into one row --
+     * routinely, not just for a single-track card's filler duplicate. In a captured production package 113
+     * rows were built from 118 blocks, and one AEB whose card is {@code (250BT, 250BT)} produced a single
+     * row for its two blocks.</p>
+     *
+     * <p>Resolving the row by re-deriving that comment (what this used to do) therefore returned the SAME
+     * row for both slots, and a finding on the second slot was painted onto the first slot's cell -- a
+     * mismatch badge on a value that is actually correct, while the block that failed appears nowhere.</p>
+     *
+     * <p>The shared extractor cannot be changed: it feeds Phase 1's {@code generateSummary} too, and
+     * dropping the dedup there would break the locked Phase-1 byte-unchanged constraint. {@code
+     * vtf-337-scope.md} 2 prescribes the alternative used here -- annotator-side reconstruction: replay the
+     * extractor's own walk over the blocks in file order, counting which slot created which row, so a slot
+     * maps to the row it actually built. A slot that was deduped away has no cell and stays results-only,
+     * which is the honest outcome; inventing one would mean annotating a row built from a different block.</p>
+     */
+    private IOEXBAcoDetail acoRowForPosition(ValidationSummary summary, ParsedConfigFile file, int fileId,
+            int position) {
+
+        List<ConfigBlock> occ = occurrences(file, SECTION_OUT);
+        if (position < 0 || position >= occ.size()) {
+            return null;
+        }
+        List<IOEXBAcoDetail> rows = new ArrayList<>();
+        for (IOEXBAcoDetail candidate : nonNull(summary.getIoexbAcoDetails())) {
+            if (eq(fileId, candidate.getDpId())) {
+                rows.add(candidate);
+            }
+        }
+
+        // Mirrors IOEXBAcoExtractorService: file order, and only a non-blank repeated comment is dropped.
+        Set<String> seen = new LinkedHashSet<>();
+        int rowIndex = -1;
+        for (int slot = 0; slot <= position; slot++) {
+            String comment = entryComment(occ.get(slot), SECTION_OUT);
+            boolean blank = comment == null || comment.isEmpty();
+            if (!blank && seen.contains(comment)) {
+                if (slot == position) {
+                    return null; // this slot built no row of its own
+                }
+                continue;
+            }
+            rowIndex++;
+            if (!blank) {
+                seen.add(comment);
+            }
+        }
+        return rowIndex < rows.size() ? rows.get(rowIndex) : null;
     }
 
     // ---- DP details: CFG_SECTION RESET_OUT (SINGLE, control-table derived) → dp_details ----
