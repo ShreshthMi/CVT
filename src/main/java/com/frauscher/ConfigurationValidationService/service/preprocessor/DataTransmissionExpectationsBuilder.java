@@ -63,8 +63,13 @@ public class DataTransmissionExpectationsBuilder {
         return out;
     }
 
+    /**
+     * The Data Transmission sheet has no {@code LOCATION} banners of its own, so its DP names carry no
+     * location and resolve project-wide: unique wins, and a name held by two stations is recorded as an
+     * ambiguity by the index rather than silently taking whichever was indexed first.
+     */
     private Integer resolve(BaselineIndex index, String dpName, String role, BaselineInconsistencies problems) {
-        Integer id = index.idOfDp(dpName);
+        Integer id = index.idOfDp(null, dpName);
         if (id == null) {
             problems.add("Data Transmission " + role + " '" + dpName + "' has no matching DP in the FCT");
         }

@@ -136,15 +136,15 @@ class ResetOutDerivationTest {
     }
 
     private TrackSection track(String name, List<String> dpIn, List<String> dpOut, String resetType) {
-        return new TrackSection("1", name, dpIn, dpOut, resetType, "MAIN", null, false);
+        return new TrackSection("1", name, dpIn, dpOut, resetType, "MAIN", null, false, null);
     }
 
     private DpTableRow dp(String name, boolean eChc) {
-        return new DpTableRow("1", name, "ABOVE THE RAIL", eChc);
+        return new DpTableRow("1", name, "ABOVE THE RAIL", eChc, null);
     }
 
     private Chain chain(String comName, String comId, FctAeb... aebs) {
-        return new Chain(new FctCom(comId, comName), false, List.of(aebs));
+        return new Chain(new FctCom(comId, comName, null), false, List.of(aebs));
     }
 
     private FctAeb aeb(String dpName, String dpId, EvaluatedFma... fmas) {

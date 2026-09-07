@@ -62,6 +62,14 @@ public class ControlExpectationsBuilder {
 
     private final ResetOutMappingService resetOutMappings;
 
+/**
+     * Where a DP reference was written: the location of the track that named it, and the name as written.
+     * Carried only so a message can quote the reference the way the sheet spells it — the sensor vectors
+     * are keyed by the DP's resolved id, never by this.
+     */
+    private record ScopedDp(String location, String name) {
+    }
+
     public List<InstancedExpectation> build(
             ControlTable controlTable, BaselineIndex index, BaselineInconsistencies problems) {
         if (controlTable == null || controlTable.trackSections() == null) {
@@ -70,37 +78,44 @@ public class ControlExpectationsBuilder {
 
         List<TrackSection> tracks = controlTable.trackSections();
 
-        List<Map<String, Integer>> vectors = new ArrayList<>(tracks.size());
+        // Sensors are identified by the DP they RESOLVE to, not by (location, name). A bare name is not
+        // an identity — two stations both carry a DP1A — but neither is (location, name): a block section
+        // between two stations is one physical DP that each side names in its own location, and keying by
+        // the naming location would split it into two half-sensors, so the shared boundary DP would be
+        // classified as a plain boundary at each end instead of the middle DP it is. The resolved id is
+        // the only key that is one-to-one with the counting head itself.
+        Map<Integer, ScopedDp> origins = new LinkedHashMap<>();
+        List<Map<Integer, Integer>> vectors = new ArrayList<>(tracks.size());
         for (TrackSection t : tracks) {
-            vectors.add(signedVector(t));
+            vectors.add(signedVector(t, index, problems, origins));
         }
 
         // main = NOT expressible as a {0,1}-sum (≥2) of the other tracks' signed vectors.
         boolean[] isMain = new boolean[tracks.size()];
         for (int i = 0; i < tracks.size(); i++) {
-            isMain[i] = !isCombination(i, vectors);
+            isMain[i] = !isCombination(i, vectors, tracks);
         }
 
         // Over mains only: per DP name, the main-track indices where it is net-in (+) and net-out (−).
-        Map<String, List<Integer>> plusByDp = new LinkedHashMap<>();
-        Map<String, List<Integer>> minusByDp = new LinkedHashMap<>();
+        Map<Integer, List<Integer>> plusByDp = new LinkedHashMap<>();
+        Map<Integer, List<Integer>> minusByDp = new LinkedHashMap<>();
         for (int i = 0; i < tracks.size(); i++) {
             if (!isMain[i]) {
                 continue;
             }
-            for (Map.Entry<String, Integer> e : vectors.get(i).entrySet()) {
-                Map<String, List<Integer>> target = e.getValue() > 0 ? plusByDp : minusByDp;
+            for (Map.Entry<Integer, Integer> e : vectors.get(i).entrySet()) {
+                Map<Integer, List<Integer>> target = e.getValue() > 0 ? plusByDp : minusByDp;
                 target.computeIfAbsent(e.getKey(), k -> new ArrayList<>()).add(i);
             }
         }
 
-        Set<String> dpNames = new LinkedHashSet<>();
-        dpNames.addAll(plusByDp.keySet());
-        dpNames.addAll(minusByDp.keySet());
+        Set<Integer> dpIds = new LinkedHashSet<>();
+        dpIds.addAll(plusByDp.keySet());
+        dpIds.addAll(minusByDp.keySet());
 
         List<InstancedExpectation> out = new ArrayList<>();
-        for (String dpName : dpNames) {
-            addForDp(out, dpName, plusByDp, minusByDp, tracks, index, problems);
+        for (Integer dpId : dpIds) {
+            addForDp(out, dpId, origins.get(dpId), plusByDp, minusByDp, tracks, index, problems);
         }
         addResetOut(out, tracks, index, problems);
         return out;
@@ -129,7 +144,7 @@ public class ControlExpectationsBuilder {
         // evaluating AEB -> normalised Reset Type -> "'track' = VERBATIM TEXT" (names the pair on conflict)
         Map<Integer, Map<String, String>> byEvaluator = new LinkedHashMap<>();
         for (TrackSection track : tracks) {
-            EvaluatedFma fma = index.fmaByName(track.name());
+            EvaluatedFma fma = index.fmaByName(track.location(), track.name());
             if (fma == null) {
                 continue; // not an FCT-evaluated track; addControlBlock reports the ones that are referenced
             }
@@ -168,27 +183,23 @@ public class ControlExpectationsBuilder {
 
     private void addForDp(
             List<InstancedExpectation> out,
-            String dpName,
-            Map<String, List<Integer>> plusByDp,
-            Map<String, List<Integer>> minusByDp,
+            int fileId,
+            ScopedDp dp,
+            Map<Integer, List<Integer>> plusByDp,
+            Map<Integer, List<Integer>> minusByDp,
             List<TrackSection> tracks,
             BaselineIndex index,
             BaselineInconsistencies problems) {
 
-        List<Integer> plus = plusByDp.getOrDefault(dpName, List.of());
-        List<Integer> minus = minusByDp.getOrDefault(dpName, List.of());
-
-        Integer fileId = index.idOfDp(dpName);
-        if (fileId == null) {
-            problems.add("Counting-head DP '" + dpName + "' has no matching DP in the FCT");
-            return;
-        }
+        List<Integer> plus = plusByDp.getOrDefault(fileId, List.of());
+        List<Integer> minus = minusByDp.getOrDefault(fileId, List.of());
         Integer thisChain = index.chainOfDpId(fileId);
 
         boolean middle = !plus.isEmpty() && !minus.isEmpty();
         if (middle) {
             if (plus.size() + minus.size() > 2) {
-                problems.add("Middle counting-head DP '" + dpName + "' is shared by more than 2 main tracks");
+                problems.add("Middle counting-head DP '" + dp.name() + "'" + at(dp.location())
+                        + " is shared by more than 2 main tracks");
                 return;
             }
             // exactly one + and one − main track → the 2 adjacent tracks.
@@ -200,7 +211,7 @@ public class ControlExpectationsBuilder {
 
         // boundary (single sign)
         List<Integer> owners = plus.isEmpty() ? minus : plus;
-        boolean eChcYes = Boolean.TRUE.equals(index.eChcOfDp(dpName));
+        boolean eChcYes = Boolean.TRUE.equals(index.eChcOfDp(dp.location(), dp.name()));
         if (eChcYes) {
             // One CFG_CONTROL per owning main track. The usual boundary head owns exactly one; a same-sign
             // junction head — shared by >1 main on the same side (the ABS AD01A/AU09A layout) — references
@@ -234,9 +245,10 @@ public class ControlExpectationsBuilder {
             BaselineIndex index,
             BaselineInconsistencies problems) {
 
-        EvaluatedFma ref = index.fmaByName(refTrack.name());
+        EvaluatedFma ref = index.fmaByName(refTrack.location(), refTrack.name());
         if (ref == null) {
-            problems.add("Adjacent track '" + refTrack.name() + "' has no matching FCT FMA");
+            problems.add("Adjacent track '" + refTrack.name() + "'" + at(refTrack.location())
+                    + " has no matching FCT FMA");
             return;
         }
         Integer refDpId = BaselineIndex.parseId(ref.dpId(), "evaluating DP of track " + refTrack.name(), problems);
@@ -254,14 +266,23 @@ public class ControlExpectationsBuilder {
 
     // ---- combination detection (subset / cancellation search) ----
 
-    private boolean isCombination(int targetIdx, List<Map<String, Integer>> vectors) {
-        Map<String, Integer> target = vectors.get(targetIdx);
+    /**
+     * Whether a track is a combination of others. Candidates are restricted to the target's <b>own
+     * location</b>: a combination is built from mains at the same station, and scoping keeps a subset
+     * search that is exponential in the candidate count at the size it had for one station. The scoped
+     * vector keys make it correct either way — two locations share no key, so they can never cancel —
+     * but searching across them would be pure waste.
+     */
+    private boolean isCombination(int targetIdx, List<Map<Integer, Integer>> vectors, List<TrackSection> tracks) {
+        Map<Integer, Integer> target = vectors.get(targetIdx);
         if (target.isEmpty()) {
             return false;
         }
+        String location = tracks.get(targetIdx).location();
         List<Integer> candidates = new ArrayList<>();
         for (int i = 0; i < vectors.size(); i++) {
-            if (i != targetIdx && !vectors.get(i).isEmpty()) {
+            if (i != targetIdx && !vectors.get(i).isEmpty()
+                    && Objects.equals(location, tracks.get(i).location())) {
                 candidates.add(i);
             }
         }
@@ -272,12 +293,12 @@ public class ControlExpectationsBuilder {
             List<Integer> candidates,
             int start,
             int picked,
-            Map<String, Integer> partial,
-            Map<String, Integer> target,
-            List<Map<String, Integer>> vectors) {
+            Map<Integer, Integer> partial,
+            Map<Integer, Integer> target,
+            List<Map<Integer, Integer>> vectors) {
 
         for (int i = start; i < candidates.size(); i++) {
-            Map<String, Integer> v = vectors.get(candidates.get(i));
+            Map<Integer, Integer> v = vectors.get(candidates.get(i));
             mergeInto(partial, v, 1);
             int np = picked + 1;
             if (np >= 2 && equalsIgnoringZero(partial, target)) {
@@ -294,15 +315,15 @@ public class ControlExpectationsBuilder {
         return false;
     }
 
-    private void mergeInto(Map<String, Integer> partial, Map<String, Integer> v, int sign) {
-        for (Map.Entry<String, Integer> e : v.entrySet()) {
+    private void mergeInto(Map<Integer, Integer> partial, Map<Integer, Integer> v, int sign) {
+        for (Map.Entry<Integer, Integer> e : v.entrySet()) {
             partial.merge(e.getKey(), sign * e.getValue(), Integer::sum);
         }
     }
 
-    private boolean equalsIgnoringZero(Map<String, Integer> partial, Map<String, Integer> target) {
+    private boolean equalsIgnoringZero(Map<Integer, Integer> partial, Map<Integer, Integer> target) {
         int nonZero = 0;
-        for (Map.Entry<String, Integer> e : partial.entrySet()) {
+        for (Map.Entry<Integer, Integer> e : partial.entrySet()) {
             if (e.getValue() == 0) {
                 continue;
             }
@@ -314,24 +335,51 @@ public class ControlExpectationsBuilder {
         return nonZero == target.size();
     }
 
-    /** Signed sensor vector, keyed by trim-normalized DP name (matching the {@link BaselineIndex} probes). */
-    private Map<String, Integer> signedVector(TrackSection t) {
-        Map<String, Integer> v = new HashMap<>();
-        if (t.dpIn() != null) {
-            for (String d : t.dpIn()) {
-                if (d != null) {
-                    v.merge(d.trim(), 1, Integer::sum);
-                }
-            }
-        }
-        if (t.dpOut() != null) {
-            for (String d : t.dpOut()) {
-                if (d != null) {
-                    v.merge(d.trim(), -1, Integer::sum);
-                }
-            }
-        }
+    /**
+     * Signed sensor vector for one track, keyed by each sensor's resolved DP id. Names are resolved in the
+     * naming track's own location (falling back project-wide, as every DP reference does), so the two ends
+     * of a cross-location block section land on the same key and cancel the way they physically do.
+     */
+    private Map<Integer, Integer> signedVector(
+            TrackSection t, BaselineIndex index, BaselineInconsistencies problems, Map<Integer, ScopedDp> origins) {
+
+        Map<Integer, Integer> v = new HashMap<>();
+        accumulate(v, t, t.dpIn(), 1, index, problems, origins);
+        accumulate(v, t, t.dpOut(), -1, index, problems, origins);
         v.entrySet().removeIf(e -> e.getValue() == 0);
         return v;
+    }
+
+    private void accumulate(
+            Map<Integer, Integer> vector,
+            TrackSection t,
+            List<String> names,
+            int sign,
+            BaselineIndex index,
+            BaselineInconsistencies problems,
+            Map<Integer, ScopedDp> origins) {
+
+        if (names == null) {
+            return;
+        }
+        for (String raw : names) {
+            if (raw == null) {
+                continue;
+            }
+            String name = raw.trim();
+            Integer dpId = index.idOfDp(t.location(), name);
+            if (dpId == null) {
+                problems.add("Counting-head DP '" + name + "'" + at(t.location())
+                        + " has no matching DP in the FCT");
+                continue; // this sensor only; the rest of the track still classifies
+            }
+            origins.putIfAbsent(dpId, new ScopedDp(t.location(), name));
+            vector.merge(dpId, sign, Integer::sum);
+        }
+    }
+
+    /** " at STN1", or nothing at all in a single-location baseline. */
+    private String at(String location) {
+        return location == null ? "" : " at " + location;
     }
 }

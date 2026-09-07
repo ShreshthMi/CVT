@@ -22,6 +22,7 @@ public final class FctFixtures {
     private static final String REDUNDANT = "/fixtures/fct-phase2-redundant.fct2";
     private static final String DT = "/fixtures/fct-phase2-dt.fct2";
     private static final String DUPLICATE_ID = "/fixtures/fct-phase2-duplicate-id.fct2";
+    private static final String TWO_STATION = "/fixtures/fct-phase2-two-station.fct2";
 
     private FctFixtures() {
     }
@@ -44,6 +45,20 @@ public final class FctFixtures {
     /** Malformed baseline: two AEBs share an Id (rejected as DUPLICATE_ENTITY_ID). */
     public static byte[] duplicateIdBytes() {
         return archiveBytes(DUPLICATE_ID);
+    }
+
+    /**
+     * Two-station baseline: the ACO sample duplicated under {@code Station} STN1 / STN2, deliberately
+     * repeating every AEB {@code cpName} and FMA {@code name} across the two while keeping ids unique.
+     * The station is what tells the two apart.
+     */
+    public static byte[] twoStationBytes() {
+        return archiveBytes(TWO_STATION);
+    }
+
+    /** project.xml extracted from the two-station archive. */
+    public static InputStream openTwoStationProjectXml() {
+        return openProjectXml(TWO_STATION);
     }
 
     /** project.xml extracted from the ACO archive. */

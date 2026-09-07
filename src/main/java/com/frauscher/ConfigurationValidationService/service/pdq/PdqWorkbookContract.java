@@ -65,6 +65,8 @@ public class PdqWorkbookContract {
 
     // Control table (BE-02): header anchor + sub-table column maps (field -> 0-based column index).
     public String controlTableHeaderLabel() { return require("controlTable.headerLabel"); }
+    public String controlTableLocationPrefix() { return require("controlTable.location.prefix"); }
+    public String controlTableLocationSeparator() { return require("controlTable.location.separator"); }
     public Map<String, Integer> controlTableTrackSectionColumns() { return columnIndexes("controlTable.trackSections."); }
     public Map<String, Integer> controlTableDpTableColumns() { return columnIndexes("controlTable.dpTable."); }
 

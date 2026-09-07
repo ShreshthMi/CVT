@@ -27,7 +27,7 @@ class CanSegmentValidatorTest {
 
     private final CanSegmentValidator validator = new CanSegmentValidator();
     private final ComAebMap fct = new ComAebMap(List.of(
-            new Chain(new FctCom("100", "COM100"), false, List.of(
+            new Chain(new FctCom("100", "COM100", null), false, List.of(
                     new FctAeb("5", "DP1A", List.of(), List.of(), 0),
                     new FctAeb("6", "DP2B", List.of(), List.of(), 0)))));
 

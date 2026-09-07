@@ -149,7 +149,7 @@ class ControlExpectationsBuilderTest {
     // --- builders ---
 
     private Chain chain(String comName, String comId, FctAeb... aebs) {
-        return new Chain(new FctCom(comId, comName), false, List.of(aebs));
+        return new Chain(new FctCom(comId, comName, null), false, List.of(aebs));
     }
 
     /** An AEB carrying an ACO IO-EXB — so its DP's derived BEHAV_INPUT3 is emitted (VTF-362 M5). */
@@ -168,11 +168,11 @@ class ControlExpectationsBuilderTest {
     }
 
     private TrackSection track(String name, List<String> dpIn, List<String> dpOut, String trackType) {
-        return new TrackSection("1", name, dpIn, dpOut, "", trackType, null, false);
+        return new TrackSection("1", name, dpIn, dpOut, "", trackType, null, false, null);
     }
 
     private DpTableRow dp(String name, boolean eChc) {
-        return new DpTableRow("1", name, "ABOVE THE RAIL", eChc);
+        return new DpTableRow("1", name, "ABOVE THE RAIL", eChc, null);
     }
 
     private String control(List<InstancedExpectation> out, int fileId, Map<String, String> linkedId) {

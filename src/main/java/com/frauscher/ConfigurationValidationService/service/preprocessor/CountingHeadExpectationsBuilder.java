@@ -7,6 +7,7 @@ import java.util.Objects;
 
 import org.springframework.stereotype.Component;
 
+import com.frauscher.ConfigurationValidationService.dto.fct.Chain;
 import com.frauscher.ConfigurationValidationService.dto.fct.ComAebMap;
 import com.frauscher.ConfigurationValidationService.dto.fct.EvaluatedFma;
 import com.frauscher.ConfigurationValidationService.dto.pdq.TrackSection;
@@ -53,19 +54,26 @@ public class CountingHeadExpectationsBuilder {
                     continue;
                 }
                 for (EvaluatedFma fma : aeb.evaluatedFmas()) {
-                    addFma(out, fma, index, problems);
+                    addFma(out, fma, station(chain), index, problems);
                 }
             }
         }
         return out;
     }
 
-    private void addFma(
-            List<InstancedExpectation> out, EvaluatedFma fma, BaselineIndex index, BaselineInconsistencies problems) {
+    /** The station of a CAN segment — the scope every name lookup for its FMAs is resolved in. */
+    private String station(Chain chain) {
+        return chain.com() == null ? null : chain.com().station();
+    }
 
-        TrackSection track = index.trackByName(fma.fmaName());
+    private void addFma(
+            List<InstancedExpectation> out, EvaluatedFma fma, String station, BaselineIndex index,
+            BaselineInconsistencies problems) {
+
+        TrackSection track = index.trackByName(station, fma.fmaName());
         if (track == null) {
-            problems.add("FCT FMA '" + fma.fmaName() + "' has no matching PDQ Control Table track");
+            problems.add("FCT FMA '" + fma.fmaName() + "'" + at(station)
+                    + " has no matching PDQ Control Table track");
             return;
         }
 
@@ -77,8 +85,10 @@ public class CountingHeadExpectationsBuilder {
         String block = BLOCK_PREFIX + (fmaId + 1);
         Integer fileChain = index.chainOfDpId(fileId);
 
-        addHeads(out, safe(track.dpIn()), false, fileId, block, fileChain, index, problems, fma.fmaName());
-        addHeads(out, safe(track.dpOut()), true, fileId, block, fileChain, index, problems, fma.fmaName());
+        addHeads(out, safe(track.dpIn()), false, fileId, block, fileChain, track.location(), index, problems,
+                fma.fmaName());
+        addHeads(out, safe(track.dpOut()), true, fileId, block, fileChain, track.location(), index, problems,
+                fma.fmaName());
     }
 
     private void addHeads(
@@ -88,18 +98,19 @@ public class CountingHeadExpectationsBuilder {
             int fileId,
             String block,
             Integer fileChain,
+            String location,
             BaselineIndex index,
             BaselineInconsistencies problems,
             String trackName) {
 
         for (String head : heads) {
-            Integer headId = index.idOfDp(head);
+            Integer headId = index.idOfDp(location, head);
             if (headId == null) {
                 problems.add("Counting head '" + head + "' of track '" + trackName
                         + "' has no matching DP in the FCT");
                 continue;
             }
-            String position = index.positionOfDp(head);
+            String position = index.positionOfDp(location, head);
             if (position == null) {
                 problems.add("Counting head '" + head + "' of track '" + trackName
                         + "' is absent from the PDQ DP table");
@@ -118,5 +129,10 @@ public class CountingHeadExpectationsBuilder {
 
     private List<String> safe(List<String> list) {
         return list == null ? List.of() : list;
+    }
+
+    /** " at STN1", or nothing at all in a single-location baseline. */
+    private String at(String station) {
+        return station == null ? "" : " at " + station;
     }
 }

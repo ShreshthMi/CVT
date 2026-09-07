@@ -147,7 +147,7 @@ class CountingHeadExpectationsBuilderTest {
     // --- builders ---
 
     private Chain chain(String comName, String comId, FctAeb... aebs) {
-        return new Chain(new FctCom(comId, comName), false, List.of(aebs));
+        return new Chain(new FctCom(comId, comName, null), false, List.of(aebs));
     }
 
     private FctAeb aeb(String dpName, String dpId, EvaluatedFma... fmas) {
@@ -159,11 +159,11 @@ class CountingHeadExpectationsBuilderTest {
     }
 
     private TrackSection track(String name, List<String> dpIn, List<String> dpOut) {
-        return new TrackSection("1", name, dpIn, dpOut, "", "MAIN", null, false);
+        return new TrackSection("1", name, dpIn, dpOut, "", "MAIN", null, false, null);
     }
 
     private DpTableRow dp(String name, String position) {
-        return new DpTableRow("1", name, position, false);
+        return new DpTableRow("1", name, position, false, null);
     }
 
     private String value(List<InstancedExpectation> list, String block, String linkedId, String key) {

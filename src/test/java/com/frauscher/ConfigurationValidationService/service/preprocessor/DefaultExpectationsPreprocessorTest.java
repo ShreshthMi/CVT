@@ -48,15 +48,15 @@ class DefaultExpectationsPreprocessorTest {
         //   2. TRK1's dpIn head 'DPGHOST' is not in the FCT (counting-head + forwarding — dedups)
         //   3. same DP, Control's own wording                (control builder)
         //   4. TRK1 has an unsupported auto-reset operator   (supervisor builder)
-        ComAebMap fct = new ComAebMap(List.of(new Chain(new FctCom("100", "COMA"), false, List.of(
+        ComAebMap fct = new ComAebMap(List.of(new Chain(new FctCom("100", "COMA", null), false, List.of(
                 new FctAeb("10", "DP10", List.of(new EvaluatedFma("TRK1", "0", "10")), List.of(), 0),
                 new FctAeb("xx", "DPBAD", List.of(), List.of(), 0),
                 new FctAeb("11", "DP11", List.of(), List.of(), 0)))));
         ControlTable ct = new ControlTable(
                 List.of(new TrackSection("1", "TRK1", List.of("DPGHOST"), List.of("DP11"), "",
-                        "MAIN", new FadcAutoReset("XOR", List.of("TRK1")), false)),
-                List.of(new DpTableRow("1", "DP11", "ABOVE THE RAIL", false),
-                        new DpTableRow("2", "DPGHOST", "ABOVE THE RAIL", false)));
+                        "MAIN", new FadcAutoReset("XOR", List.of("TRK1")), false, null)),
+                List.of(new DpTableRow("1", "DP11", "ABOVE THE RAIL", false, null),
+                        new DpTableRow("2", "DPGHOST", "ABOVE THE RAIL", false, null)));
 
         BaselineInconsistentException ex = assertThrows(BaselineInconsistentException.class,
                 () -> preprocessor.preprocess(input(fct, ct)));
@@ -71,15 +71,15 @@ class DefaultExpectationsPreprocessorTest {
 
     @Test
     void cleanBaselinePreprocessesWithoutThrowing() {
-        ComAebMap fct = new ComAebMap(List.of(new Chain(new FctCom("100", "COMA"), false, List.of(
+        ComAebMap fct = new ComAebMap(List.of(new Chain(new FctCom("100", "COMA", null), false, List.of(
                 new FctAeb("10", "DP10", List.of(new EvaluatedFma("TRK1", "0", "10")), List.of(), 0),
                 new FctAeb("11", "DP11", List.of(), List.of(), 0),
                 new FctAeb("12", "DP12", List.of(), List.of(), 0)))));
         ControlTable ct = new ControlTable(
                 List.of(new TrackSection("1", "TRK1", List.of("DP11"), List.of("DP12"), "",
-                        "MAIN", null, false)),
-                List.of(new DpTableRow("1", "DP11", "ABOVE THE RAIL", false),
-                        new DpTableRow("2", "DP12", "BELOW THE RAIL", false)));
+                        "MAIN", null, false, null)),
+                List.of(new DpTableRow("1", "DP11", "ABOVE THE RAIL", false, null),
+                        new DpTableRow("2", "DP12", "BELOW THE RAIL", false, null)));
 
         assertDoesNotThrow(() -> preprocessor.preprocess(input(fct, ct)));
     }

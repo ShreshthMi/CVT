@@ -64,7 +64,8 @@ public class ForwardingExpectationsBuilder {
                     continue;
                 }
                 for (EvaluatedFma fma : aeb.evaluatedFmas()) {
-                    collectForwards(forwards, fma, index, problems);
+                    String station = chain.com() == null ? null : chain.com().station();
+                    collectForwards(forwards, fma, station, index, problems);
                 }
             }
         }
@@ -81,9 +82,10 @@ public class ForwardingExpectationsBuilder {
     }
 
     private void collectForwards(
-            Set<Forward> forwards, EvaluatedFma fma, BaselineIndex index, BaselineInconsistencies problems) {
+            Set<Forward> forwards, EvaluatedFma fma, String station, BaselineIndex index,
+            BaselineInconsistencies problems) {
 
-        TrackSection track = index.trackByName(fma.fmaName());
+        TrackSection track = index.trackByName(station, fma.fmaName());
         if (track == null) {
             problems.add("FCT FMA '" + fma.fmaName() + "' has no matching PDQ Control Table track");
             return;
@@ -94,20 +96,21 @@ public class ForwardingExpectationsBuilder {
         }
         Integer consumingChain = index.chainOfDpId(consumingDpId);
 
-        addHeads(forwards, safe(track.dpIn()), consumingChain, index, problems, fma.fmaName());
-        addHeads(forwards, safe(track.dpOut()), consumingChain, index, problems, fma.fmaName());
+        addHeads(forwards, safe(track.dpIn()), consumingChain, track.location(), index, problems, fma.fmaName());
+        addHeads(forwards, safe(track.dpOut()), consumingChain, track.location(), index, problems, fma.fmaName());
     }
 
     private void addHeads(
             Set<Forward> forwards,
             List<String> heads,
             Integer consumingChain,
+            String location,
             BaselineIndex index,
             BaselineInconsistencies problems,
             String trackName) {
 
         for (String head : heads) {
-            Integer headId = index.idOfDp(head);
+            Integer headId = index.idOfDp(location, head);
             if (headId == null) {
                 problems.add("Counting head '" + head + "' of track '" + trackName
                         + "' has no matching DP in the FCT");

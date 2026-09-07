@@ -29,7 +29,15 @@ public enum FctInvalidReason {
     /** Two entities share the same Id. */
     DUPLICATE_ENTITY_ID("FCT_INCOMPLETE_BASELINE"),
     /** An IoExb is in an unsupported mode (neither ACO nor DT — e.g. counting-head-output). */
-    UNSUPPORTED_IOEXB_MODE("FCT_INCOMPLETE_BASELINE");
+    UNSUPPORTED_IOEXB_MODE("FCT_INCOMPLETE_BASELINE"),
+    /**
+     * One CAN segment's backplanes sit under more than one {@code <Station>}. Segments are grouped by
+     * CanConnections alone, so nothing structurally confines one to a single station — but the station
+     * is the location key every name-keyed lookup is scoped by, and a segment straddling two of them
+     * has no single answer. Rejected explicitly rather than left to surface as a misleading
+     * {@code MULTI_COM_NO_REDUNDANCY}, or to collapse two stations' COMs into a bogus redundant pair.
+     */
+    CHAIN_SPANS_STATIONS("FCT_INCOMPLETE_BASELINE");
 
     private final String externalCode;
 

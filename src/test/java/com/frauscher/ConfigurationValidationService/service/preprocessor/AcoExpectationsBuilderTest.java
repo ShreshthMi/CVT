@@ -87,7 +87,7 @@ class AcoExpectationsBuilderTest {
     // --- builders ---
 
     private Chain chain(String comName, String comId, FctAeb... aebs) {
-        return new Chain(new FctCom(comId, comName), false, List.of(aebs));
+        return new Chain(new FctCom(comId, comName, null), false, List.of(aebs));
     }
 
     private FctAeb aeb(String dpName, String dpId, AcoIoExb... acos) {

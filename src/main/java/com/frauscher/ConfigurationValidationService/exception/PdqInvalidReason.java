@@ -55,5 +55,30 @@ public enum PdqInvalidReason {
      * the derived {@code CFG_SECTION.RESET_OUT}, so a named track without one makes the control table
      * incomplete rather than merely sparse.
      */
-    MISSING_RESET_TYPE
+    MISSING_RESET_TYPE,
+
+    /**
+     * A Control table row's name cell opens with the location-banner prefix but is not a well-formed
+     * {@code LOCATION - <code>} marker (no separator, or an empty code). Rejected rather than ignored:
+     * a silently unrecognised banner would end the sub-table early and drop every following location.
+     */
+    MALFORMED_LOCATION_BANNER,
+
+    /** The same location code banners a Control table sub-table twice. */
+    DUPLICATE_LOCATION,
+
+    /**
+     * A Control table sub-table carries location banners, but has data rows above the first one. Those
+     * rows belong to no location, and guessing one would silently mis-scope every derivation built from
+     * them.
+     */
+    UNTAGGED_ROW_IN_TAGGED_TABLE,
+
+    /**
+     * The Control table's two sub-tables do not carry the same set of {@code LOCATION} banners. A banner
+     * written into only one of the two name columns tags that sub-table alone and leaves the other's rows
+     * with no location at all — which does not fail, it silently collapses every location's rows onto one
+     * another.
+     */
+    LOCATION_BANNERS_INCONSISTENT
 }

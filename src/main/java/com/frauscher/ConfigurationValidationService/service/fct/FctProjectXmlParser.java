@@ -7,6 +7,7 @@ import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -144,7 +145,7 @@ public class FctProjectXmlParser {
         if (coms.isEmpty() && aebs.isEmpty()) {
             return null; // power-only / blank backplane (e.g. BP_PWR with only a PSC) — not a CAN segment
         }
-        ComResult com = resolveCom(coms);
+        ComResult com = resolveCom(coms, stationOf(segment));
 
         Map<String, List<Element>> acoByRefAeb = new HashMap<>();
         Map<String, Integer> dtCountByRefAeb = new HashMap<>();
@@ -176,12 +177,12 @@ public class FctProjectXmlParser {
     private record ComResult(FctCom com, boolean redundant) {
     }
 
-    private ComResult resolveCom(List<Element> coms) {
+    private ComResult resolveCom(List<Element> coms, String station) {
         if (coms.isEmpty()) {
             throw new FctInvalidException(FctInvalidReason.CHAIN_NO_COM, "CAN segment has no COM");
         }
         if (coms.size() == 1) {
-            return new ComResult(toCom(coms.get(0)), false);
+            return new ComResult(toCom(coms.get(0), station), false);
         }
         if (coms.size() == 2) {
             Element lead = pairLead(coms, "MASTER", "SLAVE");
@@ -193,7 +194,7 @@ public class FctProjectXmlParser {
                         "CAN segment has 2 COMs that are not a MASTER/SLAVE or PRIMARY/SECONDARY pair: "
                                 + comSummary(coms));
             }
-            return new ComResult(toCom(lead), true);
+            return new ComResult(toCom(lead, station), true);
         }
         throw new FctInvalidException(FctInvalidReason.MULTI_COM_NO_REDUNDANCY,
                 "CAN segment has " + coms.size() + " COMs: " + comSummary(coms));
@@ -272,8 +273,40 @@ public class FctProjectXmlParser {
         return new String[] {ref.name(), ref.fmaId(), dpId};
     }
 
-    private FctCom toCom(Element com) {
-        return new FctCom(childText(com, "Id"), com.getAttribute("name").strip());
+    private FctCom toCom(Element com, String station) {
+        return new FctCom(childText(com, "Id"), com.getAttribute("name").strip(), station);
+    }
+
+    /**
+     * The name of the {@code <Station>} a CAN segment sits under — the FCT half of the location key.
+     * Project.xml nests every Com/Aeb/Fma under {@code ProjectElements > Station > Cubicle > Rack > Bp},
+     * but segments are grouped by {@code CanConnections} alone, so nothing structurally confines one to a
+     * single station; a segment that straddles two is rejected rather than silently attributed to one.
+     * Null when the document has no Station ancestor at all (every lookup then stays project-wide).
+     */
+    private String stationOf(List<Element> segment) {
+        Set<String> stations = new LinkedHashSet<>();
+        for (Element bp : segment) {
+            String station = ancestorStationName(bp);
+            if (station != null) {
+                stations.add(station);
+            }
+        }
+        if (stations.size() > 1) {
+            throw new FctInvalidException(FctInvalidReason.CHAIN_SPANS_STATIONS,
+                    "CAN segment spans more than one Station: " + stations);
+        }
+        return stations.isEmpty() ? null : stations.iterator().next();
+    }
+
+    private String ancestorStationName(Element element) {
+        for (Node node = element.getParentNode(); node != null; node = node.getParentNode()) {
+            if (node.getNodeType() == Node.ELEMENT_NODE && "Station".equals(((Element) node).getTagName())) {
+                String name = ((Element) node).getAttribute("name").strip();
+                return name.isEmpty() ? null : name;
+            }
+        }
+        return null;
     }
 
     private Document readSecureXml(InputStream in) {

@@ -22,6 +22,17 @@ public final class PdqFixtures {
     /** Secondary fixture: PDQ workbook with a populated Data Transmission Inputs sheet. */
     public static final String DTIO_WORKBOOK = "/fixtures/pdq-phase2-sample-dtio.xlsx";
 
+    /**
+     * Two-location fixture: the primary workbook's Control table re-cut under {@code LOCATION - STN1} /
+     * {@code LOCATION - STN2} banners, each location carrying the same track and DP <i>names</i>.
+     * The two sub-tables keep their differing lengths (7 tracks vs 8 DP rows per location), which is what
+     * makes the terminator interesting — see {@code ControlTableLocationParsingTest}.
+     */
+    public static final String TWO_LOCATION_WORKBOOK = "/fixtures/pdq-phase2-two-location.xlsx";
+
+    /** As above, but with a track name repeated <i>within</i> location STN1 — still a rejection. */
+    public static final String TWO_LOCATION_DUP_WORKBOOK = "/fixtures/pdq-phase2-two-location-dup.xlsx";
+
     private PdqFixtures() {
     }
 
@@ -48,7 +59,7 @@ public final class PdqFixtures {
         String agreed = ct.trackSections().get(0).resetType();
         List<TrackSection> aligned = ct.trackSections().stream()
                 .map(t -> new TrackSection(t.serialNo(), t.name(), t.dpIn(), t.dpOut(), agreed,
-                        t.trackType(), t.fadcAutoReset(), t.autoResetByTimer()))
+                        t.trackType(), t.fadcAutoReset(), t.autoResetByTimer(), t.location()))
                 .toList();
         parsed.setControlTable(new ControlTable(aligned, ct.dpTable()));
         return parsed;
@@ -88,6 +99,24 @@ public final class PdqFixtures {
             return WorkbookFactory.create(in);
         } catch (Exception e) {
             throw new IllegalStateException("Could not open test fixture: " + PDQ_WORKBOOK, e);
+        }
+    }
+
+    /** Parsed POI workbook for the two-location fixture. */
+    public static Workbook loadTwoLocationWorkbook() {
+        return load(TWO_LOCATION_WORKBOOK);
+    }
+
+    /** Parsed POI workbook for the two-location fixture with an intra-location duplicate. */
+    public static Workbook loadTwoLocationDupWorkbook() {
+        return load(TWO_LOCATION_DUP_WORKBOOK);
+    }
+
+    private static Workbook load(String resource) {
+        try (InputStream in = openWorkbook(resource)) {
+            return WorkbookFactory.create(in);
+        } catch (Exception e) {
+            throw new IllegalStateException("Could not open test fixture: " + resource, e);
         }
     }
 

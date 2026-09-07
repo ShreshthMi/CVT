@@ -63,7 +63,7 @@ public class SupervisorExpectationsBuilder {
             BaselineIndex index,
             BaselineInconsistencies problems) {
 
-        EvaluatedFma host = index.fmaByName(track.name());
+        EvaluatedFma host = index.fmaByName(track.location(), track.name());
         if (host == null) {
             problems.add("Track '" + track.name() + "' with a FAdC auto-reset has no matching FCT FMA");
             return;
@@ -81,7 +81,8 @@ public class SupervisorExpectationsBuilder {
             return;
         }
         for (String operand : fadc.operands()) {
-            EvaluatedFma ref = index.fmaByName(operand);
+            // §5.2 operands name track sections; they are resolved within the host track's own location.
+            EvaluatedFma ref = index.fmaByName(track.location(), operand);
             if (ref == null) {
                 problems.add("FAdC auto-reset operand '" + operand + "' of track '" + track.name()
                         + "' has no matching FCT FMA");

@@ -27,28 +27,28 @@ class BaselineIndexTest {
     @Test
     void probesAndKeysAreTrimNormalized() {
         // Trailing-space PDQ names + padded FCT names — the exact shape the gate admits (it trims).
-        ComAebMap fct = new ComAebMap(List.of(new Chain(new FctCom("100", "COM100"), false, List.of(
+        ComAebMap fct = new ComAebMap(List.of(new Chain(new FctCom("100", "COM100", null), false, List.of(
                 new FctAeb("5", " DP1A ", List.of(new EvaluatedFma(" 1AXT1", "0", "5")), List.of(), 0)))));
         ControlTable ct = new ControlTable(
-                List.of(new TrackSection("1", "1AXT1 ", List.of("DP1A"), List.of(), null, "MAIN", null, false)),
-                List.of(new DpTableRow("1", "DP1A ", "ABOVE THE RAIL", true)));
+                List.of(new TrackSection("1", "1AXT1 ", List.of("DP1A"), List.of(), null, "MAIN", null, false, null)),
+                List.of(new DpTableRow("1", "DP1A ", "ABOVE THE RAIL", true, null)));
 
         BaselineInconsistencies problems = new BaselineInconsistencies();
         BaselineIndex index = BaselineIndex.build(fct, ct, problems);
 
         assertTrue(problems.isEmpty());
-        assertEquals(5, index.idOfDp("DP1A"));
-        assertEquals(5, index.idOfDp(" DP1A "));
+        assertEquals(5, index.idOfDp(null, "DP1A"));
+        assertEquals(5, index.idOfDp(null, " DP1A "));
         assertEquals(0, index.chainOfDpId(5));
-        assertEquals("1AXT1", index.fmaByName("1AXT1 ").fmaName().trim());
-        assertEquals("1AXT1", index.trackByName(" 1AXT1").name().trim());
-        assertEquals("ABOVE THE RAIL", index.positionOfDp("DP1A"));
-        assertEquals(Boolean.TRUE, index.eChcOfDp(" DP1A"));
+        assertEquals("1AXT1", index.fmaByName(null, "1AXT1 ").fmaName().trim());
+        assertEquals("1AXT1", index.trackByName(null, " 1AXT1").name().trim());
+        assertEquals("ABOVE THE RAIL", index.positionOfDp(null, "DP1A"));
+        assertEquals(Boolean.TRUE, index.eChcOfDp(null, " DP1A"));
     }
 
     @Test
     void malformedDpIdIsRecordedOnceAndOnlyItsEntriesSkipped() {
-        ComAebMap fct = new ComAebMap(List.of(new Chain(new FctCom("100", "COM100"), false, List.of(
+        ComAebMap fct = new ComAebMap(List.of(new Chain(new FctCom("100", "COM100", null), false, List.of(
                 new FctAeb("bad", "DP1A", List.of(), List.of(), 0),
                 new FctAeb("7", "DP2A", List.of(), List.of(), 0)))));
 
@@ -56,8 +56,8 @@ class BaselineIndexTest {
         BaselineIndex index = BaselineIndex.build(fct, null, problems);
 
         assertEquals(List.of("Non-numeric id for DP DP1A: bad"), problems.items());
-        assertNull(index.idOfDp("DP1A"));
-        assertEquals(7, index.idOfDp("DP2A")); // the healthy sibling survives
+        assertNull(index.idOfDp(null, "DP1A"));
+        assertEquals(7, index.idOfDp(null, "DP2A")); // the healthy sibling survives
         assertEquals(0, index.chainOfDpId(7));
     }
 

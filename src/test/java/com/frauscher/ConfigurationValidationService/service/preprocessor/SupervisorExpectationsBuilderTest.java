@@ -124,7 +124,7 @@ class SupervisorExpectationsBuilderTest {
     // --- builders ---
 
     private Chain chain(String comName, String comId, FctAeb... aebs) {
-        return new Chain(new FctCom(comId, comName), false, List.of(aebs));
+        return new Chain(new FctCom(comId, comName, null), false, List.of(aebs));
     }
 
     private FctAeb aeb(String dpName, String dpId, EvaluatedFma... fmas) {
@@ -136,7 +136,7 @@ class SupervisorExpectationsBuilderTest {
     }
 
     private TrackSection track(String name, FadcAutoReset fadc) {
-        return new TrackSection("1", name, List.of(), List.of(), "", "MAIN", fadc, false);
+        return new TrackSection("1", name, List.of(), List.of(), "", "MAIN", fadc, false, null);
     }
 
     private String value(List<InstancedExpectation> list, String block, Map<String, String> linkedId, String key) {

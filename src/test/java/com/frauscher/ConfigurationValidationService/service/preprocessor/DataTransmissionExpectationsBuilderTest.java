@@ -32,10 +32,10 @@ class DataTransmissionExpectationsBuilderTest {
 
     // segment 0 = {DP1A=5, DP2B=6}; segment 1 = {DP3A=7}
     private final ComAebMap fct = new ComAebMap(List.of(
-            new Chain(new FctCom("100", "COM100"), false, List.of(
+            new Chain(new FctCom("100", "COM100", null), false, List.of(
                     new FctAeb("5", "DP1A", List.of(), List.of(), 0),
                     new FctAeb("6", "DP2B", List.of(), List.of(), 0))),
-            new Chain(new FctCom("200", "COM200"), false, List.of(
+            new Chain(new FctCom("200", "COM200", null), false, List.of(
                     new FctAeb("7", "DP3A", List.of(), List.of(), 0)))));
 
     @Test

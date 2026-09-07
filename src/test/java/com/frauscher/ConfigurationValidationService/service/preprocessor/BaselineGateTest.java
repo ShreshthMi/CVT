@@ -115,12 +115,12 @@ class BaselineGateTest {
                 .map(n -> new EvaluatedFma(n, "0", "1"))
                 .toList();
         FctAeb aeb = new FctAeb("1", "DP", fmas, List.of(), 0);
-        return new ComAebMap(List.of(new Chain(new FctCom("1", "COM"), false, List.of(aeb))));
+        return new ComAebMap(List.of(new Chain(new FctCom("1", "COM", null), false, List.of(aeb))));
     }
 
     private PdqUploadResponse pdq(List<String> trackNames, String rsrType) {
         List<TrackSection> sections = trackNames.stream()
-                .map(n -> new TrackSection("1", n, List.of(), List.of(), "", "MAIN", null, false))
+                .map(n -> new TrackSection("1", n, List.of(), List.of(), "", "MAIN", null, false, null))
                 .toList();
         Map<String, Map<String, Object>> cqIr = (rsrType == null)
                 ? Map.of()

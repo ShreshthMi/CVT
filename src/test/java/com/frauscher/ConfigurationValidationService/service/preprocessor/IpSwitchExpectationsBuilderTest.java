@@ -27,7 +27,7 @@ class IpSwitchExpectationsBuilderTest {
     @Test
     void redundantComExpectsMandatoryOne() {
         ComAebMap fct = new ComAebMap(List.of(
-                new Chain(new FctCom("100", "COM100"), true, List.of())));
+                new Chain(new FctCom("100", "COM100", null), true, List.of())));
 
         List<InstancedExpectation> out = build(fct);
 
@@ -44,7 +44,7 @@ class IpSwitchExpectationsBuilderTest {
     @Test
     void nonRedundantComExpectsOptionalZero() {
         ComAebMap fct = new ComAebMap(List.of(
-                new Chain(new FctCom("200", "COM200"), false, List.of())));
+                new Chain(new FctCom("200", "COM200", null), false, List.of())));
 
         List<InstancedExpectation> out = build(fct);
 
@@ -58,8 +58,8 @@ class IpSwitchExpectationsBuilderTest {
     @Test
     void emitsOnePerChain() {
         ComAebMap fct = new ComAebMap(List.of(
-                new Chain(new FctCom("100", "COM100"), true, List.of()),
-                new Chain(new FctCom("200", "COM200"), false, List.of())));
+                new Chain(new FctCom("100", "COM100", null), true, List.of()),
+                new Chain(new FctCom("200", "COM200", null), false, List.of())));
 
         assertEquals(2, build(fct).size());
     }
